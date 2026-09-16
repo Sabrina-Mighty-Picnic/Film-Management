@@ -43,7 +43,9 @@ NetSuite it comes from. In short:
 | `forecastMonths{}` | the FILM tab rows by film |
 | `noFilmWorkOrders[]` | open work orders carrying no film line at all |
 | `transitions[]` | each printed film being run out: stock in hand and the weekly draw |
+| `trackers[].ledger` | this month's deliveries and shipments for consignment stock — **append, never replace** |
 | `notes[]`, `sourceNotes` | the written cards — **these are last month's words, re-read them** |
+| `glossary` | only when the vocabulary itself changes |
 
 ### 3. Build
 
@@ -58,10 +60,13 @@ prints what the page will say, so you can sanity-check before opening it:
 
 ```
 2026-09  16 September 2026  (28 films)
+  To order inside the next 8 weeks:
+    NOW      22k m  1129 Lamick Opaque White CPET — the backup blank
+    by       21k m  1042 HF Red Pepper 1oz
+    tracker 1123 Bacon Jam 1oz printed film: no ledger entries yet
+
   Worst-case basis, 16-week lead:
     4 short   3 tight   11 covered   5 winding down   5 no demand
-    SHORT  1129 Lamick Opaque White CPET — 4,139 m short, suggested order 22k m
-    TIGHT  1042 HF Red Pepper 1oz — 7% headroom
 ```
 
 Errors stop the build (a film with two rows, a quantity that is not a number, a
@@ -106,15 +111,33 @@ Republishing to that same URL means the link you have shared never changes.
 
 ## What the page does
 
+Three tabs. Each one has its own URL — `#coverage`, `#tracker`, `#reference` — so you
+can link someone straight to the one you mean.
+
+**Coverage** — the working tab.
+
 - **Verdict** — how many films we buy run out before a new order could land.
-- **Printed film, and what it becomes** — each film being retired, when it runs dry,
-  and the date by which its blank has to be ordered.
+- **What to order** — the only panel that says *do this*: every film needing an order
+  inside the next eight weeks, how much, and the date to place it by. "Order now" means
+  the order-by date has already passed. Films held off-site are flagged rather than
+  quoted, because our NetSuite position for them reads zero by design.
 - **Controls** — demand basis (work orders / + sales orders / + forecast / recent
   builds / worst case) and the lead time in weeks. A film with its own `leadWeeks`,
-  like the 4-week backup blank 1129, is always judged on its own clock.
+  like the 4-week backup blank 1129, is always judged on its own clock. Everything
+  above and below these controls follows them.
 - **Cover to <date>** — headroom per film against the chosen basis.
+- **Printed film, and what it becomes** — each film being retired, when it runs dry,
+  and the date by which its blank has to be ordered.
 - **Detail** — every figure, with the orders behind it one click down.
-- **Notes** — the written commentary, straight from the data file.
+
+**Tracker** — film we bought that somebody else holds. A running log of deliveries in
+and shipments out, with the balance, the usage rate and the weeks of cover falling out
+of it. This is the only record of that stock: it is not in our NetSuite on-hand, so
+nothing else on the page can see it.
+
+**Reference** — what the words mean, where each number comes from, and the written
+commentary on the month. Nothing here needs reading to use the Coverage tab; it is
+there for when somebody asks what "headroom" or "winding down" actually means.
 
 Two conventions worth knowing, because they are what make the numbers add up:
 

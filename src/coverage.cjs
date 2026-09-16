@@ -63,5 +63,79 @@ function compute(r, opts) {
            order: gap < 0 ? Math.abs(gap) + need : 0 };
 }
 
-return { compute: compute, fmt: fmt, num: num };
+/* What to buy, and by when.
+   Cover is judged against the faster of the recent build rate and the rate the chosen
+   demand basis implies over the lead time, so a film with orders but no build history
+   still gets a date. The order-by date is the point at which the remaining cover equals
+   the lead time: past it, an order placed today lands too late.
+   Returns null for a film there is nothing to buy for — no demand, or being run out. */
+function orderPlan(r, opts) {
+  var c = compute(r, opts);
+  if (c.quiet || r.retiring) return null;
+
+  var lead = r.leadWeeks != null ? r.leadWeeks : opts.lead;
+  var rate = Math.max(num(r.weeklyBuildRate), c.need / lead);
+  var coverWeeks = rate > 0 ? c.stock / rate : Infinity;
+  var orderInWeeks = coverWeeks - lead;
+
+  // short: cover the shortfall plus one further lead time. Thin but not short: one lead time.
+  var qty = c.gap < 0 ? Math.abs(c.gap) + c.need : c.need;
+
+  // round up to whole rolls and respect a supplier minimum, where the item carries them
+  var rolls = null;
+  if (num(r.rollSize) > 0) { rolls = Math.ceil(qty / r.rollSize); qty = rolls * r.rollSize; }
+  if (num(r.minOrder) > 0 && qty < r.minOrder) {
+    qty = r.minOrder;
+    if (num(r.rollSize) > 0) rolls = Math.ceil(qty / r.rollSize);
+  }
+
+  return { status: c.status, need: c.need, gap: c.gap, headroom: c.headroom, stock: c.stock,
+           lead: lead, weeklyRate: rate, coverWeeks: coverWeeks, orderInWeeks: orderInWeeks,
+           qty: qty, rolls: rolls, overdue: orderInWeeks <= 0 };
+}
+
+/* A consignment ledger: film we bought that somebody else holds and manages, so it is
+   not in our NetSuite on-hand. Entries are, in date order:
+     received  + qty   film delivered to them
+     used      - qty   film consumed, from what shipped
+     count     = qty   a physical count they report, which overrides the running balance
+     adjustment+ qty   anything else (scrap, transfer); qty may be negative
+   Returns the rows with a running balance, plus what that balance implies. */
+function runLedger(t) {
+  var entries = (t.ledger || []).slice().sort(function (a, b) {
+    return String(a.date).localeCompare(String(b.date));
+  });
+
+  var balance = 0, received = 0, used = 0, counted = null;
+  var rows = entries.map(function (e) {
+    var q = num(e.qty), delta = 0;
+    if (e.type === "received") { delta = q; received += q; balance += q; }
+    else if (e.type === "used") { delta = -q; used += q; balance -= q; }
+    else if (e.type === "count") { delta = q - balance; balance = q; counted = e; }
+    else { delta = q; balance += q; }                       // adjustment
+    return { entry: e, delta: delta, balance: balance };
+  });
+
+  // usage rate from the span of the "used" entries, so a single shipment cannot imply a rate
+  var uses = entries.filter(function (e) { return e.type === "used"; });
+  var weeklyUsage = 0;
+  if (uses.length >= 2) {
+    var first = new Date(uses[0].date + "T00:00:00");
+    var last = new Date(uses[uses.length - 1].date + "T00:00:00");
+    var weeks = (last - first) / (7 * 864e5);
+    // the first entry opens the window rather than falling inside it
+    var consumed = uses.slice(1).reduce(function (a, e) { return a + num(e.qty); }, 0);
+    if (weeks > 0) weeklyUsage = consumed / weeks;
+  }
+
+  var coverWeeks = weeklyUsage > 0 ? balance / weeklyUsage : null;
+  var lastDate = entries.length ? entries[entries.length - 1].date : null;
+
+  return { rows: rows, balance: balance, received: received, used: used,
+           counted: counted, weeklyUsage: weeklyUsage, coverWeeks: coverWeeks,
+           lastDate: lastDate, stale: !entries.length,
+           low: num(t.reorderAt) > 0 && balance <= t.reorderAt };
+}
+
+return { compute: compute, orderPlan: orderPlan, runLedger: runLedger, fmt: fmt, num: num };
 });

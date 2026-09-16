@@ -14,7 +14,7 @@ import { fileURLToPath } from "node:url";
 import { createRequire } from "node:module";
 
 const require = createRequire(import.meta.url);
-const { compute, fmt } = require("./coverage.cjs");
+const { compute, orderPlan, runLedger, fmt } = require("./coverage.cjs");
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DATA_DIR = path.join(ROOT, "data");
@@ -127,6 +127,39 @@ function validate(d, period) {
     if (typeof t.onHand !== "number") E(`transition ${t.item}: onHand is not a number`);
     if (typeof t.weeklyRate !== "number") E(`transition ${t.item}: weeklyRate is not a number`);
   }
+  const LEDGER_TYPES = ["received", "used", "count", "adjustment"];
+  for (const t of d.trackers || []) {
+    const where = `tracker ${t.item || "(no item)"}`;
+    if (!t.item) E("a tracker has no item number");
+    else if (!known(t.item)) W(`${where} has no matching row in films — it will not be cross-linked`);
+    if (!t.unit) E(`${where}: no unit`);
+    if (!t.heldBy) E(`${where}: heldBy must name who holds the stock`);
+    let last = "";
+    for (const e of t.ledger || []) {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(e.date || "")) {
+        E(`${where}: ledger entry date must be YYYY-MM-DD (got ${JSON.stringify(e.date)})`);
+      } else {
+        if (e.date < last) W(`${where}: ledger entry ${e.date} is out of date order — check nothing is missing`);
+        last = e.date;
+      }
+      if (!LEDGER_TYPES.includes(e.type)) E(`${where}: ledger type must be one of ${LEDGER_TYPES.join(", ")} (got ${JSON.stringify(e.type)})`);
+      if (typeof e.qty !== "number" || !isFinite(e.qty)) E(`${where}: ledger qty is not a number (${JSON.stringify(e.qty)})`);
+      else if (e.qty < 0 && e.type !== "adjustment") E(`${where}: only an adjustment may carry a negative quantity`);
+      if (!e.ref) W(`${where}: the ${e.date} ${e.type} entry has no reference — a PO or shipment number makes it auditable`);
+    }
+    if ((t.ledger || []).length) {
+      const L = runLedger(t);
+      if (L.balance < 0) E(`${where}: the running balance goes negative (${Math.round(L.balance)} ${t.unit}) — an entry is missing or wrong`);
+    }
+  }
+
+  for (const g of d.glossary || []) {
+    if (!g.group) W("a glossary section has no group name");
+    for (const t of g.terms || []) {
+      if (!t.term || !t.def) E(`glossary section "${g.group}": every entry needs both a term and a definition`);
+    }
+  }
+
   for (const n of d.notes || []) {
     if (!n.title) W("a note card has no title");
     for (const b of n.body || []) {
@@ -153,6 +186,27 @@ function summarise(d) {
   const quiet = rows.filter(x => x.c.quiet);
 
   const lines = [];
+
+  const toOrder = d.films
+    .filter(r => r.stockedBy === "MP")
+    .map(r => ({ r, p: orderPlan(r, opts) }))
+    .filter(x => x.p && x.p.orderInWeeks <= 8)
+    .sort((a, b) => a.p.orderInWeeks - b.p.orderInWeeks);
+  const tracked = new Set((d.trackers || []).map(t => t.item));
+
+  lines.push(toOrder.length ? "To order inside the next 8 weeks:" : "Nothing to order inside the next 8 weeks.");
+  for (const { r, p } of toOrder) {
+    lines.push(`  ${p.overdue ? "NOW" : "by "}  ${fmt(p.qty).padStart(7)} ${r.unit.padEnd(2)} ${r.item} ${r.name}` +
+               (tracked.has(r.item) ? "   [held off-site — check the tracker]" : ""));
+  }
+  for (const t of d.trackers || []) {
+    const L = runLedger(t);
+    lines.push(L.stale
+      ? `  tracker ${t.item} ${t.name}: no ledger entries yet`
+      : `  tracker ${t.item} ${t.name}: ${fmt(L.balance)} ${t.unit} at ${t.heldBy}` +
+        (L.coverWeeks === null ? "" : `, ${L.coverWeeks.toFixed(1)} weeks of cover`));
+  }
+  lines.push("");
   lines.push(`Worst-case basis, ${lead}-week lead:`);
   lines.push(`  ${late.length} short   ${watch.length} tight   ` +
              `${rows.length - late.length - watch.length - winding.length - quiet.length} covered   ` +

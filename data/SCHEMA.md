@@ -133,3 +133,59 @@ bullet list. `table` is optional and currently only understands `noFilmWorkOrder
 
 **These carry over from last month untouched.** They are the part of the dashboard
 that goes quietly out of date, so re-read them every month against the new numbers.
+
+## `glossary` — the Reference tab's vocabulary
+
+```json
+[{ "group": "The five statuses",
+   "terms": [{ "term": "Tight", "def": "Covered, but with under 20% headroom." }] }]
+```
+
+Each group renders as a card. A term here also becomes the hover tooltip on any status
+tag whose label matches it, so keeping the wording identical to the tag ("Order now",
+"Tight", "Covered", "Winding down", "No demand", "THEM to order") is what wires them up.
+
+## `trackers[]` — film we bought that somebody else holds
+
+For consignment stock: film we paid for, sitting at a co-packer who manages it. It is
+not in our NetSuite on-hand, so nothing else on this page knows it exists — this log is
+the only record.
+
+| Field | Meaning |
+| --- | --- |
+| `item` | the film's item number. Matching a row in `films` cross-links the two, so the coverage row carries a "held at …, see Tracker" note |
+| `name`, `unit` | as in `films` |
+| `heldBy` | who physically holds it, e.g. `"FFW"` |
+| `ownedBy` | the ownership line shown beside the heading |
+| `purpose` | why this log exists, in a sentence |
+| `reorderAt` | optional. A balance at or below this reads red |
+| `ledger[]` | the running log, below |
+
+### `ledger[]`
+
+One line per event, each `{ date, type, qty, ref, note }`. `date` is `YYYY-MM-DD`,
+`ref` is the PO or shipment number, `note` is optional.
+
+| `type` | Effect on the balance |
+| --- | --- |
+| `received` | adds — film delivered to them |
+| `used` | subtracts — film consumed, from what shipped |
+| `count` | **sets** the balance to `qty` — what they report holding. The difference against the running balance shows as a variance |
+| `adjustment` | adds `qty`, which may be negative — scrap, transfers, corrections |
+
+The balance, the weekly usage rate and the weeks of cover are all derived; do not store
+them. The usage rate comes from the span between the first and last `used` entries, so
+two shipments are needed before it can say anything.
+
+**The ledger is cumulative.** `bin/new-month.mjs` carries it over untouched — append the
+new month's entries rather than starting again.
+
+## Optional ordering fields on a film
+
+| Field | Effect |
+| --- | --- |
+| `rollSize` | the supplier's roll size in the item's unit. The suggested order rounds up to whole rolls and the panel shows how many |
+| `minOrder` | the supplier's minimum. A suggested order below it is raised to it |
+
+Neither is populated yet. Add them and the What to order panel starts quoting orders you
+can actually place.

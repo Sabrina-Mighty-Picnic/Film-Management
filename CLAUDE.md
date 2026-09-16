@@ -49,6 +49,22 @@ uppercase with wide tracking for headings.
 means that file is missing or was not picked up. Do not move the build output to
 `public/` to work around it.
 
+## The consignment tracker
+
+`trackers[]` logs film we bought that a co-packer holds and manages — currently the
+Bacon Jam film at FFW. It is not in our NetSuite on-hand, so this ledger is the only
+record of it.
+
+- **Append to the ledger, never rebuild it.** It is cumulative across months, and
+  `bin/new-month.mjs` deliberately carries it over untouched.
+- Every entry needs a date, a type, a quantity and a reference. Types are `received`,
+  `used`, `count` and `adjustment`; a `count` is what the holder reports and overrides
+  the running balance, with the difference showing as a variance.
+- The balance, the usage rate and the weeks of cover are derived. Never store them.
+- A film with a tracker is flagged in What to order rather than quoted a suggested
+  order, because our position for it reads zero by design. Do not "fix" that zero by
+  putting their stock into `onHand`.
+
 ## Rules
 
 - **Numbers live in `data/`, never in `src/`.** If a figure is hardcoded in a `src/`

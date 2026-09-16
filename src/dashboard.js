@@ -31,6 +31,40 @@ var dstr = function (wk) {
 };
 var num = window.FilmCoverage.num;
 
+var GLOSSARY = D.glossary || [];
+var BASIS_LABEL = {
+  wo: "work orders",
+  so: "work orders and sales orders",
+  plan: "orders plus the forecast",
+  burn: "the recent build rate",
+  max: "the worst-case basis"
+};
+
+/* term -> definition, so a status tag can explain itself on hover */
+var DEFS = {};
+GLOSSARY.forEach(function (g) {
+  (g.terms || []).forEach(function (t) { DEFS[t.term.toLowerCase()] = t.def; });
+});
+function defOf(term) {
+  var d = DEFS[String(term).toLowerCase()];
+  return d ? " title=\"" + d.replace(/<[^>]+>/g, "").replace(/"/g, "&quot;") + "\"" : "";
+}
+
+/* ---------- tabs ---------- */
+
+var TRACKERS = D.trackers || [];
+var TRACKED = {};
+TRACKERS.forEach(function (t) { TRACKED[t.item] = t; });
+var TABS = ["coverage", "tracker", "reference"];
+function showTab(name) {
+  if (TABS.indexOf(name) < 0) name = "coverage";
+  TABS.forEach(function (t) {
+    document.getElementById("tab-" + t).hidden = (t !== name);
+    document.getElementById("tab-btn-" + t).setAttribute("aria-selected", String(t === name));
+  });
+  try { history.replaceState(null, "", "#" + name); } catch (e) { /* file:// */ }
+}
+
 /* ---------- masthead, source panel, footer ---------- */
 
 function renderStatic() {
@@ -59,6 +93,157 @@ function renderStatic() {
   document.getElementById("foot").innerHTML = META.footer;
   document.getElementById("lead").value = state.lead;
   document.title = META.title + " — " + (META.org || "Mighty Picnic");
+}
+
+/* What to order — the first thing on the page, and the only panel that says "do this" */
+function renderActions() {
+  var opts = { basis: state.basis, lead: state.lead, baseLead: BASE_LEAD };
+  var HORIZON = 8;   // weeks: an order-by date further out than this is not this month's problem
+
+  var mine = [];
+  FILMS.forEach(function (r) {
+    if (r.stockedBy !== "MP") return;
+    var p = window.FilmCoverage.orderPlan(r, opts);
+    if (!p || p.orderInWeeks > HORIZON) return;
+    mine.push({ r: r, p: p });
+  });
+  mine.sort(function (a, b) { return a.p.orderInWeeks - b.p.orderInWeeks; });
+
+  var theirs = FILMS.filter(function (r) {
+    if (r.stockedBy !== "THEM") return false;
+    var c = compute(r);
+    return c.status === "late" || (c.status === "watch" && c.transfer > 0);
+  });
+
+  var panel = document.getElementById("orderPanel");
+  var rows = mine.map(function (x) {
+    var r = x.r, p = x.p;
+    var col = "var(--" + (p.overdue ? "late" : "watch") + ")";
+    var why = p.gap < 0
+      ? fmt(Math.abs(p.gap)) + " " + r.unit + " short — " + fmt(p.stock) + " in hand and on order against " +
+        fmt(p.need) + " of demand on " + BASIS_LABEL[state.basis]
+      : Math.round(p.headroom * 100) + "% headroom — about " + p.coverWeeks.toFixed(0) +
+        " weeks of cover against a " + p.lead + "-week lead";
+    var held = TRACKED[r.item];
+    if (held) {
+      why += ". <strong>" + held.heldBy + " hold this stock and it is not in our NetSuite " +
+             "position</strong>, so check the Tracker tab before raising anything";
+    }
+    return "<div class=\"act\">" +
+      "<div class=\"qty\" style=\"color:" + (held ? "var(--muted)" : col) + "\">" +
+        fmt(p.qty) + " " + r.unit +
+        "<small>" + (held ? "check tracker first" : p.rolls ? "\u2248 " + p.rolls + " rolls" : "suggested order") +
+        "</small></div>" +
+      "<div class=\"what\">" + r.name + "<small>item " + r.item + " \u00b7 " + why + "</small></div>" +
+      "<div class=\"when\" style=\"color:" + col + "\">" +
+        (p.overdue ? "Order now" : "By " + dstr(p.orderInWeeks)) +
+        "<small>" + (p.overdue ? "already inside the " + p.lead + "-week lead"
+                               : p.lead + "-week lead") + "</small></div>" +
+      "</div>";
+  }).join("");
+
+  var theirRows = theirs.map(function (r) {
+    var c = compute(r);
+    return "<div class=\"act\">" +
+      "<div class=\"qty\" style=\"color:var(--muted)\">THEM<small>not our order</small></div>" +
+      "<div class=\"what\">" + r.name + "<small>item " + r.item + " \u00b7 " +
+        (r.backordered ? fmt(r.backordered) + " " + r.unit + " backordered against released work orders"
+                       : fmt(Math.abs(c.gap)) + " " + r.unit + " short") +
+        ". " + (r.successor ? "Replaced by " + r.successor + "." : "THEM stock this one.") +
+        "</small></div>" +
+      "<div class=\"when\" style=\"color:var(--muted)\">Chase THEM<small>expedite, not a PO</small></div>" +
+      "</div>";
+  }).join("");
+
+  if (!mine.length && !theirs.length) {
+    panel.classList.add("clear");
+    document.getElementById("acts").innerHTML =
+      "<p class=\"act-none\"><b>Nothing to order.</b> No film we buy needs an order inside the next " +
+      HORIZON + " weeks on this basis.</p>";
+    return;
+  }
+  panel.classList.toggle("clear", !mine.length);
+  document.getElementById("acts").innerHTML = rows + theirRows;
+}
+
+/* Consignment: film we bought that somebody else holds and manages. It is not in our
+   NetSuite on-hand, so nothing upstream of this panel knows about it. */
+function renderTrackers() {
+  var el = document.getElementById("trackers");
+  if (!el) return;
+  var btn = document.getElementById("tab-btn-tracker");
+  if (btn) btn.hidden = !TRACKERS.length;
+  if (!TRACKERS.length) { el.innerHTML = ""; return; }
+
+  el.innerHTML = TRACKERS.map(function (t) {
+    var L = window.FilmCoverage.runLedger(t);
+    var head = "<h2>" + t.name + " at " + t.heldBy +
+      (t.ownedBy ? " <em>" + t.ownedBy + "</em>" : "") + "</h2>";
+    var purpose = t.purpose ? "<p class=\"tracknote\">" + t.purpose + "</p>" : "";
+
+    if (L.stale) {
+      return "<section class=\"panel\">" + head + purpose +
+        "<p class=\"empty\">No entries yet. Tell Claude Code the deliveries and the shipments — " +
+        "a date, a quantity and a reference for each — and it will fill this in; the running " +
+        "balance, the usage rate and the weeks of cover all fall out of the log. Each line ends " +
+        "up in <code>trackers[].ledger</code> in the month's data file looking like this:<br><br>" +
+        "<code>{\"date\":\"2026-07-24\", \"type\":\"received\", \"qty\":100000, \"ref\":\"PO1277\"}</code><br>" +
+        "<code>{\"date\":\"2026-08-12\", \"type\":\"used\", \"qty\":25102, \"ref\":\"HF 1oz ship\"}</code><br>" +
+        "<code>{\"date\":\"2026-09-01\", \"type\":\"count\", \"qty\":52000, \"ref\":\"FFW count\"}</code>" +
+        "<br><br>A <code>count</code> is what they report holding; it overrides the running " +
+        "balance and the difference shows as a variance line.</p></section>";
+    }
+
+    var col = L.low ? "var(--late)" : L.coverWeeks !== null && L.coverWeeks < 6 ? "var(--watch)" : "var(--ok)";
+    var dry = L.coverWeeks === null ? null
+      : new Date(new Date(L.lastDate + "T00:00:00").getTime() + L.coverWeeks * 7 * 864e5)
+          .toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+
+    var stats = "<div class=\"stats\">" +
+      "<div class=\"stat\"><b style=\"color:" + col + "\">" + fmt(L.balance) + " " + t.unit +
+        "</b><span>they hold now</span></div>" +
+      "<div class=\"stat\"><b>" + (L.weeklyUsage > 0 ? fmt(L.weeklyUsage) + " " + t.unit : "\u2014") +
+        "</b><span>used a week</span></div>" +
+      "<div class=\"stat\"><b style=\"color:" + col + "\">" +
+        (L.coverWeeks === null ? "\u2014" : L.coverWeeks.toFixed(1) + " wks") +
+        "</b><span>" + (dry ? "runs out " + dry : "cover") + "</span></div>" +
+      "<div class=\"stat\"><b>" + fmt(L.received) + " " + t.unit + "</b><span>received in total</span></div>" +
+      "<div class=\"stat\"><b>" + fmt(L.used) + " " + t.unit + "</b><span>used in total</span></div>" +
+      "</div>";
+
+    var body = L.rows.slice().reverse().map(function (x) {
+      var e = x.entry, isCount = e.type === "count";
+      var what = isCount ? "Count reported by " + t.heldBy
+               : e.type === "received" ? "Received"
+               : e.type === "used" ? "Used" : "Adjustment";
+      return "<tr" + (isCount ? " class=\"count\"" : "") + ">" +
+        "<td>" + new Date(e.date + "T00:00:00").toLocaleDateString("en-GB",
+          { day: "numeric", month: "short", year: "numeric" }) + "</td>" +
+        "<td>" + what + (e.note ? " <span class=\"est\">" + e.note + "</span>" : "") + "</td>" +
+        "<td>" + (e.ref || "\u2014") + "</td>" +
+        "<td class=\"in\">" + (x.delta > 0 ? "+" + fmt(x.delta) : "") + "</td>" +
+        "<td class=\"out\">" + (x.delta < 0 ? "\u2212" + fmt(-x.delta) : "") + "</td>" +
+        "<td class=\"bal\">" + fmt(x.balance) + " " + t.unit + "</td></tr>";
+    }).join("");
+
+    var table = "<div class=\"ledger scroll\"><table>" +
+      "<thead><tr><th>Date</th><th>What happened</th><th>Reference</th>" +
+      "<th class=\"n\">In</th><th class=\"n\">Out</th><th class=\"n\">Balance</th></tr></thead>" +
+      "<tbody>" + body + "</tbody></table></div>";
+
+    return "<section class=\"panel\">" + head + purpose + stats + table + "</section>";
+  }).join("");
+}
+
+function renderGlossary() {
+  var el = document.getElementById("glossary");
+  if (!el) return;
+  el.innerHTML = GLOSSARY.map(function (g) {
+    return "<div class=\"note\"><h3>" + g.group + "</h3>" +
+      (g.terms || []).map(function (t) {
+        return "<p><strong>" + t.term + "</strong> — " + t.def + "</p>";
+      }).join("") + "</div>";
+  }).join("");
 }
 
 function renderNotes() {
@@ -162,6 +347,7 @@ function visible() {
 /* ---------- main render ---------- */
 
 function render() {
+  renderActions();
   renderTrans();
   var rows = visible();
   var late = rows.filter(function (x) { return x.c.status === "late"; });
@@ -226,13 +412,13 @@ function render() {
 
   document.getElementById("tbody").innerHTML = rows.map(function (x) {
     var r = x.r, c = x.c;
-    var tag = c.quiet ? "<span class=\"tag t-dormant\">No demand</span>"
-      : c.status === "retiring" ? "<span class=\"tag t-retiring\">Winding down</span>"
-      : c.status === "late" ? (r.stockedBy === "THEM"
-          ? "<span class=\"tag t-late\">THEM to order</span>"
-          : "<span class=\"tag t-late\">Order now</span>")
-      : c.status === "watch" ? "<span class=\"tag t-watch\">Tight</span>"
-      : "<span class=\"tag t-ok\">Covered</span>";
+    var label = c.quiet ? "No demand"
+      : c.status === "retiring" ? "Winding down"
+      : c.status === "late" ? (r.stockedBy === "THEM" ? "THEM to order" : "Order now")
+      : c.status === "watch" ? "Tight" : "Covered";
+    var cls = c.quiet ? "dormant" : c.status === "retiring" ? "retiring"
+      : c.status === "late" ? "late" : c.status === "watch" ? "watch" : "ok";
+    var tag = "<span class=\"tag t-" + cls + "\"" + defOf(label) + ">" + label + "</span>";
     var scale = (r.leadWeeks != null ? r.leadWeeks : state.lead) / BASE_LEAD;
 
     var head = "<tr class=\"head\" data-id=\"" + r.item + "\">" +
@@ -346,7 +532,15 @@ document.getElementById("showQuiet").addEventListener("change", function (e) {
   state.quiet = e.target.checked; render();
 });
 
+Array.prototype.forEach.call(document.querySelectorAll(".tabs button"), function (b) {
+  b.addEventListener("click", function () { showTab(b.dataset.tab); });
+});
+window.addEventListener("hashchange", function () { showTab(location.hash.slice(1)); });
+
 renderStatic();
 renderNotes();
+renderGlossary();
+renderTrackers();
 render();
+showTab(location.hash.slice(1) || "coverage");
 })();

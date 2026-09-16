@@ -198,6 +198,60 @@ tr.drill td{background:var(--sunk);padding:0}
 .note table.dt td{white-space:normal}
 .foot{margin-top:30px;padding-top:16px;border-top:1px solid var(--rule);
   font-size:12.5px;color:var(--faint);line-height:1.75}
+.secthead{margin:26px 0 2px;font-size:13px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.13em;color:var(--ink)}
+.secthead:first-child{margin-top:18px}
+.secthead em{font-style:normal;font-weight:500;color:var(--muted);font-size:12.5px;
+  text-transform:none;letter-spacing:.012em;margin-left:10px}
+.notes.tight{margin-top:12px}
+
+/* consignment tracker */
+.stats{display:flex;flex-wrap:wrap;gap:12px 34px;padding:16px 20px;border-bottom:1px solid var(--hair)}
+.stat{min-width:120px}
+.stat b{display:block;font-size:24px;font-weight:700;line-height:1.15;letter-spacing:.005em}
+.stat span{display:block;font-size:11px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.08em;color:var(--faint);margin-top:5px}
+.tracknote{padding:14px 20px 0;font-size:13.5px;color:var(--muted);line-height:1.6;margin:0}
+.tracknote strong{color:var(--ink);font-weight:700}
+.ledger{padding:10px 20px 18px}
+.ledger table{min-width:720px}
+.ledger td.in{color:var(--ok);font-weight:700;text-align:right}
+.ledger td.out{color:var(--late);font-weight:700;text-align:right}
+.ledger td.bal{text-align:right;font-weight:700}
+.ledger tr.count td{background:var(--sunk)}
+.empty{margin:0;padding:18px 20px 20px;font-size:13.5px;color:var(--muted);line-height:1.65}
+.empty code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;
+  background:var(--sunk);padding:1px 6px;border-radius:5px;color:var(--ink)}
+
+/* tabs */
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin:22px 0 4px}
+.tabs button{appearance:none;font:inherit;font-size:12px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.1em;padding:10px 20px;border-radius:99px;cursor:pointer;
+  background:transparent;color:var(--muted);border:1px solid var(--rule)}
+.tabs button[aria-selected="true"]{background:var(--royal);color:var(--bone);border-color:var(--royal)}
+.tabs button:focus-visible{outline:2px solid var(--pomegranate);outline-offset:2px}
+
+/* what to order */
+.panel.order{border:2px solid var(--pomegranate)}
+.panel.order.clear{border:1px solid var(--rule)}
+.panel.order h2{border-bottom-color:var(--hair)}
+.acts{padding:4px 20px 18px}
+.act{display:grid;grid-template-columns:168px 1fr 168px;gap:8px 18px;align-items:baseline;
+  padding:14px 0;border-bottom:1px solid var(--hair)}
+.act:last-child{border-bottom:0}
+.act .qty{font-size:21px;font-weight:700;line-height:1.15}
+.act .qty small{display:block;font-size:11px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.08em;color:var(--faint);margin-top:3px}
+.act .what{font-size:14.5px;font-weight:700}
+.act .what small{display:block;font-size:12.5px;font-weight:500;color:var(--muted);
+  margin-top:4px;line-height:1.5;white-space:normal}
+.act .when{text-align:right;font-size:13px;font-weight:700;line-height:1.35}
+.act .when small{display:block;font-size:11px;font-weight:600;text-transform:uppercase;
+  letter-spacing:.07em;color:var(--faint);margin-top:4px}
+.act-none{padding:4px 20px 20px;font-size:14px;color:var(--muted)}
+.act-none b{color:var(--ok);font-weight:700}
+@media (max-width:680px){.act{grid-template-columns:1fr;gap:4px}.act .when{text-align:left}}
+
 @media (max-width:760px){
   .bar,.axis{grid-template-columns:1fr;gap:4px}
   .bar .val{text-align:left}
@@ -225,70 +279,99 @@ tr.drill td{background:var(--sunk);padding:0}
 </header>
 <div class="rule-gradient"></div>
 
-<div class="verdict" id="verdict"><p></p></div>
+<nav class="tabs" role="tablist" aria-label="Sections">
+  <button role="tab" id="tab-btn-coverage" data-tab="coverage" aria-selected="true" aria-controls="tab-coverage">Coverage</button>
+  <button role="tab" id="tab-btn-tracker" data-tab="tracker" aria-selected="false" aria-controls="tab-tracker" hidden>Tracker</button>
+  <button role="tab" id="tab-btn-reference" data-tab="reference" aria-selected="false" aria-controls="tab-reference">Reference</button>
+</nav>
 
-<section class="panel">
-  <h2 id="transHead"></h2>
-  <div class="trans" id="trans"></div>
-</section>
+<div id="tab-coverage" role="tabpanel" aria-labelledby="tab-btn-coverage">
 
-<div class="controls">
-  <label class="ctl"><span>Demand basis</span>
-    <span class="seg" role="group" id="basis">
-      <button data-v="wo" aria-pressed="false">Work orders</button>
-      <button data-v="so" aria-pressed="false">+ sales orders</button>
-      <button data-v="plan" aria-pressed="false">+ forecast</button>
-      <button data-v="burn" aria-pressed="false">Recent builds</button>
-      <button data-v="max" aria-pressed="true">Worst case</button>
-    </span>
-  </label>
-  <label class="ctl"><span>Lead time (weeks)</span>
-    <input type="number" id="lead" min="1" max="52" step="1">
-  </label>
-  <label class="chk"><input type="checkbox" id="showThem" checked> Show THEM-stocked film</label>
-  <label class="chk"><input type="checkbox" id="showQuiet"> Show film with no demand on any basis</label>
+  <div class="verdict" id="verdict"><p></p></div>
+
+  <section class="panel order" id="orderPanel">
+    <h2>What to order <em>on the demand basis and lead time set below</em></h2>
+    <div class="acts" id="acts"></div>
+  </section>
+
+  <div class="controls">
+    <label class="ctl"><span>Demand basis</span>
+      <span class="seg" role="group" id="basis">
+        <button data-v="wo" aria-pressed="false">Work orders</button>
+        <button data-v="so" aria-pressed="false">+ sales orders</button>
+        <button data-v="plan" aria-pressed="false">+ forecast</button>
+        <button data-v="burn" aria-pressed="false">Recent builds</button>
+        <button data-v="max" aria-pressed="true">Worst case</button>
+      </span>
+    </label>
+    <label class="ctl"><span>Lead time (weeks)</span>
+      <input type="number" id="lead" min="1" max="52" step="1">
+    </label>
+    <label class="chk"><input type="checkbox" id="showThem" checked> Show THEM-stocked film</label>
+    <label class="chk"><input type="checkbox" id="showQuiet"> Show film with no demand on any basis</label>
+  </div>
+
+  <section class="panel">
+    <h2>Cover to <span id="horizon"></span> <em>on hand plus on order, minus the demand basis chosen above</em></h2>
+    <div class="runway">
+      <div class="legend">
+        <span><i style="background:var(--late-mark)"></i>Short inside the lead time</span>
+        <span><i style="background:var(--watch-mark)"></i>Under 20% headroom</span>
+        <span><i style="background:var(--ok-mark)"></i>Covered</span>
+        <span><i style="background:var(--retiring-mark)"></i>Being run out — not reordered</span>
+        <span><i style="background:var(--dormant-mark)"></i>No demand on this basis</span>
+      </div>
+      <div id="bars"></div>
+      <div class="axis"><div></div><div id="ticks"></div><div></div></div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2 id="transHead"></h2>
+    <div class="trans" id="trans"></div>
+  </section>
+
+  <section class="panel">
+    <h2>Detail <em>click any film to see the orders behind it. Demand nests — work orders sit inside sales orders, which sit inside the forecast — so a film can show all three and still be counted once.</em></h2>
+    <div class="scroll"><table>
+      <thead><tr>
+        <th>Film</th><th>Stocked by</th>
+        <th class="n">On hand</th><th class="n">On order</th><th class="n">Committed</th><th class="n">Backordered</th>
+        <th class="n">On work orders</th><th class="n">SOs not yet WO'd</th><th class="n">Forecast beyond</th><th class="n">Build rate</th>
+        <th class="n">Free position</th><th class="n">Suggested order</th><th>Status</th>
+      </tr></thead>
+      <tbody id="tbody"></tbody>
+    </table></div>
+  </section>
+
 </div>
 
-<section class="panel">
-  <h2>Cover to <span id="horizon"></span> <em>on hand plus on order, minus the demand basis chosen below</em></h2>
-  <div class="runway">
-    <div class="legend">
-      <span><i style="background:var(--late-mark)"></i>Short inside the lead time</span>
-      <span><i style="background:var(--watch-mark)"></i>Under 20% headroom</span>
-      <span><i style="background:var(--ok-mark)"></i>Covered</span>
-      <span><i style="background:var(--retiring-mark)"></i>Being run out — not reordered</span>
-      <span><i style="background:var(--dormant-mark)"></i>No demand on this basis</span>
-    </div>
-    <div id="bars"></div>
-    <div class="axis"><div></div><div id="ticks"></div><div></div></div>
-  </div>
-</section>
+<div id="tab-tracker" role="tabpanel" aria-labelledby="tab-btn-tracker" hidden>
+  <h2 class="secthead">Film we bought that somebody else holds <em>not in our NetSuite on-hand — this log is our own check</em></h2>
+  <div id="trackers"></div>
+</div>
 
-<section class="panel">
-  <h2 id="sourcesHead"></h2>
-  <div style="padding:4px 20px 18px"><table class="wrapcells" style="min-width:0">
-    <thead><tr><th>Column</th><th>Source</th><th>How firm</th></tr></thead>
-    <tbody id="sources"></tbody>
-  </table></div>
-  <div style="padding:0 20px 18px" id="sourceNotes"></div>
-</section>
+<div id="tab-reference" role="tabpanel" aria-labelledby="tab-btn-reference" hidden>
 
-<section class="panel">
-  <h2>Detail <em>click any film to see the orders behind it. Demand nests — work orders sit inside sales orders, which sit inside the forecast — so a film can show all three and still be counted once.</em></h2>
-  <div class="scroll"><table>
-    <thead><tr>
-      <th>Film</th><th>Stocked by</th>
-      <th class="n">On hand</th><th class="n">On order</th><th class="n">Committed</th><th class="n">Backordered</th>
-      <th class="n">On work orders</th><th class="n">SOs not yet WO'd</th><th class="n">Forecast beyond</th><th class="n">Build rate</th>
-      <th class="n">Free position</th><th class="n">Suggested order</th><th>Status</th>
-    </tr></thead>
-    <tbody id="tbody"></tbody>
-  </table></div>
-</section>
+  <h2 class="secthead">What the words mean <em>every term the dashboard uses, and what it is actually measuring</em></h2>
+  <div class="notes tight" id="glossary"></div>
 
-<div class="notes" id="notes"></div>
+  <h2 class="secthead">Where the numbers come from</h2>
+  <section class="panel">
+    <h2 id="sourcesHead"></h2>
+    <div style="padding:4px 20px 18px"><table class="wrapcells" style="min-width:0">
+      <thead><tr><th>Column</th><th>Source</th><th>How firm</th></tr></thead>
+      <tbody id="sources"></tbody>
+    </table></div>
+    <div style="padding:0 20px 18px" id="sourceNotes"></div>
+  </section>
 
-<p class="foot" id="foot"></p>
+  <h2 class="secthead">What we know about this month <em>written against these numbers — re-read each month</em></h2>
+  <div class="notes tight" id="notes"></div>
+
+  <p class="foot" id="foot"></p>
+
+</div>
 
 </div>
 <script>window.FILM_DATA = {{DATA}};</script>

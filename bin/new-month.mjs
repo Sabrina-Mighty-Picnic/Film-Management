@@ -84,6 +84,13 @@ if (!keep) {
   console.log("  noFilmWorkOrders open work orders with no film line");
   console.log("  transitions[]    onHand and weeklyRate for each printed film running out");
 }
+if ((d.trackers || []).length) {
+  console.log("Carried over in full, because a ledger is a running log and not a monthly position:");
+  for (const t of d.trackers) {
+    console.log(`  tracker ${t.item} ${t.name} — ${(t.ledger || []).length} entries. ` +
+                "Add this month's deliveries and shipments to the end of it.");
+  }
+}
 console.log("Also re-read by hand, because they are last month's words:");
 console.log("  meta.asOfLines, sourceNotes, notes[] — the commentary cards");
 console.log(`Then: npm run build -- ${period}`);
