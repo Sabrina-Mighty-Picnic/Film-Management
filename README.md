@@ -69,15 +69,40 @@ negative position). Warnings do not, but they are the ones worth reading — the
 useful is when the work order lines you pasted do not add up to the `onWorkOrders`
 figure on the film row, which means one of the two pulls is stale.
 
-### 4. Look at it, then share it
+### 4. Look at it, then publish it
 
-Open `dist/index.html` in a browser. The shared copy lives at the URL in
-`dashboard.json`. To refresh it, ask Claude Code in this repository:
+Open `dist/index.html` in a browser. There are two ways to share it.
+
+**Vercel (a live page at your own URL).** `vercel.json` configures the deploy, so a
+fresh import needs no settings changed:
+
+| Setting | Value | Set by |
+| --- | --- | --- |
+| Framework preset | Other | `vercel.json` |
+| Install command | none — this project has no dependencies | `vercel.json` |
+| Build command | `node src/build.mjs --all` | `vercel.json` |
+| Output directory | `dist` | `vercel.json` |
+
+Without that file Vercel looks for a `public/` directory, does not find one, and the
+deploy fails with *No Output Directory named "public" found* — which is the usual
+first error on a repository like this one. If you already created the project and it
+failed, redeploy after this file lands, or set the three values above by hand under
+**Settings → Build & Deployment**.
+
+Every push to the connected branch rebuilds and redeploys. `/` is the newest month and
+each month also keeps its own URL, e.g. `/film-coverage-2026-09`.
+
+**A Vercel deployment is public to anyone with the link.** This page names suppliers,
+customers, order volumes and lead times. Turn on **Settings → Deployment Protection**
+(Vercel Authentication, or a password) before sharing the URL.
+
+**Claude artifact (private by default).** The copy at the URL in `dashboard.json` is
+private until you share it from the page's own share menu. To refresh it, ask Claude
+Code in this repository:
 
 > Republish `dist/index.html` to the artifact URL in `dashboard.json`.
 
-Republishing to that same URL each month means the link you have shared never changes.
-Artifacts are private until you share them from the page's own share menu.
+Republishing to that same URL means the link you have shared never changes.
 
 ## What the page does
 
@@ -99,6 +124,22 @@ Two conventions worth knowing, because they are what make the numbers add up:
 - A film being **run out is never short**. We are not reordering it, so demand beyond
   the stock left transfers to its successor rather than becoming a purchase order.
 
+## Brand
+
+The page follows *MIGHTY PICNIC_BrandGuide_V2* (2023): Bone `#FCF2E4` ground, Royal
+Blue `#2E2B84` text, Vibrant Pomegranate `#E63D33` accents, the full palette as the
+rule under the masthead, and Quicksand throughout — Bold uppercase with wide tracking
+for headings, Medium for body copy, exactly as the guide sets it.
+
+Every colour is a custom property at the top of `src/template.html`, with the brand
+hex codes named. Change one there and it changes everywhere.
+
+One deliberate departure: the status scale. Short is pomegranate and tight is gold,
+both darkened enough to stay legible on bone, and winding down is royal blue. Covered
+is a green the brand palette does not carry, because "on plan" has to read instantly
+and the palette has no other colour that says it. Every status also carries a word, so
+the colour is never the only signal.
+
 ## Layout
 
 ```
@@ -110,6 +151,8 @@ src/template.html     the shell and all the styling
 src/build.mjs         validate, report, write dist/
 bin/new-month.mjs     start next month from this one
 dist/                 the built pages, one per month
+vercel.json           deploy config — build command and output directory
+dashboard.json        the published artifact URL
 ```
 
 ## Requirements

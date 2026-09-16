@@ -8,5 +8,8 @@
     "build": "node src/build.mjs",
     "check": "node src/build.mjs --check",
     "new-month": "node bin/new-month.mjs"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }

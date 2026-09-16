@@ -83,6 +83,12 @@ function renderNotes() {
 
 /* ---------- printed film in transition to blank ---------- */
 
+function capPos(p) {
+  if (p < 11) return "left:0;transform:none";
+  if (p > 89) return "right:0;left:auto;transform:none";
+  return "left:" + p + "%";
+}
+
 function renderTrans() {
   var live = TRANS.filter(function (t) { return num(t.weeklyRate) > 0; });
   var span = Math.max.apply(null, [46].concat(live.map(function (t) {
@@ -109,23 +115,25 @@ function renderTrans() {
                             : "no draw right now, and the switch is not made";
       return "<div class=\"tline\">" + head +
         "<div class=\"rail\"><div class=\"base\"></div>" +
-        "<div class=\"cap\" style=\"left:9%;color:" + col + "\"><b>" + label + "</b></div></div>" +
+        "<div class=\"cap\" style=\"left:0;transform:none;color:" + col + "\"><b>" + label + "</b></div></div>" +
         foot + "</div>";
     }
 
     var run = num(t.onHand) / rate, sw = run - state.lead;
     var overdue = sw <= 0;
-    var c = overdue ? "var(--late)" : sw < 12 ? "var(--watch)" : "var(--ok)";
+    var key = overdue ? "late" : sw < 12 ? "watch" : "ok";
+    var c = "var(--" + key + ")";              // text
+    var cMark = "var(--" + key + "-mark)";     // the rail fill
     var runPct = Math.min(100, (run / span) * 100);
     var swPct = Math.max(0, Math.min(100, (sw / span) * 100));
     return "<div class=\"tline\">" + head +
       "<div class=\"rail\"><div class=\"base\"></div>" +
-      "<div class=\"run\" style=\"left:0;width:" + Math.max(runPct, 1) + "%;background:" + c + ";opacity:.45\"></div>" +
+      "<div class=\"run\" style=\"left:0;width:" + Math.max(runPct, 1) + "%;background:" + cMark + ";opacity:.5\"></div>" +
       (overdue ? "" :
         "<div class=\"pin sw\" style=\"left:" + swPct + "%\"></div>" +
-        "<div class=\"cap\" style=\"left:" + swPct + "%\">switch by <b>" + dstr(sw) + "</b></div>") +
+        "<div class=\"cap\" style=\"" + capPos(swPct) + "\">switch by <b>" + dstr(sw) + "</b></div>") +
       "<div class=\"pin\" style=\"left:" + runPct + "%\"></div>" +
-      "<div class=\"cap\" style=\"left:" + runPct + "%;color:" + c + "\">runs dry <b>" + dstr(run) + "</b></div>" +
+      "<div class=\"cap\" style=\"" + capPos(runPct) + ";color:" + c + "\">runs dry <b>" + dstr(run) + "</b></div>" +
       "</div>" + foot + "</div>";
   }).join("");
 }
@@ -200,10 +208,11 @@ function render() {
         fmt(num(r.onHand)) + " " + r.unit + " held</small></div></div>";
     }
     var a = Math.min(zero, pct(c.headroom)), b = Math.max(zero, pct(c.headroom));
-    var col = "var(--" + c.status + ")";
+    var col = "var(--" + c.status + ")";               // text
+    var fill = "var(--" + c.status + "-mark)";          // the bar itself
     return "<div class=\"bar\"><div class=\"nm\">" + r.name + "<small>" + sub + "</small></div>" +
       "<div class=\"track\"><span class=\"zero\" style=\"left:" + zero + "%\"></span>" +
-      "<span class=\"fill\" style=\"left:" + a + "%;width:" + Math.max(b - a, 1.2) + "%;background:" + col + "\"></span></div>" +
+      "<span class=\"fill\" style=\"left:" + a + "%;width:" + Math.max(b - a, 1.2) + "%;background:" + fill + "\"></span></div>" +
       "<div class=\"val\" style=\"color:" + col + "\">" +
       (c.status === "retiring" && c.transfer > 0 ? "→ " + fmt(c.transfer)
         : (c.gap < 0 ? "−" : "+") + fmt(Math.abs(c.gap))) + " " + r.unit +

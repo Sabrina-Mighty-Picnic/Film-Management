@@ -27,6 +27,28 @@ When asked to update, refresh, or start a new month:
 5. Republish the artifact to the URL in `dashboard.json`, if one is recorded, so the
    link the user shares does not change.
 
+## Brand
+
+The styling follows *MIGHTY PICNIC_BrandGuide_V2* (2023) and lives entirely in the
+custom properties at the top of `src/template.html`: Bone `#FCF2E4`, Royal Blue
+`#2E2B84`, Vibrant Pomegranate `#E63D33`, Raspberry `#D6195B` / `#E95F9D`, Gold
+`#F8A914`, Yellow `#F4D99E`, Lavender `#E0B8D8`; Quicksand for all type, Bold
+uppercase with wide tracking for headings.
+
+- Change colours only in that token block, never inline in `dashboard.js`. The page
+  uses `--<status>-mark` for a fill and `--<status>` for text on that status.
+- Keep both themes working. Every token is redefined for dark mode twice — under
+  `prefers-color-scheme` and under `[data-theme="dark"]` — and both copies must match.
+- Any new colour needs 3:1 against its surface for a mark and 4.5:1 for small text.
+  The dataviz skill ships `scripts/validate_palette.js`, which exports `contrast()`.
+
+## Deploying
+
+`vercel.json` sets the build command (`node src/build.mjs --all`) and output directory
+(`dist`). A Vercel deploy that fails with *No Output Directory named "public" found*
+means that file is missing or was not picked up. Do not move the build output to
+`public/` to work around it.
+
 ## Rules
 
 - **Numbers live in `data/`, never in `src/`.** If a figure is hardcoded in a `src/`
