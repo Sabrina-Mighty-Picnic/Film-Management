@@ -71,12 +71,13 @@ figure on the film row, which means one of the two pulls is stale.
 
 ### 4. Look at it, then share it
 
-Open `dist/index.html` in a browser. To put it where other people can see it, ask
-Claude Code in this repository:
+Open `dist/index.html` in a browser. The shared copy lives at the URL in
+`dashboard.json`. To refresh it, ask Claude Code in this repository:
 
-> Publish `dist/index.html` as an artifact and update `dashboard.json` with the URL.
+> Republish `dist/index.html` to the artifact URL in `dashboard.json`.
 
-Every following month, ask it to republish to that same URL so the link never changes.
+Republishing to that same URL each month means the link you have shared never changes.
+Artifacts are private until you share them from the page's own share menu.
 
 ## What the page does
 
