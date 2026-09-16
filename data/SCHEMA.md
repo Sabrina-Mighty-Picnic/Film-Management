@@ -1,0 +1,135 @@
+# The monthly data file
+
+One file per month, `data/<YYYY-MM>.json`. Everything the dashboard shows comes from
+here — every number and every sentence. Prose fields may contain inline HTML
+(`<strong>`, `<em>`, `&nbsp;`); everything else is plain text or numbers.
+
+Quantities are always in **the item's own stock unit** — metres for the newer Lamick
+films, millimetres for the older Maruto ones, each for the per-unit items. The
+dashboard never converts between them, so a row denominated in the wrong unit is the
+single easiest way to make the page lie.
+
+---
+
+## `meta`
+
+| Field | Meaning |
+| --- | --- |
+| `period` | `YYYY-MM`, matching the filename |
+| `org` | shown in the browser tab title |
+| `title`, `subtitle` | the masthead |
+| `asOf` | `YYYY-MM-DD`. **Every date on the page counts forward from this**, so a wrong date moves every runout and switch-by date |
+| `asOfLabel` | how that date is written in the masthead |
+| `asOfLines` | extra lines under it |
+| `defaultLeadWeeks` | where the lead-time box starts, normally 16 |
+| `baseLeadWeeks` | the lead the forecast tier is denominated in. Change it only if the FILM plan window changes |
+| `transitionsHeading`, `transitionsSub`, `sourcesHeading`, `sourcesSub` | panel headings |
+| `footer` | the closing paragraph |
+
+## `films[]` — one row per film
+
+The table, the bars and the verdict all come from here.
+
+| Field | Where it comes from |
+| --- | --- |
+| `item` | NetSuite item number, as a string. Must be unique |
+| `name` | how it reads on the page |
+| `stockedBy` | `"MP"` (we buy it, Lamick) or `"THEM"` (they stock it, Maruto) |
+| `unit` | `"m"`, `"mm"` or `"ea"` |
+| `onHand`, `onOrder`, `committed`, `backordered` | NetSuite `aggregateitemlocation` |
+| `onWorkOrders` | film on open work orders at Released or In Process. Should equal the `workOrderLines` for this film |
+| `soNotYetWO` | open sales order demand with no work order raised yet, converted to film through the finished good's current BOM revision. **Only the part not already on a work order** — the tiers nest |
+| `forecastBeyond` | FILM tab demand beyond both, over `baseLeadWeeks`. Scales with the lead-time box |
+| `weeklyBuildRate` | assembly builds, trailing weeks |
+
+Optional:
+
+| Field | Effect |
+| --- | --- |
+| `leadWeeks` | judge this film on its own lead rather than the box. 1129 uses 4 |
+| `retiring` | not being reordered: it can never read short, and demand beyond the stock left shows as transferring to `successor` |
+| `successor` | what replaces it. Required in practice whenever `retiring` is set |
+| `expediting` | a retiring film with live backorders — reads amber rather than grey |
+| `noBom` | no BOM revision points at this item; says so in the drill-down |
+| `note` | one line under the name, in the table and the bars |
+| `nextInLineNote` | a paragraph at the top of the drill-down, for stock bought for a move that has not happened yet |
+
+### How a film is judged
+
+Stock is `onHand + onOrder`. Demand depends on the basis chosen on the page:
+
+| Basis | Demand |
+| --- | --- |
+| Work orders | `onWorkOrders` |
+| + sales orders | `onWorkOrders + soNotYetWO` |
+| + forecast | the above `+ forecastBeyond` scaled to the lead time |
+| Recent builds | `weeklyBuildRate × lead` |
+| Worst case | the largest of the last three |
+
+Stock minus demand is the free position; divided by demand it is the headroom.
+Below zero reads **Order now**, under 20% reads **Tight**, otherwise **Covered**. The
+suggested order is the shortfall plus one further lead time at the same rate.
+
+## `transitions[]` — the printed-film timeline
+
+| Field | Meaning |
+| --- | --- |
+| `item`, `name`, `stockedBy`, `unit` | as in `films` |
+| `onHand` | stock of the printed film |
+| `weeklyRate` | how fast it is being drawn. `0` draws a flat rail with a label instead of dates |
+| `rateBasis` | where that rate came from, e.g. `"recent builds"` |
+| `successor`, `buyer`, `decided` | what replaces it, who buys it, whether it is settled |
+| `bomAction` | the BOM work the switch needs |
+| `holding` | no draw yet, and that is fine — printed stock to run down first (green) |
+| `stranded` | no draw and nothing left using it (grey) |
+
+Runout is `onHand / weeklyRate` weeks out; switch-by is that less the lead time.
+
+## `workOrderLines[]`
+
+`{ wo, date, status, product, film, qty, backordered }` — `film` is the item number
+and must match a row in `films`. These fill the work order drill-down, and the build
+warns when they do not add up to that film's `onWorkOrders`.
+
+## `salesOrderLines{}`
+
+Keyed by item number: `{ product, customer, units, due, orders, filmQty }`, where
+`units` is finished goods, `orders` is how many sales orders are rolled into the line,
+and `filmQty` is the film it converts to.
+
+## `forecastMonths{}`
+
+Keyed by item number: `{ month, qty }` — the FILM tab rows as they read, with the unit
+written into `qty` (`"31,063 m"`), because the tab mixes units.
+
+## `forecastNotes{}`
+
+Keyed by item number: a sentence shown instead of "no row on the FILM tab", for a film
+whose forecast is derived some other way.
+
+## `noFilmWorkOrders[]`
+
+`{ wo, date, product, qty }` — open work orders carrying no film line, because THEM
+bundle film into tolling. Rendered as a table inside the note card with
+`"table": "noFilmWorkOrders"`.
+
+## `sources[]` and `sourceNotes[]`
+
+The provenance panel: `{ column, source, firmness }` rows, then paragraphs under it.
+
+## `notes[]` — the commentary cards
+
+```json
+{
+  "title": "The primary blank has 11 weeks against a 16-week lead",
+  "flag": true,
+  "body": ["a paragraph", ["a bullet", "another bullet"], "a closing paragraph"],
+  "table": "noFilmWorkOrders"
+}
+```
+
+`flag` draws the red left border. A string in `body` is a paragraph, an array is a
+bullet list. `table` is optional and currently only understands `noFilmWorkOrders`.
+
+**These carry over from last month untouched.** They are the part of the dashboard
+that goes quietly out of date, so re-read them every month against the new numbers.

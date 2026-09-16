@@ -1,0 +1,12 @@
+{
+  "name": "film-management-dashboard",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Mighty Picnic film coverage dashboard — monthly snapshot built from a JSON data file",
+  "type": "module",
+  "scripts": {
+    "build": "node src/build.mjs",
+    "check": "node src/build.mjs --check",
+    "new-month": "node bin/new-month.mjs"
+  }
+}
