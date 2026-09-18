@@ -16,7 +16,84 @@ function fmt(n) {
        : Math.round(n).toLocaleString();
 }
 
-/* r    — one row of data.films
+/* The rate a film is drawn at. A film that is the default on a line carries the whole
+   line's draw, even where a backup took some of it while the default was empty. */
+function buildRate(r) { return num(r.lineRate) || num(r.weeklyBuildRate); }
+
+/* What is coming onto this film later.
+   A film being run out hands its draw to its successor the week its own stock is gone,
+   so the step date is derived, not guessed: it is the retiring film's runout. Anything
+   with no date — a move that is agreed but unscheduled — is returned separately, so it
+   can be shown without silently moving a date. */
+function incomingSteps(r, opts) {
+  var films = (opts && opts.films) || [];
+  var steps = [], unscheduled = [];
+
+  var transitions = (opts && opts.transitions) || [];
+  films.forEach(function (o) {
+    if (!o.retiring || o.successorItem !== r.item) return;
+    // a film being run out is judged on the rate it is actually being consumed at, which
+    // the transition panel carries — the trailing build rate can be near zero for a SKU
+    // that simply has not been built lately, and would put the handover decades out
+    var tr = transitions.filter(function (t) { return t.item === o.item; })[0];
+    var rate = tr && num(tr.weeklyRate) > 0 ? num(tr.weeklyRate) : buildRate(o);
+    if (rate <= 0) return;
+    var conv = o.unit === r.unit ? 1 : num(o.successorPerUnit);
+    if (!conv) { unscheduled.push({ from: o.item, name: o.name, rate: null, why: "units differ and no conversion is given" }); return; }
+    var stock = tr && num(tr.onHand) > 0 ? num(tr.onHand) : num(o.onHand) + num(o.onOrder);
+    steps.push({ week: stock / rate, rate: rate * conv, from: o.item, name: o.name,
+                 basis: tr ? tr.rateBasis : "recent builds" });
+  });
+
+  (r.incoming || []).forEach(function (x) {
+    if (x.fromWeek == null) { unscheduled.push({ from: x.source, name: x.note, rate: num(x.rate), why: "no date set" }); return; }
+    steps.push({ week: num(x.fromWeek), rate: num(x.rate), from: x.source, name: x.note });
+  });
+
+  steps.sort(function (a, b) { return a.week - b.week; });
+  return { steps: steps, unscheduled: unscheduled };
+}
+
+/* The draw rate is a step function once something is transferring onto this film.
+   Returns the quantity drawn between two week offsets. */
+function drawBetween(r, opts, from, to) {
+  var base = buildRate(r);
+  var steps = incomingSteps(r, opts).steps;
+  var total = 0, at = from;
+  var rateAt = function (w) {
+    return steps.reduce(function (a, s) { return w >= s.week ? a + s.rate : a; }, base);
+  };
+  var bounds = [from].concat(steps.map(function (s) { return s.week; }).filter(function (w) {
+    return w > from && w < to;
+  })).concat([to]);
+  for (var i = 0; i < bounds.length - 1; i++) {
+    total += rateAt(bounds[i]) * (bounds[i + 1] - bounds[i]);
+    at = bounds[i + 1];
+  }
+  return total;
+}
+
+/* How many weeks the stock lasts, walking through the steps as they land. */
+function weeksOfCover(stock, r, opts) {
+  var base = buildRate(r);
+  var steps = incomingSteps(r, opts).steps;
+  if (base <= 0 && !steps.length) return null;
+  var left = stock, week = 0, rate = base;
+  for (var i = 0; i < steps.length; i++) {
+    var until = steps[i].week;
+    if (rate > 0) {
+      var burn = rate * (until - week);
+      if (burn >= left) return week + left / rate;
+      left -= burn;
+    }
+    week = until;
+    rate += steps[i].rate;
+  }
+  if (rate <= 0) return null;
+  return week + left / rate;
+}
+
+/* r    — one row of data.films, or a pooled group row
    opts — { basis: "wo"|"so"|"plan"|"burn"|"max", lead: weeks, baseLead: weeks } */
 function compute(r, opts) {
   var baseLead = opts.baseLead || 16;
@@ -26,7 +103,7 @@ function compute(r, opts) {
   var woNeed   = num(r.onWorkOrders);                          // film on open work orders
   var soNeed   = woNeed + num(r.soNotYetWO);                   // plus orders with no work order yet
   var planNeed = soNeed + num(r.forecastBeyond) * scale;       // plus the forecast beyond both
-  var burnNeed = num(r.weeklyBuildRate) * lead;                // recent build rate over the window
+  var burnNeed = drawBetween(r, opts, 0, lead);                // the draw over the window, steps and all
 
   var need = opts.basis === "wo"   ? woNeed
            : opts.basis === "so"   ? soNeed
@@ -44,21 +121,22 @@ function compute(r, opts) {
   }
 
   var gap = stock - need;
-  var headroom = gap / need;
+  var spare = gap / need;            // how much more than the window needs, as a ratio
 
   // A film being run out is never "short" — we are not reordering it. Demand beyond
   // what is left transfers to its successor; it is that film's problem, not this one's.
   if (r.retiring) {
     var transfer = Math.max(0, need - stock);
     return { need: Math.min(need, stock), rawNeed: need, woNeed: woNeed, soNeed: soNeed,
-             planNeed: planNeed, burnNeed: burnNeed, stock: stock, gap: gap, headroom: headroom,
+             planNeed: planNeed, burnNeed: burnNeed, stock: stock, gap: gap, spare: spare,
              transfer: transfer, order: 0, quiet: false,
              status: r.expediting && transfer > 0 ? "watch" : "retiring" };
   }
 
   return { need: need, woNeed: woNeed, soNeed: soNeed, planNeed: planNeed, burnNeed: burnNeed,
-           stock: stock, gap: gap, headroom: headroom, quiet: false,
-           status: gap < 0 ? "late" : headroom < 0.2 ? "watch" : "ok",
+           stock: stock, gap: gap, spare: spare, quiet: false,
+           // short, or inside a fifth of the window — which in time is a fifth of the lead
+           status: gap < 0 ? "late" : spare < 0.2 ? "watch" : "ok",
            // cover the shortfall plus one further lead time at the same rate
            order: gap < 0 ? Math.abs(gap) + need : 0 };
 }
@@ -74,12 +152,16 @@ function orderPlan(r, opts) {
   if (c.quiet || r.retiring) return null;
 
   var lead = r.leadWeeks != null ? r.leadWeeks : opts.lead;
-  var rate = Math.max(num(r.weeklyBuildRate), c.need / lead);
-  var coverWeeks = rate > 0 ? c.stock / rate : Infinity;
+  var rate = Math.max(buildRate(r), c.need / lead);
+  var stepped = weeksOfCover(c.stock, r, opts);
+  var coverWeeks = rate > 0 ? Math.min(stepped == null ? Infinity : stepped, c.stock / rate) : Infinity;
   var orderInWeeks = coverWeeks - lead;
 
   // short: cover the shortfall plus one further lead time. Thin but not short: one lead time.
-  var qty = c.gap < 0 ? Math.abs(c.gap) + c.need : c.need;
+  // the order lands one lead time out and has to carry the lead time after that, at
+  // whatever the draw is by then — which is not today's draw if something transfers in
+  var window = drawBetween(r, opts, lead, lead * 2);
+  var qty = c.gap < 0 ? Math.abs(c.gap) + Math.max(c.need, window) : Math.max(c.need, window);
 
   // round up to whole rolls and respect a supplier minimum, where the item carries them
   var rolls = null;
@@ -89,7 +171,7 @@ function orderPlan(r, opts) {
     if (num(r.rollSize) > 0) rolls = Math.ceil(qty / r.rollSize);
   }
 
-  return { status: c.status, need: c.need, gap: c.gap, headroom: c.headroom, stock: c.stock,
+  return { status: c.status, need: c.need, gap: c.gap, spare: c.spare, stock: c.stock,
            lead: lead, weeklyRate: rate, coverWeeks: coverWeeks, orderInWeeks: orderInWeeks,
            qty: qty, rolls: rolls, overdue: orderInWeeks <= 0 };
 }
@@ -144,57 +226,108 @@ function runLedger(t) {
 function timeline(r, opts) {
   var c = compute(r, opts);
   var lead = r.leadWeeks != null ? r.leadWeeks : opts.lead;
-  var rate = Math.max(num(r.weeklyBuildRate), c.quiet ? 0 : c.need / lead);
-  var out = { lead: lead, rate: rate, stock: c.stock, gap: c.gap, headroom: c.headroom,
+  var rate = Math.max(buildRate(r), c.quiet ? 0 : c.need / lead);
+  var out = { lead: lead, rate: rate, stock: c.stock, gap: c.gap, spare: c.spare,
               status: c.quiet ? "quiet" : c.status, reorder: !r.retiring && !c.quiet };
   if (rate <= 0) { out.coverWeeks = null; out.orderByWeeks = null; return out; }
-  out.coverWeeks = c.stock / rate;
+  var stepped = weeksOfCover(c.stock, r, opts);
+  var flat = c.stock / rate;
+  // the implied rate from firm orders can exceed the build rate; take whichever runs out first
+  out.coverWeeks = stepped == null ? flat : Math.min(stepped, flat);
+  out.steps = incomingSteps(r, opts);
   out.orderByWeeks = out.reorder ? out.coverWeeks - lead : null;
+  out.slackWeeks = out.orderByWeeks;      // weeks of runway beyond the lead time
   return out;
 }
 
-/* Two items that feed the same line are one buying decision. A group is judged on the
-   pooled position and the pooled draw; the lead time is the one you actually have to
-   commit to, which is the item you reorder. Members keep their own rows in the data —
-   the group replaces them in the working views. */
+/* Two items that hold the same printed film are one runway, even when they are held in
+   different units at different sites. A member may declare `perUnit` — how much of its
+   own unit makes one of the group's — and quantities convert on the way in. */
 function mergeGroup(films, g) {
-  var members = g.items.map(function (id) {
-    return films.filter(function (r) { return r.item === id; })[0];
+  var spec = (g.items || []).map(function (it) {
+    return typeof it === "string" ? { item: it, perUnit: 1 }
+                                  : { item: it.item, perUnit: num(it.perUnit) || 1 };
+  });
+  var members = spec.map(function (sp) {
+    var r = films.filter(function (x) { return x.item === sp.item; })[0];
+    return r ? { r: r, perUnit: sp.perUnit } : null;
   }).filter(Boolean);
   if (!members.length) return null;
 
   var sum = function (k) {
-    return members.reduce(function (a, r) { return a + num(r[k]); }, 0);
+    return members.reduce(function (a, m) { return a + num(m.r[k]) / m.perUnit; }, 0);
   };
-  var orderItem = members.filter(function (r) { return r.item === g.orderItem; })[0] || members[0];
+  var order = members.filter(function (m) { return m.r.item === g.orderItem; })[0];
+  var orderItem = order ? order.r : members[0].r;
 
   return {
     item: g.id,
     name: g.name,
     group: g,
-    members: members,
-    memberIds: members.map(function (r) { return r.item; }),
+    members: members.map(function (m) { return m.r; }),
+    memberSpec: members,
+    memberIds: members.map(function (m) { return m.r.item; }),
     orderItem: orderItem,
-    unit: members[0].unit,
-    stockedBy: members[0].stockedBy,
+    unit: g.unit || members[0].r.unit,
+    stockedBy: g.stockedBy || members[0].r.stockedBy,
     note: g.note,
-    leadWeeks: orderItem.leadWeeks != null ? orderItem.leadWeeks : null,
+    leadWeeks: g.orderItem ? (orderItem.leadWeeks != null ? orderItem.leadWeeks : null) : null,
     onHand: sum("onHand"), onOrder: sum("onOrder"),
     committed: sum("committed"), backordered: sum("backordered"),
     onWorkOrders: sum("onWorkOrders"), soNotYetWO: sum("soNotYetWO"),
     forecastBeyond: sum("forecastBeyond"), weeklyBuildRate: sum("weeklyBuildRate"),
-    retiring: members.every(function (r) { return r.retiring; }),
+    retiring: g.retiring != null ? g.retiring : members.every(function (m) { return m.r.retiring; }),
+    successor: g.successor || orderItem.successor,
     rollSize: orderItem.rollSize, minOrder: orderItem.minOrder
   };
 }
 
-/* The rows the working views use: films that are not in a group, plus one row per group. */
-function workingRows(films, groups) {
+/* A line has one default film and one or more backups. They are NOT pooled: the backup
+   has its own lead time and is only bought when the default will not arrive in time.
+   What the default does inherit is the line's whole draw, because any week the backup
+   was in the machine is a week the default would otherwise have supplied. */
+function applyLine(films, line) {
+  var rateOf = function (id) {
+    var r = films.filter(function (x) { return x.item === id; })[0];
+    return r ? num(r.weeklyBuildRate) : 0;
+  };
+  var ids = [line.defaultItem].concat(line.backupItems || []);
+  var lineRate = ids.reduce(function (a, id) { return a + rateOf(id); }, 0);
+  var marks = {};
+  marks[line.defaultItem] = { lineRate: lineRate, line: line, role: "default" };
+  (line.backupItems || []).forEach(function (id) {
+    marks[id] = { line: line, role: "backup" };
+  });
+  return marks;
+}
+
+/* The rows the working views use: films that are not inside a group, plus one row per
+   group, with the line annotations applied. */
+function workingRows(films, groups, lines) {
   var claimed = {};
   (groups || []).forEach(function (g) {
-    g.items.forEach(function (id) { claimed[id] = true; });
+    (g.items || []).forEach(function (it) {
+      claimed[typeof it === "string" ? it : it.item] = true;
+    });
   });
-  var rows = films.filter(function (r) { return !claimed[r.item]; });
+
+  var marks = {};
+  (lines || []).forEach(function (line) {
+    var m = applyLine(films, line);
+    Object.keys(m).forEach(function (k) { marks[k] = m[k]; });
+  });
+
+  var rows = films.filter(function (r) { return !claimed[r.item]; }).map(function (r) {
+    var mk = marks[r.item];
+    if (!mk) return r;
+    var copy = {}, k;
+    for (k in r) if (Object.prototype.hasOwnProperty.call(r, k)) copy[k] = r[k];
+    if (mk.lineRate) copy.lineRate = mk.lineRate;
+    copy.line = mk.line;
+    copy.lineRole = mk.role;
+    return copy;
+  });
+
   (groups || []).forEach(function (g) {
     var m = mergeGroup(films, g);
     if (m) rows.push(m);
@@ -203,6 +336,7 @@ function workingRows(films, groups) {
 }
 
 return { compute: compute, orderPlan: orderPlan, timeline: timeline,
-         mergeGroup: mergeGroup, workingRows: workingRows,
+         mergeGroup: mergeGroup, workingRows: workingRows, buildRate: buildRate,
+         incomingSteps: incomingSteps, drawBetween: drawBetween, weeksOfCover: weeksOfCover,
          runLedger: runLedger, fmt: fmt, num: num };
 });

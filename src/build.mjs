@@ -129,16 +129,45 @@ function validate(d, period) {
   }
   for (const g of d.substituteGroups || []) {
     const where = `group ${g.id || "(no id)"}`;
+    const spec = (g.items || []).map(it => (typeof it === "string" ? { item: it, perUnit: 1 } : it));
     if (!g.id || !g.name) E(`${where}: a group needs an id and a name`);
-    if (!Array.isArray(g.items) || g.items.length < 2) E(`${where}: a group needs at least two items`);
-    const members = (g.items || []).map(id => (d.films || []).find(r => r.item === id));
-    members.forEach((m, k) => { if (!m) E(`${where}: item ${g.items[k]} is not in films`); });
+    if (spec.length < 2) E(`${where}: a group needs at least two items`);
+    const members = spec.map(sp => (d.films || []).find(r => r.item === sp.item));
+    members.forEach((m, k) => { if (!m) E(`${where}: item ${spec[k].item} is not in films`); });
     const found = members.filter(Boolean);
-    if (found.length && new Set(found.map(m => m.unit)).size > 1) {
-      E(`${where}: members are held in different units (${found.map(m => m.item + " in " + m.unit).join(", ")}) — pooling them would add unlike quantities`);
+    const unit = g.unit || (found[0] && found[0].unit);
+    found.forEach((m, k) => {
+      const per = spec[k].perUnit;
+      if (m.unit !== unit && !(typeof per === "number" && per > 0)) {
+        E(`${where}: item ${m.item} is held in ${m.unit} but the group is in ${unit}, and no perUnit conversion is given`);
+      }
+      if (per != null && (typeof per !== "number" || per <= 0)) {
+        E(`${where}: item ${m.item} has an invalid perUnit (${JSON.stringify(per)})`);
+      }
+    });
+    if (g.orderItem && !spec.some(sp => sp.item === g.orderItem)) E(`${where}: orderItem ${g.orderItem} is not one of its items`);
+    if (!g.orderItem && !g.retiring) W(`${where}: no orderItem, so the order panel cannot say which item to raise the PO against`);
+  }
+
+  for (const line of d.lines || []) {
+    const where = `line ${line.id || "(no id)"}`;
+    const has = id => (d.films || []).some(r => r.item === id);
+    if (!line.defaultItem) E(`${where}: needs a defaultItem`);
+    else if (!has(line.defaultItem)) E(`${where}: defaultItem ${line.defaultItem} is not in films`);
+    for (const b of line.backupItems || []) {
+      if (!has(b)) E(`${where}: backupItem ${b} is not in films`);
     }
-    if (g.orderItem && !g.items.includes(g.orderItem)) E(`${where}: orderItem ${g.orderItem} is not one of its items`);
-    if (!g.orderItem) W(`${where}: no orderItem, so the order panel cannot say which item to raise the PO against`);
+    if (!(line.backupItems || []).length) W(`${where}: no backupItems, so the line adds nothing`);
+  }
+
+  for (const r of d.films || []) {
+    if (!r.successorItem) continue;
+    const suc = (d.films || []).find(x => x.item === r.successorItem);
+    if (!suc) { W(`film ${r.item}: successorItem ${r.successorItem} is not in films — its draw will not transfer anywhere`); continue; }
+    if (!r.retiring) W(`film ${r.item}: has a successorItem but is not marked retiring, so nothing transfers`);
+    if (suc.unit !== r.unit && !r.successorPerUnit) {
+      W(`film ${r.item}: hands over to ${suc.item}, but ${r.unit} and ${suc.unit} differ and no successorPerUnit is given — the step onto ${suc.item} is left out`);
+    }
   }
 
   const LEDGER_TYPES = ["received", "used", "count", "adjustment"];
@@ -193,8 +222,9 @@ function validate(d, period) {
 
 function summarise(d) {
   const lead = d.meta.defaultLeadWeeks || d.meta.baseLeadWeeks || 16;
-  const opts = { basis: "max", lead, baseLead: d.meta.baseLeadWeeks || 16 };
-  const working = workingRows(d.films, d.substituteGroups || []);
+  const opts = { basis: "max", lead, baseLead: d.meta.baseLeadWeeks || 16,
+                 films: d.films, transitions: d.transitions };
+  const working = workingRows(d.films, d.substituteGroups || [], d.lines || []);
   const rows = working.map(r => ({ r, c: compute(r, opts) }));
   const pick = s => rows.filter(x => x.c.status === s);
   const late = pick("late"), watch = pick("watch"), winding = pick("retiring");
@@ -239,12 +269,12 @@ function summarise(d) {
   lines.push(`  ${late.length} short   ${watch.length} tight   ` +
              `${rows.length - late.length - watch.length - winding.length - quiet.length} covered   ` +
              `${winding.length} winding down   ${quiet.length} no demand`);
-  for (const { r, c } of late.sort((a, b) => a.c.headroom - b.c.headroom)) {
+  for (const { r, c } of late.sort((a, b) => a.c.slack - b.c.slack)) {
     lines.push(`  SHORT  ${r.item} ${r.name} — ${fmt(Math.abs(c.gap))} ${r.unit} short` +
                (r.stockedBy === "MP" ? `, suggested order ${fmt(c.order)} ${r.unit}` : ` (THEM to order)`));
   }
-  for (const { r, c } of watch.sort((a, b) => a.c.headroom - b.c.headroom)) {
-    lines.push(`  TIGHT  ${r.item} ${r.name} — ${(c.headroom * 100).toFixed(0)}% headroom`);
+  for (const { r, c } of watch.sort((a, b) => a.c.slack - b.c.slack)) {
+    lines.push(`  SOON   ${r.item} ${r.name} — ${(c.spare * 100).toFixed(0)}% over what the window needs`);
   }
   return lines.join("\n");
 }

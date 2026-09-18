@@ -162,7 +162,8 @@
       "retiring": true,
       "expediting": true,
       "successor": "blank foil at THEM — THEM expediting against these orders, balance Nov/Dec",
-      "note": "not being reordered"
+      "note": "not being reordered",
+      "successorItem": "929"
     },
     {
       "item": "880",
@@ -226,7 +227,8 @@
       "weeklyBuildRate": 0,
       "retiring": true,
       "successor": "FG 410 already moved — its demand now sits on 1094",
-      "note": "plan row is 50,600 UNITS ≈ 3,356 m, not metres"
+      "note": "plan row is 50,600 UNITS ≈ 3,356 m, not metres",
+      "successorItem": "1094"
     },
     {
       "item": "1040",
@@ -273,7 +275,8 @@
       "noBom": true,
       "retiring": true,
       "successor": "white at FFW once this 18,999 m (≈ 286k units) is run down",
-      "note": "plan row is 50,600 UNITS ≈ 3,356 m, not metres"
+      "note": "plan row is 50,600 UNITS ≈ 3,356 m, not metres",
+      "successorItem": "1094"
     },
     {
       "item": "1037",
@@ -346,7 +349,8 @@
       "weeklyBuildRate": 175,
       "retiring": true,
       "successor": "blank 1094 at FFW, from around July 2027",
-      "note": "not being reordered"
+      "note": "not being reordered",
+      "successorItem": "1094"
     },
     {
       "item": "1123",
@@ -1492,20 +1496,20 @@
   },
   "notes": [
     {
-      "title": "The blank is not short today, but it is the next order to place",
+      "title": "1094 carries the line, so it is the order with a date on it",
       "flag": true,
       "body": [
-        "Judged as one pool, 1094 and 1129 hold <strong>159,379&nbsp;m</strong> counting the 3,530 on order, against <strong>92,372&nbsp;m</strong> already on work orders. The line has been drawing <strong>6,470&nbsp;m a week</strong>, which is <strong>24.6 weeks of cover</strong> — so over a 16-week lead it is covered, with 54% headroom.",
-        "That makes <strong>15 November</strong> the date: the last day an order can be placed and still land before the pool runs dry. It sits just outside the eight-week window the order panel opens with, which is why the blank does not appear there yet.",
-        "Two reasons to treat that date as the late end of the range rather than the answer. The trailing build rate is measured across May and June, when 1094 was <em>empty</em> and the line was starved — so 6,470&nbsp;m/wk understates what the line runs at when it has film. And the FILM plan has no row for the new FFW business that is already drawing the blank, so the forecast tier adds nothing here. Both push the real date earlier."
+        "1094 holds <strong>145,200&nbsp;m</strong> counting the 3,530 on order, against <strong>74,054&nbsp;m</strong> already on work orders. Judged at the rate the line actually runs — <strong>6,470&nbsp;m a week</strong> — that is <strong>22.4 weeks of runway</strong>, so the last date an order still lands inside the 16-week lead is <strong>31 October</strong>.",
+        "Its own build rate reads 3,129&nbsp;m/wk, but only because 1129 covered the weeks 1094 sat empty. <strong>3,129 plus 1129's 3,341 is the same one line drawing 6,470.</strong> Judged on its own half of the draw, 1094 looks like it has 46 weeks and no order until next summer. It does not.",
+        "Two reasons to treat 31 October as the late end of the range. That rate is measured across May and June, when the line was starved — it understates what the line runs at with film in it. And the FILM plan has no row for the new FFW business already drawing the blank, so the forecast tier adds nothing here."
       ]
     },
     {
-      "title": "Why the two blanks are judged as one",
+      "title": "1129 is relief, not a second supply",
       "body": [
         "1094 ran down through May and mid-June, builds moved onto 1129 from 24 June while the primary sat empty, and 136,470&nbsp;m of 1094 landed on 9 September. The backup did what a backup is for — which is why 1129 reads low today.",
-        "That substitution is also why neither item's own build rate means much: <strong>3,129&nbsp;m/wk on 1094 plus 3,341&nbsp;m/wk on 1129 is the same one line drawing 6,470&nbsp;m/wk</strong>. Judged separately, 1094 looks comfortable and 1129 looks short; judged as the pool they actually are, the blank has 24.6 weeks and one order-by date.",
-        "The order still goes against <strong>1094 on a 16-week lead</strong>. 1129 reorders in four, so it is the relief valve, not the plan."
+        "They are not interchangeable to buy. <strong>1094 is the default on a 16-week lead; 1129 reorders in four</strong>, so it is what you reach for when 1094 will not arrive in time, not a second line to keep stocked. The page keeps them as separate decisions and judges each on its own clock — but gives 1094 the line's whole draw, because every week 1129 was in the machine is a week 1094 would otherwise have supplied.",
+        "1129's own shortfall against its open work orders can be met from 1094 while 1094 has stock. It only becomes an order in its own right if 1094 is late again."
       ]
     },
     {
@@ -1568,12 +1572,16 @@
           "def": "The main chart. Each bar runs from today to the day that film runs dry, with a pin at the <strong>order-by date</strong> — the last day an order still lands in time. The vertical rule is today plus the lead time: a bar ending left of it cannot be saved by ordering now, which is what <strong>Order now</strong> means. Rows are sorted by the order you have to place soonest."
         },
         {
-          "term": "Free position",
-          "def": "What is left over: everything <strong>on hand plus on order</strong>, minus the demand on whichever basis is selected. A minus number means the demand already exceeds the film."
+          "term": "Slack",
+          "def": "The weeks between now and the order-by date — how long you can leave it. Negative slack means the date has passed and an order placed today lands after the film has run out."
         },
         {
-          "term": "Headroom",
-          "def": "The free position as a percentage of the demand. <strong>+50%</strong> means half as much film again as the window needs; <strong>−20%</strong> means a fifth short. It is shown as a percentage rather than a quantity so films measured in metres, millimetres and each can be ranked against each other. It now lives in the detail table rather than the main chart, because a percentage does not tell you <em>when</em>."
+          "term": "Transfers in",
+          "def": "A film being run out hands its draw to its successor the week its own stock is gone, so the successor's runway shortens from that date. The date is not a guess: it is the retiring film's own stock divided by the rate it is being consumed at. <strong>BA Repeat (1087) hands 2,871&nbsp;m a week to the blank on 3 July 2027</strong>, which is why an order covering mid-2027 has to be bigger than one covering this winter."
+        },
+        {
+          "term": "Free position",
+          "def": "What is left over: everything <strong>on hand plus on order</strong>, minus the demand on whichever basis is selected. A minus number means the demand already exceeds the film."
         },
         {
           "term": "Cover",
@@ -1597,7 +1605,11 @@
         },
         {
           "term": "Pooled",
-          "def": "Two items that feed the same line are one buying decision, so the page judges them together — currently 1094 and 1129, the FFW blank. Their stock, their demand and their draw are summed, and the order-by date is worked out against the item you actually raise the purchase order for. Judged apart they mislead: the line draws 6,470&nbsp;m a week, but it shows as 3,129 on one item and 3,341 on the other depending on which one was in the machine."
+          "def": "One film held as two items — TJS Honey printed is per each at THEM (127) and per metre at FFW (1095). The page pools them into one runway, converting at the rate stated in the data, because it is one stock of one film facing one demand. Pooling is <em>not</em> used for the two blanks: see Default and Backup."
+        },
+        {
+          "term": "Default and Backup",
+          "def": "1094 is the default blank on a 16-week lead and carries the line's whole draw. 1129 is the backup on a 4-week lead, ordered only when 1094 will not arrive in time. They are <strong>two decisions, not one pool</strong> — but 1094 is judged at the full line rate, because every week 1129 was in the machine is a week 1094 would otherwise have supplied."
         }
       ]
     },
@@ -1605,20 +1617,20 @@
       "group": "The five statuses",
       "terms": [
         {
-          "term": "Short",
-          "def": "The tile at the top of the coverage panel. It counts every film whose stock and orders fall below the demand over the window — ours, which the table tags <strong>Order now</strong>, and THEM's, which it tags <strong>THEM to order</strong>. Click the tile to see only those films."
+          "term": "Past order-by",
+          "def": "The tile above the runway. It counts every film whose order-by date has already gone — an order placed today lands after the film runs out. Ours read <strong>Order now</strong> in the table; THEM's read <strong>THEM to order</strong>. Click the tile to see only those."
         },
         {
           "term": "Order now",
-          "def": "Film we buy that is short inside the lead time — an order placed today already lands late."
+          "def": "Film we buy whose order-by date has passed. The runway bar ends left of the lead-time rule."
         },
         {
-          "term": "Tight",
-          "def": "Covered, but with under 20% headroom. One extra order or one bad yield and it is short."
+          "term": "Order soon",
+          "def": "The order-by date is close — the runway is less than a fifth longer than the lead time, so about three weeks of slack on a 16-week lead. One extra order or one bad yield and the date is behind you."
         },
         {
           "term": "Covered",
-          "def": "Stock and orders exceed the demand over the window by more than 20%. Nothing to do."
+          "def": "The runway is comfortably longer than the lead time. Nothing to do until the order-by date comes into view."
         },
         {
           "term": "Winding down",
@@ -1651,11 +1663,11 @@
         },
         {
           "term": "Build rate",
-          "def": "What the line has actually drawn, from assembly builds over the trailing weeks, multiplied out across the lead time."
+          "def": "What the line has actually drawn, from assembly builds over the trailing weeks. On a film that is the default of a line it is the <em>line's</em> rate, not just what ran through that item — and it steps up on the date anything transfers in."
         },
         {
           "term": "Worst case",
-          "def": "The largest of sales orders, forecast and build rate. The default, because it is the one that does not get you caught out."
+          "def": "The largest of sales orders, forecast and the draw over the window. The default, because it is the one that does not get you caught out."
         },
         {
           "term": "The tiers nest",
@@ -1736,14 +1748,34 @@
   ],
   "substituteGroups": [
     {
-      "id": "ffw-blank",
-      "name": "The FFW blank — 1094, with 1129 behind it",
+      "id": "tjs-honey-printed",
+      "name": "TJS Honey .5oz printed film — Maruto and Lamick together",
+      "unit": "ea",
+      "stockedBy": "MP",
+      "retiring": true,
+      "successor": "white at FFW, once both printed stocks are run down",
+      "note": "127 per each at THEM plus 1095 per metre at FFW, converted at 0.051 m each — the same film for the same SKU, in two units at two sites",
       "items": [
-        "1094",
+        {
+          "item": "127",
+          "perUnit": 1
+        },
+        {
+          "item": "1095",
+          "perUnit": 0.051
+        }
+      ]
+    }
+  ],
+  "lines": [
+    {
+      "id": "ffw-blank",
+      "name": "The FFW blank",
+      "defaultItem": "1094",
+      "backupItems": [
         "1129"
       ],
-      "orderItem": "1094",
-      "note": "one line, two items — builds move onto 1129 whenever 1094 is empty, so the draw splits between them and neither reads the line's real rate on its own"
+      "note": "1094 is the default and carries the line. 1129 is the relief — a 4-week lead, ordered only when 1094 will not arrive in time."
     }
   ]
 }

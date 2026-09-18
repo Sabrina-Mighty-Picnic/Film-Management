@@ -209,3 +209,36 @@ Positions, demand tiers and build rates are summed. This matters most where a ba
 item is substituted at build time: the line's real draw is split across both items, so
 neither reads the true rate on its own.
 
+
+## `lines[]` — a default film and its backup
+
+Two films on one line that are **not** interchangeable to buy. The default carries the
+line; the backup has its own, usually shorter, lead and is ordered only when the
+default will not arrive in time.
+
+| Field | Meaning |
+| --- | --- |
+| `defaultItem` | the film you normally order. It is judged at the **whole line's draw** — the sum of every member's build rate — because any week a backup was in the machine is a week the default would otherwise have supplied |
+| `backupItems` | judged on their own stock and their own `leadWeeks`, and labelled as relief rather than supply |
+| `note` | the rule, in a sentence |
+
+This is the fix for a split build rate. 1094 reads 3,129 m/wk and 1129 reads 3,341 only
+because the draw moved between them; the line runs at 6,470. Without the line, 1094
+looks like it has 46 weeks of runway when it has 22.
+
+## `successorItem` — where a retiring film's draw goes
+
+On a film with `retiring: true`, `successorItem` names the film that inherits its draw.
+The successor's runway then **steps down on the date the retiring film runs out**, which
+is derived rather than guessed: the retiring film's stock divided by the rate it is
+being consumed at (the `transitions` rate where there is one, because a trailing build
+rate can be near zero for a SKU nobody has built lately).
+
+Add `successorPerUnit` when the two are held in different units — how much of the
+retiring film's unit makes one of the successor's. Without it the step is left out and
+the build warns, rather than silently adding metres to each.
+
+A film can also carry manual `incoming` entries, `{ fromWeek, rate, source, note }`, for
+a transfer with no retiring film behind it. `fromWeek: null` means agreed but
+unscheduled: it is listed on the page and deliberately left out of the dates.
+

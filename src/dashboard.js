@@ -61,9 +61,14 @@ function defOf(term) {
 /* ---------- tabs ---------- */
 
 var GROUPS = D.substituteGroups || [];
+var LINES = D.lines || [];
+function OPTS() {
+  return { basis: state.basis, lead: state.lead, baseLead: BASE_LEAD,
+           films: FILMS, transitions: TRANS };
+}
 /* Two items that feed the same line are one buying decision, so the working views
    show the pool. The members keep their own rows in the data and in the drill-down. */
-var ROWS = window.FilmCoverage.workingRows(FILMS, GROUPS);
+var ROWS = window.FilmCoverage.workingRows(FILMS, GROUPS, LINES);
 var idsOf = function (r) { return r.memberIds || [r.item]; };
 var TRACKERS = D.trackers || [];
 var TRACKED = {};
@@ -119,8 +124,8 @@ function renderStatic() {
 function statusKey(c) { return c.quiet ? "quiet" : c.status; }
 
 var TILES = [
-  { key: "late",     label: "Short",        mark: "late" },
-  { key: "watch",    label: "Tight",        mark: "watch" },
+  { key: "late",     label: "Past order-by", mark: "late" },
+  { key: "watch",    label: "Order soon",    mark: "watch" },
   { key: "ok",       label: "Covered",      mark: "ok" },
   { key: "retiring", label: "Winding down", mark: "retiring" },
   { key: "quiet",    label: "No demand",    mark: "dormant" }
@@ -168,8 +173,13 @@ function renderTiles(base) {
 }
 
 /* What to order — the first thing on the page, and the only panel that says "do this" */
+function heldNote(r) {
+  var t = idsOf(r).map(function (id) { return TRACKED[id]; }).filter(Boolean)[0];
+  return t ? "held at " + t.heldBy + ", see Tracker" : "";
+}
+
 function renderActions() {
-  var opts = { basis: state.basis, lead: state.lead, baseLead: BASE_LEAD };
+  var opts = OPTS();
   var HORIZON = 8;   // weeks: an order-by date further out than this is not this month's problem
 
   var mine = [];
@@ -191,11 +201,21 @@ function renderActions() {
   var rows = mine.map(function (x) {
     var r = x.r, p = x.p;
     var col = "var(--" + (p.overdue ? "late" : "watch") + ")";
-    var why = p.gap < 0
-      ? fmt(Math.abs(p.gap)) + " " + r.unit + " short — " + fmt(p.stock) + " in hand and on order against " +
-        fmt(p.need) + " of demand on " + BASIS_LABEL[state.basis]
-      : Math.round(p.headroom * 100) + "% headroom — about " + p.coverWeeks.toFixed(0) +
-        " weeks of cover against a " + p.lead + "-week lead";
+    var why = p.coverWeeks.toFixed(0) + " weeks of runway against a " + p.lead + "-week lead" +
+      (p.gap < 0
+        ? " — " + fmt(Math.abs(p.gap)) + " " + r.unit + " short of the " + fmt(p.need) +
+          " that " + BASIS_LABEL[state.basis] + " needs"
+        : " — " + Math.round(p.orderInWeeks) + " weeks of slack left");
+    var inSteps = window.FilmCoverage.incomingSteps(r, opts);
+    if (inSteps.steps.length) {
+      why += ". <strong>" + inSteps.steps.map(function (st) {
+        return "+" + fmt(st.rate) + " " + r.unit + "/wk from " + dshort(st.week) + " (item " + st.from + ")";
+      }).join(", ") + "</strong> transfers onto it";
+    }
+    if (r.lineRole === "backup" && r.line) {
+      why += ". <strong>Backup on " + r.line.name + "</strong> — ordered only when " +
+             r.line.defaultItem + " will not arrive in time";
+    }
     var held = idsOf(r).map(function (id) { return TRACKED[id]; }).filter(Boolean)[0];
     if (held) {
       why += ". <strong>" + held.heldBy + " hold this stock and it is not in our NetSuite " +
@@ -415,9 +435,7 @@ function renderTrans() {
    same figures. This only supplies the current control settings. */
 
 function compute(r) {
-  return window.FilmCoverage.compute(r, {
-    basis: state.basis, lead: state.lead, baseLead: BASE_LEAD
-  });
+  return window.FilmCoverage.compute(r, OPTS());
 }
 
 function visible() {
@@ -428,7 +446,7 @@ function visible() {
     .filter(function (x) { return !state.focus || statusKey(x.c) === state.focus; })
     .sort(function (a, b) {
       if (a.c.quiet !== b.c.quiet) return a.c.quiet ? 1 : -1;
-      return (a.c.headroom == null ? 9e9 : a.c.headroom) - (b.c.headroom == null ? 9e9 : b.c.headroom);
+      return (a.c.spare == null ? 9e9 : a.c.spare) - (b.c.spare == null ? 9e9 : b.c.spare);
     });
 }
 
@@ -459,20 +477,29 @@ function render() {
       .toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
 
   var v = document.getElementById("verdict"), p = v.querySelector("p");
-  if (lateMine.length) {
+  var pastDue = base.filter(function (x) {
+    return x.r.stockedBy === "MP" && x.c.status === "late";
+  });
+  var soon = base.filter(function (x) { return x.c.status === "watch"; });
+  if (pastDue.length) {
     v.classList.remove("clear");
-    var names = lateMine.slice(0, 3).map(function (x) { return x.r.name.split(" —")[0]; }).join(", ");
-    p.innerHTML = "<strong>" + lateMine.length + " film" +
-      (lateMine.length > 1 ? "s we buy run" : " we buy runs") + " out before a new order could land.</strong>" +
-      "<span class=\"sub\">" + names + (lateMine.length > 3 ? " and " + (lateMine.length - 3) + " more" : "") + ". " +
-      (late.length - lateMine.length) + " more on THEM's side, " + watch.length +
-      " with under a fifth in headroom, " + winding.length + " winding down.</span>";
+    var names = pastDue.slice(0, 3).map(function (x) { return x.r.name.split(" —")[0]; }).join(", ");
+    p.innerHTML = "<strong>" + pastDue.length + " film" + (pastDue.length > 1 ? "s we buy are" : " we buy is") +
+      " past the date an order could still land in time.</strong>" +
+      "<span class=\"sub\">" + names + (pastDue.length > 3 ? " and " + (pastDue.length - 3) + " more" : "") + ". " +
+      soon.length + " more inside " + Math.round(state.lead * 0.2) + " weeks of their order-by date, " +
+      winding.length + " winding down.</span>";
   } else {
     v.classList.add("clear");
-    p.innerHTML = "<strong>Nothing we buy runs out inside the " + state.lead +
-      "-week window on this basis.</strong>" +
-      "<span class=\"sub\">" + watch.length + " with under a fifth in headroom, " + winding.length +
-      " winding down. Switch the demand basis to stress-test.</span>";
+    var next = base.map(function (x) { return { r: x.r, t: window.FilmCoverage.timeline(x.r, OPTS()) }; })
+      .filter(function (x) { return x.t.orderByWeeks != null && x.r.stockedBy === "MP"; })
+      .sort(function (a, b) { return a.t.orderByWeeks - b.t.orderByWeeks; })[0];
+    p.innerHTML = "<strong>Nothing we buy is past its order-by date.</strong>" +
+      "<span class=\"sub\">" +
+      (next ? "Next is <strong>" + next.r.name.split(" —")[0] + "</strong>, by " +
+              dshort(next.t.orderByWeeks) + ". " : "") +
+      soon.length + " inside " + Math.round(state.lead * 0.2) + " weeks of theirs, " +
+      winding.length + " winding down. Switch the demand basis to stress-test.</span>";
   }
 
   /* A runway, not a ratio: each film's bar runs from today to the day it runs dry, with
@@ -480,7 +507,7 @@ function render() {
      rule is today plus the lead time — a bar ending left of it cannot be saved by
      ordering now. */
   var TL = window.FilmCoverage.timeline;
-  var opts = { basis: state.basis, lead: state.lead, baseLead: BASE_LEAD };
+  var opts = OPTS();
   var tl = rows.map(function (x) { return { r: x.r, c: x.c, t: TL(x.r, opts) }; });
 
   var covers = tl.map(function (x) { return x.t.coverWeeks; })
@@ -585,7 +612,7 @@ function render() {
       state.lead + "-week lead</span>";
 
   /* Six columns answer the question; the other seven are the working out. */
-  var NARROW = ["Film", "Stock", "Demand in the window", "Free position", "Order", "Status"];
+  var NARROW = ["Film", "Stock", "Demand in the window", "Runway", "Order by", "Order", "Status"];
   var WIDE = ["Film", "Stocked by", "On hand", "On order", "Committed", "Backordered",
               "On work orders", "SOs not yet WO'd", "Forecast beyond", "Build rate",
               "Free position", "Suggested order", "Status"];
@@ -605,7 +632,7 @@ function render() {
     var label = c.quiet ? "No demand"
       : c.status === "retiring" ? "Winding down"
       : c.status === "late" ? (r.stockedBy === "THEM" ? "THEM to order" : "Order now")
-      : c.status === "watch" ? "Tight" : "Covered";
+      : c.status === "watch" ? "Order soon" : "Covered";
     var cls = c.quiet ? "dormant" : c.status === "retiring" ? "retiring"
       : c.status === "late" ? "late" : c.status === "watch" ? "watch" : "ok";
     var tag = "<span class=\"tag t-" + cls + "\"" + defOf(label) + ">" + label + "</span>";
@@ -630,17 +657,21 @@ function render() {
       "<td>" + tag + "</td>";
 
     var demand = c.quiet ? null : (c.rawNeed != null ? c.rawNeed : c.need);
+    var tRow = window.FilmCoverage.timeline(r, OPTS());
     var narrowRow =
-      "<td class=\"item\">" + r.name + "<small>item " + r.item + " \u00b7 " +
+      "<td class=\"item\">" + r.name + "<small>" +
+        (r.members ? r.memberIds.join(" + ") : "item " + r.item) + " · " +
         (r.stockedBy === "THEM" ? "THEM (Maruto)" : "MP (Lamick)") +
-        (r.note ? " \u00b7 " + r.note : "") +
-        (TRACKED[r.item] ? " \u00b7 held at " + TRACKED[r.item].heldBy + ", see Tracker" : "") + "</small></td>" +
+        (r.note ? " · " + r.note : "") +
+        (heldNote(r) ? " · " + heldNote(r) : "") + "</small></td>" +
       "<td class=\"n\">" + fmt(c.stock) + " " + r.unit + "</td>" +
-      "<td class=\"n\">" + (demand ? fmt(demand) + " " + r.unit : "\u2014") + "</td>" +
+      "<td class=\"n\">" + (demand ? fmt(demand) + " " + r.unit : "—") + "</td>" +
+      "<td class=\"n\">" + (tRow.coverWeeks == null ? "—"
+        : tRow.coverWeeks.toFixed(0) + " wks") + "</td>" +
       "<td class=\"n\" style=\"color:" + (c.quiet ? "inherit" : "var(--" + c.status + ")") + "\">" +
-        (c.quiet ? "\u2014" : c.status === "retiring" && c.transfer > 0 ? "\u2192 " + fmt(c.transfer)
-          : (c.gap < 0 ? "\u2212" : "+") + fmt(Math.abs(c.gap))) + "</td>" +
-      "<td class=\"n\">" + (c.order && r.stockedBy === "MP" ? fmt(c.order) + " " + r.unit : "\u2014") + "</td>" +
+        (tRow.orderByWeeks == null ? (r.retiring ? "not reordered" : "—")
+          : tRow.orderByWeeks <= 0 ? "overdue" : dshort(tRow.orderByWeeks)) + "</td>" +
+      "<td class=\"n\">" + (c.order && r.stockedBy === "MP" ? fmt(c.order) + " " + r.unit : "—") + "</td>" +
       "<td>" + tag + "</td>";
 
     var head = "<tr class=\"head\" data-id=\"" + r.item + "\">" +

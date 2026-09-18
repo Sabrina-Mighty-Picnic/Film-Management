@@ -43,7 +43,9 @@ NetSuite it comes from. In short:
 | `forecastMonths{}` | the FILM tab rows by film |
 | `noFilmWorkOrders[]` | open work orders carrying no film line at all |
 | `transitions[]` | each printed film being run out: stock in hand and the weekly draw |
-| `substituteGroups[]` | items that feed one line and are therefore one buying decision |
+| `substituteGroups[]` | one film held as two items — pooled into one runway, converting units |
+| `lines[]` | a default film and its backup: two decisions, but the default carries the line's draw |
+| `successorItem` | where a retiring film's draw transfers, and therefore when the successor's runway steps down |
 | `trackers[].ledger` | this month's deliveries and shipments for consignment stock — **append, never replace** |
 | `notes[]`, `sourceNotes` | the written cards — **these are last month's words, re-read them** |
 | `glossary` | only when the vocabulary itself changes |
@@ -133,8 +135,8 @@ can link someone straight to the one you mean.
   ordering now.** Rows are sorted by the order you have to place soonest. **Click a
   tile to see only those films**; the timeline and the detail table both follow it.
   Only short and tight are drawn on arrival — the rest are behind "Show N more".
-  Headroom as a percentage still exists, in the detail table, where comparing films
-  measured in metres, millimetres and each needs a ratio rather than a date.
+  Everything reads in time: weeks of runway, the order-by date, and the slack between
+  them. The detail table carries the same two columns beside the quantities.
 - **Printed film, and what it becomes** — each film being retired, when it runs dry,
   and the date by which its blank has to be ordered. Folded shut; the summary line
   says how many are already past their switch-by date.

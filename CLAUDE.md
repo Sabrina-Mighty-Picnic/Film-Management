@@ -86,20 +86,33 @@ detail panels are folded shut. Everything else is one click away, never removed.
 - The status tiles carry the month's real counts — they ignore the tile filter and the
   no-demand checkbox on purpose, so the numbers do not move when you click one.
 
+## Runway, not ratios
+
+The user's language is time. Express everything as weeks, dates and slack — **never as
+"headroom" or a percentage**. Cover is weeks of runway; the decision is the order-by
+date; the gap is weeks of slack. A quantity still belongs where it is a quantity (stock,
+demand, the order itself).
+
 ## Pooled items
 
-`substituteGroups[]` pools items that feed the same line — currently 1094 and 1129,
-the FFW blank. The working views show the pool; the members keep their own rows.
+There are two different relationships, and confusing them makes the page wrong.
 
-- **A split build rate is the trap this exists for.** When a backup is substituted at
-  build time, each item shows only the share of the draw that ran through it. 1094 at
-  3,129 m/wk and 1129 at 3,341 m/wk are one line drawing 6,470. Never read one member's
-  rate as the line's rate.
-- Members must share a unit; the build refuses to pool unlike units.
-- `orderItem` decides the group's lead time and is what the order panel tells you to
-  raise the PO against.
-- Judge whether a new pair is really substitutable before grouping them. Two films that
-  merely look similar are two decisions.
+**`substituteGroups[]` — one film, two items.** TJS Honey printed is 127 per each at
+THEM and 1095 per metre at FFW. One stock facing one demand, so it is pooled into one
+runway, converting with each member's `perUnit`. The members keep their own rows in the
+data and appear in the drill-down.
+
+**`lines[]` — a default and a backup.** 1094 and 1129 are **not** pooled: 1094 is the
+default on a 16-week lead, 1129 is relief on a four-week lead, ordered only when 1094
+will be late. Two decisions. What the default inherits is the line's whole draw.
+
+- **A split build rate is the trap the line model exists for.** 1094 at 3,129 m/wk and
+  1129 at 3,341 are one line drawing 6,470. Never read one member's rate as the line's.
+- Never pool items that are bought separately, however alike they look, and never
+  separate items that are one stock.
+- A retiring film's draw transfers to its `successorItem` on the date its own stock
+  runs out. That date is derived; do not hardcode it. Cross-unit handovers need
+  `successorPerUnit` or the step is left out and the build warns.
 
 ## Rules
 
