@@ -65,6 +65,19 @@ record of it.
   order, because our position for it reads zero by design. Do not "fix" that zero by
   putting their stock into `onHand`.
 
+## Keeping it digestible
+
+The coverage tab is deliberately quiet on arrival: only the films needing a decision
+are drawn, the detail table shows six of its thirteen columns, and the transition and
+detail panels are folded shut. Everything else is one click away, never removed.
+
+- A new panel goes in folded (`<details class="panel">`) unless it tells somebody to
+  do something. What to order is the exception, and it stays first.
+- A new column goes in the wide table, not the narrow one. The narrow six answer
+  "is this a problem and what do I do"; the rest are the working out.
+- The status tiles carry the month's real counts — they ignore the tile filter and the
+  no-demand checkbox on purpose, so the numbers do not move when you click one.
+
 ## Rules
 
 - **Numbers live in `data/`, never in `src/`.** If a figure is hardcoded in a `src/`

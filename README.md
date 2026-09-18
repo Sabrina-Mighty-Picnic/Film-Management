@@ -125,10 +125,20 @@ can link someone straight to the one you mean.
   builds / worst case) and the lead time in weeks. A film with its own `leadWeeks`,
   like the 4-week backup blank 1129, is always judged on its own clock. Everything
   above and below these controls follows them.
-- **Cover to <date>** — headroom per film against the chosen basis.
+- **Cover to <date>** — five tiles counting the month (short, tight, covered, winding
+  down, no demand), then a bar per film. **Click a tile to see only those films**; the
+  bars and the detail table both follow it. Only the short and tight films are drawn
+  on arrival — the rest are one click behind "Show N more", because they need no
+  decision.
 - **Printed film, and what it becomes** — each film being retired, when it runs dry,
-  and the date by which its blank has to be ordered.
-- **Detail** — every figure, with the orders behind it one click down.
+  and the date by which its blank has to be ordered. Folded shut; the summary line
+  says how many are already past their switch-by date.
+- **Detail** — folded shut too. Six plain columns by default (film, stock, demand,
+  free position, order, status) with **Every column** restoring the full thirteen, and
+  the orders behind any film one click down.
+
+Nothing is removed by any of this — it is all one click away. The working view is
+about two screens instead of five.
 
 **Tracker** — film we bought that somebody else holds. A running log of deliveries in
 and shipments out, with the balance, the usage rate and the weeks of cover falling out

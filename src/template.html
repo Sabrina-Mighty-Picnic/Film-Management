@@ -205,6 +205,53 @@ tr.drill td{background:var(--sunk);padding:0}
   text-transform:none;letter-spacing:.012em;margin-left:10px}
 .notes.tight{margin-top:12px}
 
+/* status tiles — the colour key, the counts and the filter, in one strip */
+.tiles{display:flex;flex-wrap:wrap;gap:10px;padding:14px 0 4px}
+.tile{appearance:none;font:inherit;text-align:left;cursor:pointer;display:flex;gap:10px;
+  align-items:center;background:var(--surface);border:1px solid var(--rule);
+  border-radius:10px;padding:9px 14px;min-width:120px;color:var(--ink)}
+.tile i{width:10px;height:10px;border-radius:3px;flex:none}
+.tile b{display:block;font-size:19px;font-weight:700;line-height:1.1}
+.tile span{display:block;font-size:10.5px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.07em;color:var(--muted);margin-top:3px}
+.tile[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.tile[disabled]{opacity:.4;cursor:default}
+.tile:focus-visible{outline:2px solid var(--pomegranate);outline-offset:2px}
+.filterhint{font-size:12.5px;color:var(--muted);padding:2px 0 10px}
+.filterhint button{appearance:none;background:none;border:0;font:inherit;font-size:12.5px;
+  font-weight:700;color:var(--pomegranate);cursor:pointer;text-decoration:underline;padding:0}
+
+/* progressive disclosure */
+.more{display:block;width:100%;margin-top:12px;padding:11px;font:inherit;font-size:11.5px;
+  font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);
+  background:var(--sunk);border:1px dashed var(--rule);border-radius:10px;cursor:pointer}
+.more:hover{color:var(--ink);border-color:var(--ink)}
+.more:focus-visible{outline:2px solid var(--pomegranate);outline-offset:2px}
+.colbtn{float:right;appearance:none;font:inherit;font-size:10.5px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.07em;color:var(--muted);background:var(--sunk);
+  border:1px solid var(--rule);border-radius:99px;padding:5px 12px;cursor:pointer;margin:-3px 0 0}
+.colbtn:hover{color:var(--ink);border-color:var(--ink)}
+.colbtn:focus-visible{outline:2px solid var(--pomegranate);outline-offset:1px}
+
+/* keep the film name in view when the wide table scrolls sideways */
+table.wide td.item,table.wide th.stick{position:sticky;left:0;z-index:2;background:var(--surface)}
+table.wide tbody tr.head:hover td.item{background:var(--sunk)}
+
+/* panels that open only when wanted */
+details.panel > summary{margin:0;padding:16px 20px 13px;font-size:13px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.13em;cursor:pointer;list-style:none;
+  display:flex;align-items:baseline;gap:10px}
+details.panel > summary::-webkit-details-marker{display:none}
+details.panel > summary::before{content:"\25B8";color:var(--pomegranate);font-size:11px;
+  transition:transform .15s ease;flex:none}
+details.panel[open] > summary{border-bottom:1px solid var(--hair)}
+details.panel[open] > summary::before{transform:rotate(90deg)}
+details.panel > summary:hover{background:var(--sunk)}
+details.panel > summary:focus-visible{outline:2px solid var(--pomegranate);outline-offset:-2px}
+details.panel > summary em{font-style:normal;font-weight:500;color:var(--muted);font-size:12.5px;
+  text-transform:none;letter-spacing:.012em}
+details.panel > summary .colbtn{margin-left:auto;float:none}
+
 /* consignment tracker */
 .stats{display:flex;flex-wrap:wrap;gap:12px 34px;padding:16px 20px;border-bottom:1px solid var(--hair)}
 .stat{min-width:120px}
@@ -314,35 +361,25 @@ tr.drill td{background:var(--sunk);padding:0}
   <section class="panel">
     <h2>Cover to <span id="horizon"></span> <em>on hand plus on order, minus the demand basis chosen above</em></h2>
     <div class="runway">
-      <div class="legend">
-        <span><i style="background:var(--late-mark)"></i>Short inside the lead time</span>
-        <span><i style="background:var(--watch-mark)"></i>Under 20% headroom</span>
-        <span><i style="background:var(--ok-mark)"></i>Covered</span>
-        <span><i style="background:var(--retiring-mark)"></i>Being run out — not reordered</span>
-        <span><i style="background:var(--dormant-mark)"></i>No demand on this basis</span>
-      </div>
+      <div class="tiles" id="tiles" role="group" aria-label="Filter by status"></div>
+      <div class="filterhint" id="filterhint" hidden></div>
       <div id="bars"></div>
       <div class="axis"><div></div><div id="ticks"></div><div></div></div>
     </div>
   </section>
 
-  <section class="panel">
-    <h2 id="transHead"></h2>
+  <details class="panel">
+    <summary id="transHead"></summary>
     <div class="trans" id="trans"></div>
-  </section>
+  </details>
 
-  <section class="panel">
-    <h2>Detail <em>click any film to see the orders behind it. Demand nests — work orders sit inside sales orders, which sit inside the forecast — so a film can show all three and still be counted once.</em></h2>
-    <div class="scroll"><table>
-      <thead><tr>
-        <th>Film</th><th>Stocked by</th>
-        <th class="n">On hand</th><th class="n">On order</th><th class="n">Committed</th><th class="n">Backordered</th>
-        <th class="n">On work orders</th><th class="n">SOs not yet WO'd</th><th class="n">Forecast beyond</th><th class="n">Build rate</th>
-        <th class="n">Free position</th><th class="n">Suggested order</th><th>Status</th>
-      </tr></thead>
+  <details class="panel">
+    <summary id="detailHead"></summary>
+    <div class="scroll"><table id="detail">
+      <thead id="thead"></thead>
       <tbody id="tbody"></tbody>
     </table></div>
-  </section>
+  </details>
 
 </div>
 

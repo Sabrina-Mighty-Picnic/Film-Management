@@ -21,7 +21,10 @@ var state = {
   basis: "max",
   lead: META.defaultLeadWeeks || BASE_LEAD,
   them: true,
-  quiet: false
+  quiet: false,
+  focus: null,       // a status tile clicked: show only those films
+  showRest: false,   // the covered / winding down / no demand rows, revealed
+  allCols: false     // the full thirteen columns in the detail table
 };
 
 var fmt = window.FilmCoverage.fmt;
@@ -75,8 +78,15 @@ function renderStatic() {
     .concat(META.asOfLines || []);
   document.getElementById("asof").innerHTML = asofLines.join("<br>");
 
-  document.getElementById("transHead").innerHTML =
-    META.transitionsHeading + " <em>" + META.transitionsSub + "</em>";
+  var dh = document.getElementById("detailHead");
+  dh.innerHTML = "Detail <em id=\"detailCount\"></em>" +
+    "<button class=\"colbtn\" id=\"colToggle\" type=\"button\"></button>";
+  document.getElementById("colToggle").addEventListener("click", function (e) {
+    e.preventDefault();        // the button sits inside a <summary>
+    e.stopPropagation();
+    state.allCols = !state.allCols;
+    render();
+  });
   document.getElementById("sourcesHead").innerHTML =
     META.sourcesHeading + " <em>" + META.sourcesSub + "</em>";
 
@@ -93,6 +103,58 @@ function renderStatic() {
   document.getElementById("foot").innerHTML = META.footer;
   document.getElementById("lead").value = state.lead;
   document.title = META.title + " — " + (META.org || "Mighty Picnic");
+}
+
+/* status of a row, as one key the tiles and the filter both use */
+function statusKey(c) { return c.quiet ? "quiet" : c.status; }
+
+var TILES = [
+  { key: "late",     label: "Short",        mark: "late" },
+  { key: "watch",    label: "Tight",        mark: "watch" },
+  { key: "ok",       label: "Covered",      mark: "ok" },
+  { key: "retiring", label: "Winding down", mark: "retiring" },
+  { key: "quiet",    label: "No demand",    mark: "dormant" }
+];
+
+/* Counts across everything the other filters leave visible, so the numbers do not
+   change when you click one. Clicking a tile narrows the bars and the table to it. */
+function renderTiles(base) {
+  var counts = {};
+  base.forEach(function (x) {
+    var k = statusKey(x.c);
+    counts[k] = (counts[k] || 0) + 1;
+  });
+
+  document.getElementById("tiles").innerHTML = TILES.map(function (t) {
+    var n = counts[t.key] || 0;
+    var on = state.focus === t.key;
+    return "<button class=\"tile\" type=\"button\" data-k=\"" + t.key + "\"" +
+      " aria-pressed=\"" + on + "\"" + (n ? "" : " disabled") + defOf(t.label) + ">" +
+      "<i style=\"background:var(--" + t.mark + "-mark)\"></i>" +
+      "<span style=\"margin:0\"><b>" + n + "</b><span>" + t.label + "</span></span></button>";
+  }).join("");
+
+  var hint = document.getElementById("filterhint");
+  if (state.focus) {
+    var lab = TILES.filter(function (t) { return t.key === state.focus; })[0];
+    hint.hidden = false;
+    hint.innerHTML = "Showing only <strong>" + (lab ? lab.label.toLowerCase() : state.focus) +
+      "</strong> films. <button type=\"button\" id=\"clearFocus\">Show all</button>";
+    document.getElementById("clearFocus").addEventListener("click", function () {
+      state.focus = null; render();
+    });
+  } else {
+    hint.hidden = true;
+    hint.innerHTML = "";
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll(".tile"), function (b) {
+    b.addEventListener("click", function () {
+      state.focus = state.focus === b.dataset.k ? null : b.dataset.k;
+      state.showRest = false;
+      render();
+    });
+  });
 }
 
 /* What to order — the first thing on the page, and the only panel that says "do this" */
@@ -280,7 +342,17 @@ function renderTrans() {
     return num(t.onHand) / num(t.weeklyRate);
   }))) * 1.06;
 
-  document.getElementById("trans").innerHTML = TRANS.map(function (t) {
+  var overdue = TRANS.filter(function (t) {
+    var rate = num(t.weeklyRate);
+    return rate > 0 && (num(t.onHand) / rate) - state.lead <= 0;
+  }).length;
+  document.getElementById("transHead").innerHTML = META.transitionsHeading +
+    " <em>" + TRANS.length + " printed films being run out" +
+    (overdue ? " \u00b7 " + overdue + " already past the switch-by date" : "") + "</em>";
+
+  document.getElementById("trans").innerHTML =
+    "<p class=\"dnone\" style=\"padding:12px 0 2px\">" + META.transitionsSub + "</p>" +
+    TRANS.map(function (t) {
     var rate = num(t.weeklyRate);
     var head = "<div class=\"thead\"><b>" + t.name + "</b>" +
       "<span class=\"who " + (t.stockedBy === "MP" ? "mp" : "") + "\">" +
@@ -338,6 +410,7 @@ function visible() {
     .filter(function (r) { return state.them || r.stockedBy !== "THEM"; })
     .map(function (r) { return { r: r, c: compute(r) }; })
     .filter(function (x) { return state.quiet || !x.c.quiet; })
+    .filter(function (x) { return !state.focus || statusKey(x.c) === state.focus; })
     .sort(function (a, b) {
       if (a.c.quiet !== b.c.quiet) return a.c.quiet ? 1 : -1;
       return (a.c.headroom == null ? 9e9 : a.c.headroom) - (b.c.headroom == null ? 9e9 : b.c.headroom);
@@ -349,11 +422,22 @@ function visible() {
 function render() {
   renderActions();
   renderTrans();
+  // Tile counts ignore the tile filter and the no-demand checkbox, so the numbers on the
+  // tiles are the month's real totals and do not move when you click one.
+  var focus = state.focus, quiet = state.quiet;
+  state.focus = null; state.quiet = true;
+  var base = visible();
+  state.focus = focus; state.quiet = quiet;
+  renderTiles(base);
+
+  // clicking the no-demand tile reveals those rows whatever the checkbox says
+  if (state.focus === "quiet") state.quiet = true;
   var rows = visible();
-  var late = rows.filter(function (x) { return x.c.status === "late"; });
+  state.quiet = quiet;
+  var late = base.filter(function (x) { return x.c.status === "late"; });
   var lateMine = late.filter(function (x) { return x.r.stockedBy === "MP"; });
-  var winding = rows.filter(function (x) { return x.c.status === "retiring"; });
-  var watch = rows.filter(function (x) { return x.c.status === "watch"; });
+  var winding = base.filter(function (x) { return x.c.status === "retiring"; });
+  var watch = base.filter(function (x) { return x.c.status === "watch"; });
 
   document.getElementById("horizon").textContent =
     new Date(ANCHOR.getTime() + state.lead * 7 * 864e5)
@@ -383,7 +467,7 @@ function render() {
   var pct = function (h) { return ((Math.min(Math.max(h, lo), hi) - lo) / (hi - lo)) * 100; };
   var zero = pct(0);
 
-  document.getElementById("bars").innerHTML = rows.map(function (x) {
+  function bar(x) {
     var r = x.r, c = x.c;
     var sub = r.item + " · " + (r.stockedBy === "THEM" ? "THEM-stocked" : "Lamick, we buy") +
               (r.note ? " · " + r.note : "");
@@ -405,10 +489,45 @@ function render() {
       "<small>" + (c.status === "retiring"
         ? (c.transfer > 0 ? "transfers to successor" : "stock covers it")
         : (c.headroom * 100).toFixed(0) + "% headroom") + "</small></div></div>";
-  }).join("");
+  }
+
+  /* Only short and tight need a decision. The rest stay one click away rather than
+     filling four screens with rows nobody has to act on. */
+  var needsEye = rows.filter(function (x) { return x.c.status === "late" || x.c.status === "watch"; });
+  var rest = rows.filter(function (x) { return x.c.status !== "late" && x.c.status !== "watch"; });
+  var split = !state.focus && !state.showRest && needsEye.length > 0 && rest.length > 0;
+  var shown = split ? needsEye : rows;
+
+  document.getElementById("bars").innerHTML = shown.map(bar).join("") +
+    (split
+      ? "<button class=\"more\" type=\"button\" id=\"showRest\">Show " + rest.length +
+        " more — covered, winding down and no demand</button>"
+      : "");
+
+  if (split) {
+    document.getElementById("showRest").addEventListener("click", function () {
+      state.showRest = true; render();
+    });
+  }
 
   document.getElementById("ticks").innerHTML =
     "<span>runs dry</span><span>exactly covered</span><span>" + (hi * 100).toFixed(0) + "% spare</span>";
+
+  /* Six columns answer the question; the other seven are the working out. */
+  var NARROW = ["Film", "Stock", "Demand in the window", "Free position", "Order", "Status"];
+  var WIDE = ["Film", "Stocked by", "On hand", "On order", "Committed", "Backordered",
+              "On work orders", "SOs not yet WO'd", "Forecast beyond", "Build rate",
+              "Free position", "Suggested order", "Status"];
+  var cols = state.allCols ? WIDE : NARROW;
+  document.getElementById("detail").className = state.allCols ? "wide" : "";
+  document.getElementById("colToggle").textContent =
+    state.allCols ? "Fewer columns" : "Every column";
+  document.getElementById("detailCount").textContent =
+    rows.length + (state.focus ? " films in this filter" : " films") + ", every figure behind them";
+  document.getElementById("thead").innerHTML = "<tr>" + cols.map(function (h, i) {
+    var numeric = i > 0 && i < cols.length - 1 && h !== "Stocked by";
+    return "<th" + (i === 0 ? " class=\"stick\"" : numeric ? " class=\"n\"" : "") + ">" + h + "</th>";
+  }).join("") + "</tr>";
 
   document.getElementById("tbody").innerHTML = rows.map(function (x) {
     var r = x.r, c = x.c;
@@ -421,7 +540,7 @@ function render() {
     var tag = "<span class=\"tag t-" + cls + "\"" + defOf(label) + ">" + label + "</span>";
     var scale = (r.leadWeeks != null ? r.leadWeeks : state.lead) / BASE_LEAD;
 
-    var head = "<tr class=\"head\" data-id=\"" + r.item + "\">" +
+    var wideRow =
       "<td class=\"item\">" + r.name + "<small>item " + r.item + (r.note ? " · " + r.note : "") + "</small></td>" +
       "<td>" + (r.stockedBy === "THEM" ? "THEM (Maruto)" : "MP (Lamick)") + "</td>" +
       "<td class=\"n\">" + fmt(num(r.onHand)) + " " + r.unit + "</td>" +
@@ -437,7 +556,24 @@ function render() {
         (c.quiet ? "—" : c.status === "retiring" && c.transfer > 0 ? "→ " + fmt(c.transfer)
           : (c.gap < 0 ? "−" : "+") + fmt(Math.abs(c.gap))) + "</td>" +
       "<td class=\"n\">" + (c.order && r.stockedBy === "MP" ? fmt(c.order) + " " + r.unit : "—") + "</td>" +
-      "<td>" + tag + "</td></tr>";
+      "<td>" + tag + "</td>";
+
+    var demand = c.quiet ? null : (c.rawNeed != null ? c.rawNeed : c.need);
+    var narrowRow =
+      "<td class=\"item\">" + r.name + "<small>item " + r.item + " \u00b7 " +
+        (r.stockedBy === "THEM" ? "THEM (Maruto)" : "MP (Lamick)") +
+        (r.note ? " \u00b7 " + r.note : "") +
+        (TRACKED[r.item] ? " \u00b7 held at " + TRACKED[r.item].heldBy + ", see Tracker" : "") + "</small></td>" +
+      "<td class=\"n\">" + fmt(c.stock) + " " + r.unit + "</td>" +
+      "<td class=\"n\">" + (demand ? fmt(demand) + " " + r.unit : "\u2014") + "</td>" +
+      "<td class=\"n\" style=\"color:" + (c.quiet ? "inherit" : "var(--" + c.status + ")") + "\">" +
+        (c.quiet ? "\u2014" : c.status === "retiring" && c.transfer > 0 ? "\u2192 " + fmt(c.transfer)
+          : (c.gap < 0 ? "\u2212" : "+") + fmt(Math.abs(c.gap))) + "</td>" +
+      "<td class=\"n\">" + (c.order && r.stockedBy === "MP" ? fmt(c.order) + " " + r.unit : "\u2014") + "</td>" +
+      "<td>" + tag + "</td>";
+
+    var head = "<tr class=\"head\" data-id=\"" + r.item + "\">" +
+      (state.allCols ? wideRow : narrowRow) + "</tr>";
 
     var lines = WOLINES.filter(function (l) { return l.film === r.item; });
     var woHtml = lines.length
@@ -493,7 +629,7 @@ function render() {
           ("No row for this film on the FILM tab" +
            (r.weeklyBuildRate ? " — yet it is being consumed, so the plan has a gap" : "") + ".")) + "</p>";
 
-    return head + "<tr class=\"drill\" data-for=\"" + r.item + "\" hidden><td colspan=\"13\">" +
+    return head + "<tr class=\"drill\" data-for=\"" + r.item + "\" hidden><td colspan=\"" + cols.length + "\">" +
       "<div class=\"drillbox\">" + nlHtml + rtHtml + woHtml + soHtml + fcHtml + nbHtml + "</div></td></tr>";
   }).join("");
 

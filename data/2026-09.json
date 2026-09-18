@@ -1595,6 +1595,10 @@
       "group": "The five statuses",
       "terms": [
         {
+          "term": "Short",
+          "def": "The tile at the top of the coverage panel. It counts every film whose stock and orders fall below the demand over the window — ours, which the table tags <strong>Order now</strong>, and THEM's, which it tags <strong>THEM to order</strong>. Click the tile to see only those films."
+        },
+        {
           "term": "Order now",
           "def": "Film we buy that is short inside the lead time — an order placed today already lands late."
         },
