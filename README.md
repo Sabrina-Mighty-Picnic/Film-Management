@@ -167,6 +167,23 @@ for headings, Medium for body copy, exactly as the guide sets it.
 Every colour is a custom property at the top of `src/template.html`, with the brand
 hex codes named. Change one there and it changes everywhere.
 
+The logo in the masthead is the real mark, carried inside the page as a **CSS mask**
+rather than a picture — so it is pomegranate on bone in light mode and bone on royal
+blue in dark mode from one file, and a built page still shows it when emailed or opened
+straight off a disk with no network. The browser-tab icon is the first arch glyph of
+the monogram, which is the part that still reads at 16px.
+
+| File | What it is |
+| --- | --- |
+| `assets/mighty-picnic-logo.webp` | the supplied artwork — the source of truth |
+| `src/logo-mask.png` | generated: white silhouette on transparency, used as the mask |
+| `src/favicon.png` | generated: the arch glyph on bone |
+| `bin/make-logo.html` | open it in a browser to regenerate both from the artwork |
+
+To change the logo, drop the new artwork in `assets/` and either open
+`bin/make-logo.html` and save the two downloads over the files above, or just ask
+Claude Code to regenerate them.
+
 One deliberate departure: the status scale. Short is pomegranate and tight is gold,
 both darkened enough to stay legible on bone, and winding down is royal blue. Covered
 is a green the brand palette does not carry, because "on plan" has to read instantly
@@ -184,6 +201,8 @@ src/template.html     the shell and all the styling
 src/build.mjs         validate, report, write dist/
 bin/new-month.mjs     start next month from this one
 dist/                 the built pages, one per month
+assets/               the supplied logo artwork
+bin/make-logo.html    regenerate the logo mask and favicon from that artwork
 vercel.json           deploy config — build command and output directory
 dashboard.json        the published artifact URL
 ```

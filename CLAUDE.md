@@ -41,6 +41,14 @@ uppercase with wide tracking for headings.
   `prefers-color-scheme` and under `[data-theme="dark"]` — and both copies must match.
 - Any new colour needs 3:1 against its surface for a mark and 4.5:1 for small text.
   The dataviz skill ships `scripts/validate_palette.js`, which exports `contrast()`.
+- The masthead logo is `src/logo-mask.png`, inlined by the build as a CSS mask so it
+  recolours per theme; the tab icon is `src/favicon.png`. **Both are generated** from
+  `assets/mighty-picnic-logo.webp` — never hand-edit them, and never add a second
+  colour variant. `bin/make-logo.html` holds the recipe: knock the background out to
+  alpha, trim, clean the alpha so it compresses, scale, and for the icon crop the
+  first arch glyph. Regenerate by running that page's script in headless Chromium.
+- Keep the built page self-contained. Images belong inline as data URIs, not as
+  separate files a copy of the HTML could be separated from.
 
 ## Deploying
 

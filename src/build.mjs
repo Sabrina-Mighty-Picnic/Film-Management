@@ -228,10 +228,18 @@ function render(d, period) {
   const app = fs.readFileSync(path.join(ROOT, "src", "dashboard.js"), "utf8");
   const cov = fs.readFileSync(path.join(ROOT, "src", "coverage.cjs"), "utf8");
   const title = `${d.meta.title} — ${d.meta.org || "Mighty Picnic"}`;
+  // the logo travels inside the page, so a built file still shows it when emailed or
+  // opened straight off disk. It is a mask, so CSS gives it its colour per theme.
+  const logo = "data:image/png;base64," +
+    fs.readFileSync(path.join(ROOT, "src", "logo-mask.png")).toString("base64");
+  const favicon = "data:image/png;base64," +
+    fs.readFileSync(path.join(ROOT, "src", "favicon.png")).toString("base64");
   // </script> inside a JSON string would close the tag early
   const json = JSON.stringify(d).replace(/<\//g, "<\\/");
   return template
     .replace("{{TITLE}}", title)
+    .replace(/\{\{LOGO\}\}/g, () => logo)
+    .replace("{{FAVICON}}", () => favicon)
     .replace("{{DATA}}", () => json)
     .replace("{{APP}}", () => cov + "\n" + app)
     + `\n<!-- built from data/${period}.json on ${new Date().toISOString().slice(0, 10)} -->\n`;

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<!-- Regenerates the two logo files from assets/mighty-picnic-logo.webp.
+
+     Open this file in a browser and it renders both, with a download link each.
+     Save them over src/logo-mask.png and src/favicon.png, then `npm run build`.
+     (Or just ask Claude Code to regenerate them — it does the same thing headless.)
+
+     logo-mask.png is a white silhouette on transparency, used as a CSS mask, so the
+     masthead logo takes its colour from the theme instead of needing two files.
+     favicon.png is the first arch glyph, which is the part that still reads at 16px. -->
+<html lang="en">
+<head><meta charset="utf-8"><title>Rebuild the Mighty Picnic logo files</title>
+<style>
+ body{font:14px/1.6 system-ui,sans-serif;margin:40px;max-width:640px;color:#2E2B84;background:#FCF2E4}
+ h1{font-size:18px} .row{display:flex;gap:20px;align-items:center;margin:20px 0}
+ .sw{background:#E63D33;width:220px;aspect-ratio:560/144}
+ a{color:#E63D33;font-weight:600} pre{font-size:12px;color:#565394}
+</style></head>
+<body>
+<h1>Mighty Picnic logo files</h1>
+<p>Source: <code>assets/mighty-picnic-logo.webp</code></p>
+<div class="row"><div class="sw" id="preview"></div><a id="dlMask" download="logo-mask.png">download logo-mask.png</a></div>
+<div class="row"><img id="favPrev" width="64" height="64" alt=""><a id="dlFav" download="favicon.png">download favicon.png</a></div>
+<pre id="info"></pre>
+<img id="src" src="../assets/mighty-picnic-logo.webp" hidden>
+<script>
+const MASK_WIDTH = 560, FAV_SIDE = 96;
+const img = document.getElementById("src");
+
+function build() {
+  const W = img.naturalWidth, H = img.naturalHeight;
+  const c = document.createElement("canvas"); c.width = W; c.height = H;
+  const x = c.getContext("2d", { willReadFrequently: true });
+  x.drawImage(img, 0, 0);
+  const p = x.getImageData(0, 0, W, H).data;
+  const A = (xx, yy) => p[(yy * W + xx) * 4 + 3];
+  const lum = i => 0.2126 * p[i] + 0.7152 * p[i + 1] + 0.0722 * p[i + 2];
+
+  // real transparency, or ink on a white field?
+  let clear = 0;
+  for (let i = 3; i < p.length; i += 4) if (p[i] < 250) clear++;
+  const hasAlpha = clear > (p.length / 4) * 0.02;
+  const ink = new Uint8ClampedArray(W * H);
+  for (let i = 0, j = 0; i < p.length; i += 4, j++) {
+    ink[j] = hasAlpha ? p[i + 3] : 255 - lum(i);
+  }
+
+  // trim
+  let x0 = W, y0 = H, x1 = -1, y1 = -1;
+  for (let yy = 0; yy < H; yy++) for (let xx = 0; xx < W; xx++) {
+    if (ink[yy * W + xx] > 10) { if (xx < x0) x0 = xx; if (xx > x1) x1 = xx; if (yy < y0) y0 = yy; if (yy > y1) y1 = yy; }
+  }
+  const cw = x1 - x0 + 1, ch = y1 - y0 + 1;
+
+  // --- the mask: white shape, alpha from the ink, lightly cleaned so it compresses ---
+  const m = document.createElement("canvas"); m.width = W; m.height = H;
+  const mx = m.getContext("2d"), md = mx.createImageData(W, H);
+  for (let j = 0; j < W * H; j++) {
+    let v = ink[j] * 1.18;
+    v = v < 14 ? 0 : v > 232 ? 255 : v;
+    md.data[j * 4] = md.data[j * 4 + 1] = md.data[j * 4 + 2] = 255;
+    md.data[j * 4 + 3] = Math.min(255, Math.round(v));
+  }
+  mx.putImageData(md, 0, 0);
+  const mask = document.createElement("canvas");
+  mask.width = MASK_WIDTH; mask.height = Math.round(ch * MASK_WIDTH / cw);
+  const mc = mask.getContext("2d"); mc.imageSmoothingQuality = "high";
+  mc.drawImage(m, x0, y0, cw, ch, 0, 0, mask.width, mask.height);
+
+  // --- the favicon: the first arch glyph of the monogram, on bone ---
+  const gap = (from, to, along, min) => {           // first run of empty lines
+    let run = 0;
+    for (let a = from; a < to; a++) {
+      let n = 0;
+      for (const b of along(a)) if (b > 10) n++;
+      if (n === 0) { run++; if (run > 4 && a - from > min) return a - run + 1; } else run = 0;
+    }
+    return -1;
+  };
+  const monoW = Math.round(cw * 0.36);
+  const rowBottom = gap(y0, y1, yy => { const r = []; for (let xx = x0; xx < x0 + monoW; xx++) r.push(A(xx, yy)); return r; },
+                        (y1 - y0) * 0.3);
+  const bottom = rowBottom > 0 ? rowBottom : y0 + Math.round(ch / 2);
+  const gEnd = gap(x0, x0 + monoW, xx => { const r = []; for (let yy = y0; yy < bottom; yy++) r.push(A(xx, yy)); return r; }, 40);
+  const gw = (gEnd > 0 ? gEnd : x0 + Math.round(monoW / 3)) - x0, gh = bottom - y0;
+
+  const f = document.createElement("canvas"); f.width = f.height = FAV_SIDE;
+  const fx = f.getContext("2d");
+  fx.fillStyle = "#FCF2E4";
+  fx.beginPath(); fx.roundRect(0, 0, FAV_SIDE, FAV_SIDE, FAV_SIDE * 0.21); fx.fill();
+  const tint = document.createElement("canvas"); tint.width = gw; tint.height = gh;
+  const tc = tint.getContext("2d");
+  tc.drawImage(c, x0, y0, gw, gh, 0, 0, gw, gh);
+  tc.globalCompositeOperation = "source-in";
+  tc.fillStyle = "#E63D33"; tc.fillRect(0, 0, gw, gh);
+  const pad = FAV_SIDE * 0.095, inner = FAV_SIDE - pad * 2;
+  const s = Math.min(inner / gw, inner / gh), dw = Math.round(gw * s), dh = Math.round(gh * s);
+  fx.imageSmoothingQuality = "high";
+  fx.drawImage(tint, 0, 0, gw, gh, Math.round((FAV_SIDE - dw) / 2), Math.round((FAV_SIDE - dh) / 2), dw, dh);
+
+  const maskUrl = mask.toDataURL("image/png"), favUrl = f.toDataURL("image/png");
+  document.getElementById("preview").style.mask =
+    document.getElementById("preview").style.webkitMask = `url(${maskUrl}) no-repeat left center/contain`;
+  document.getElementById("favPrev").src = favUrl;
+  document.getElementById("dlMask").href = maskUrl;
+  document.getElementById("dlFav").href = favUrl;
+  document.getElementById("info").textContent =
+    `source ${W}x${H}, alpha ${hasAlpha}\ntrimmed to ${cw}x${ch}\n` +
+    `mask ${mask.width}x${mask.height}, ${Math.round(maskUrl.length / 1024)} KB inlined\n` +
+    `favicon ${FAV_SIDE}x${FAV_SIDE}, glyph ${gw}x${gh}`;
+}
+if (img.complete) build(); else img.onload = build;
+</script>
+</body></html>

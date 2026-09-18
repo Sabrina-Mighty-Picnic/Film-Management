@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{{TITLE}}</title>
+<link rel="icon" type="image/png" href="{{FAVICON}}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -67,10 +68,12 @@ body{margin:0;background:var(--shell);color:var(--ink);
 /* masthead */
 .mast{display:flex;flex-wrap:wrap;align-items:flex-end;gap:20px;justify-content:space-between;
   padding-bottom:16px}
-.brandline{display:flex;align-items:center;gap:10px;margin-bottom:14px}
-.brandline svg{display:block;flex:none}
-.brandline span{font-size:12px;font-weight:700;text-transform:uppercase;
-  letter-spacing:.23em;color:var(--pomegranate)}
+.brandline{margin-bottom:16px}
+.brandmark{width:min(238px,56vw);aspect-ratio:560/144;background-color:var(--pomegranate);
+  -webkit-mask:url({{LOGO}}) no-repeat left center/contain;
+          mask:url({{LOGO}}) no-repeat left center/contain}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .brandmark{background-color:var(--bone)}}
+:root[data-theme="dark"] .brandmark{background-color:var(--bone)}
 .rule-gradient{height:4px;border-radius:2px;margin-bottom:22px;
   background:linear-gradient(90deg,var(--pomegranate) 0%,var(--raspberry) 26%,
     var(--raspberry-2) 48%,var(--gold) 72%,var(--lavender) 100%)}
@@ -311,13 +314,7 @@ details.panel > summary .colbtn{margin-left:auto;float:none}
 <div class="wrap">
 
 <div class="brandline">
-  <svg width="34" height="20" viewBox="0 0 34 20" aria-hidden="true" fill="none" stroke-width="2.4">
-    <path d="M2 19a7 7 0 0 1 14 0" stroke="var(--pomegranate)"/>
-    <path d="M6.5 19a2.5 2.5 0 0 1 5 0" stroke="var(--gold)"/>
-    <path d="M18 19a7 7 0 0 1 14 0" stroke="var(--raspberry)"/>
-    <path d="M22.5 19a2.5 2.5 0 0 1 5 0" stroke="var(--gold)"/>
-  </svg>
-  <span>Mighty Picnic</span>
+  <div class="brandmark" role="img" aria-label="Mighty Picnic"></div>
 </div>
 
 <header class="mast">
