@@ -28,6 +28,11 @@ var state = {
 };
 
 var fmt = window.FilmCoverage.fmt;
+var dshort = function (wk) {
+  var d = new Date(ANCHOR.getTime() + wk * 7 * 864e5);
+  return d.toLocaleDateString("en-GB", { day: "numeric", month: "short" }) +
+    (d.getFullYear() === ANCHOR.getFullYear() ? "" : " " + String(d.getFullYear()).slice(2));
+};
 var dstr = function (wk) {
   return new Date(ANCHOR.getTime() + wk * 7 * 864e5)
     .toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
@@ -55,6 +60,11 @@ function defOf(term) {
 
 /* ---------- tabs ---------- */
 
+var GROUPS = D.substituteGroups || [];
+/* Two items that feed the same line are one buying decision, so the working views
+   show the pool. The members keep their own rows in the data and in the drill-down. */
+var ROWS = window.FilmCoverage.workingRows(FILMS, GROUPS);
+var idsOf = function (r) { return r.memberIds || [r.item]; };
 var TRACKERS = D.trackers || [];
 var TRACKED = {};
 TRACKERS.forEach(function (t) { TRACKED[t.item] = t; });
@@ -163,7 +173,7 @@ function renderActions() {
   var HORIZON = 8;   // weeks: an order-by date further out than this is not this month's problem
 
   var mine = [];
-  FILMS.forEach(function (r) {
+  ROWS.forEach(function (r) {
     if (r.stockedBy !== "MP") return;
     var p = window.FilmCoverage.orderPlan(r, opts);
     if (!p || p.orderInWeeks > HORIZON) return;
@@ -171,7 +181,7 @@ function renderActions() {
   });
   mine.sort(function (a, b) { return a.p.orderInWeeks - b.p.orderInWeeks; });
 
-  var theirs = FILMS.filter(function (r) {
+  var theirs = ROWS.filter(function (r) {
     if (r.stockedBy !== "THEM") return false;
     var c = compute(r);
     return c.status === "late" || (c.status === "watch" && c.transfer > 0);
@@ -186,7 +196,7 @@ function renderActions() {
         fmt(p.need) + " of demand on " + BASIS_LABEL[state.basis]
       : Math.round(p.headroom * 100) + "% headroom — about " + p.coverWeeks.toFixed(0) +
         " weeks of cover against a " + p.lead + "-week lead";
-    var held = TRACKED[r.item];
+    var held = idsOf(r).map(function (id) { return TRACKED[id]; }).filter(Boolean)[0];
     if (held) {
       why += ". <strong>" + held.heldBy + " hold this stock and it is not in our NetSuite " +
              "position</strong>, so check the Tracker tab before raising anything";
@@ -196,7 +206,12 @@ function renderActions() {
         fmt(p.qty) + " " + r.unit +
         "<small>" + (held ? "check tracker first" : p.rolls ? "\u2248 " + p.rolls + " rolls" : "suggested order") +
         "</small></div>" +
-      "<div class=\"what\">" + r.name + "<small>item " + r.item + " \u00b7 " + why + "</small></div>" +
+      "<div class=\"what\">" + r.name + "<small>" +
+        (r.members
+          ? "raise it against <strong>" + r.orderItem.item + "</strong> \u00b7 pooled with " +
+            r.memberIds.filter(function (id) { return id !== r.orderItem.item; }).join(", ")
+          : "item " + r.item) +
+        " \u00b7 " + why + "</small></div>" +
       "<div class=\"when\" style=\"color:" + col + "\">" +
         (p.overdue ? "Order now" : "By " + dstr(p.orderInWeeks)) +
         "<small>" + (p.overdue ? "already inside the " + p.lead + "-week lead"
@@ -406,7 +421,7 @@ function compute(r) {
 }
 
 function visible() {
-  return FILMS
+  return ROWS
     .filter(function (r) { return state.them || r.stockedBy !== "THEM"; })
     .map(function (r) { return { r: r, c: compute(r) }; })
     .filter(function (x) { return state.quiet || !x.c.quiet; })
@@ -460,45 +475,94 @@ function render() {
       " winding down. Switch the demand basis to stress-test.</span>";
   }
 
-  var hs = rows.filter(function (x) { return !x.c.quiet; })
-    .map(function (x) { return Math.max(-1.2, Math.min(3, x.c.headroom)); });
-  var lo = Math.min.apply(null, [-1.2].concat(hs));
-  var hi = Math.max.apply(null, [1.5].concat(hs));
-  var pct = function (h) { return ((Math.min(Math.max(h, lo), hi) - lo) / (hi - lo)) * 100; };
-  var zero = pct(0);
+  /* A runway, not a ratio: each film's bar runs from today to the day it runs dry, with
+     a pin at the last date an order can be placed and still land in time. The vertical
+     rule is today plus the lead time — a bar ending left of it cannot be saved by
+     ordering now. */
+  var TL = window.FilmCoverage.timeline;
+  var opts = { basis: state.basis, lead: state.lead, baseLead: BASE_LEAD };
+  var tl = rows.map(function (x) { return { r: x.r, c: x.c, t: TL(x.r, opts) }; });
 
-  function bar(x) {
-    var r = x.r, c = x.c;
-    var sub = r.item + " · " + (r.stockedBy === "THEM" ? "THEM-stocked" : "Lamick, we buy") +
+  var covers = tl.map(function (x) { return x.t.coverWeeks; })
+                 .filter(function (v) { return v != null && isFinite(v); });
+  // twice the lead time is the decision window: far enough to see the next order coming,
+  // near enough that the bars are readable. Anything longer is clipped and labelled.
+  var span = Math.max(state.lead * 2, 26);
+  if (covers.length) {
+    span = Math.min(span, Math.max(Math.max.apply(null, covers) * 1.08, state.lead * 1.35));
+  }
+  span = Math.ceil(span);
+  var pctOf = function (w) { return Math.max(0, Math.min(100, (w / span) * 100)); };
+
+  var marks = [], mk = new Date(ANCHOR.getFullYear(), ANCHOR.getMonth() + 1, 1);
+  while (((mk - ANCHOR) / (7 * 864e5)) <= span) {
+    marks.push({ wk: (mk - ANCHOR) / (7 * 864e5),
+                 label: mk.toLocaleDateString("en-GB", { month: "short" }) +
+                        (mk.getMonth() === 0 ? " " + String(mk.getFullYear()).slice(2) : "") });
+    mk = new Date(mk.getFullYear(), mk.getMonth() + 1, 1);
+  }
+  var gridlines = marks.map(function (m) {
+    return "<span class=\"gl\" style=\"left:" + pctOf(m.wk) + "%\"></span>";
+  }).join("");
+
+  /* sorted by the decision: the order you have to place soonest comes first */
+  tl.sort(function (a, b) {
+    var av = a.t.orderByWeeks, bv = b.t.orderByWeeks;
+    if (av == null && bv == null) return (a.t.coverWeeks || 9e9) - (b.t.coverWeeks || 9e9);
+    if (av == null) return 1;
+    if (bv == null) return -1;
+    return av - bv;
+  });
+
+  function runway(x) {
+    var r = x.r, c = x.c, t = x.t;
+    var sub = (r.members ? r.memberIds.join(" + ") : r.item) + " · " +
+              (r.stockedBy === "THEM" ? "THEM-stocked" : "Lamick, we buy") +
               (r.note ? " · " + r.note : "");
-    if (c.quiet) {
-      return "<div class=\"bar\"><div class=\"nm\">" + r.name + "<small>" + sub + "</small></div>" +
-        "<div class=\"track\"><span class=\"zero\" style=\"left:" + zero + "%\"></span></div>" +
+    var nm = "<div class=\"nm\">" + r.name + (r.members ? " <b>pooled</b>" : "") +
+             "<small>" + sub + "</small></div>";
+    var leadPct = pctOf(state.lead);
+    var frame = "<div class=\"track tl\">" + gridlines +
+                "<span class=\"leadline\" style=\"left:" + leadPct + "%\"></span>";
+
+    if (t.coverWeeks == null) {
+      return "<div class=\"bar" + (r.members ? " grouprow" : "") + "\">" + nm + frame + "</div>" +
         "<div class=\"val\" style=\"color:var(--dormant)\">no demand<small>" +
         fmt(num(r.onHand)) + " " + r.unit + " held</small></div></div>";
     }
-    var a = Math.min(zero, pct(c.headroom)), b = Math.max(zero, pct(c.headroom));
-    var col = "var(--" + c.status + ")";               // text
-    var fill = "var(--" + c.status + "-mark)";          // the bar itself
-    return "<div class=\"bar\"><div class=\"nm\">" + r.name + "<small>" + sub + "</small></div>" +
-      "<div class=\"track\"><span class=\"zero\" style=\"left:" + zero + "%\"></span>" +
-      "<span class=\"fill\" style=\"left:" + a + "%;width:" + Math.max(b - a, 1.2) + "%;background:" + fill + "\"></span></div>" +
-      "<div class=\"val\" style=\"color:" + col + "\">" +
-      (c.status === "retiring" && c.transfer > 0 ? "→ " + fmt(c.transfer)
-        : (c.gap < 0 ? "−" : "+") + fmt(Math.abs(c.gap))) + " " + r.unit +
-      "<small>" + (c.status === "retiring"
-        ? (c.transfer > 0 ? "transfers to successor" : "stock covers it")
-        : (c.headroom * 100).toFixed(0) + "% headroom") + "</small></div></div>";
+
+    var col = "var(--" + t.status + "-mark)";
+    var txt = "var(--" + t.status + ")";
+    var clipped = t.coverWeeks > span;
+    var bar = "<span class=\"run" + (clipped ? " clip" : "") + "\" style=\"width:" +
+              pctOf(t.coverWeeks) + "%;background:" + col + "\"></span>";
+    var pin = t.orderByWeeks == null ? ""
+      : t.orderByWeeks <= 0
+        ? "<span class=\"pin order overdue\"></span>"
+        : "<span class=\"pin order\" style=\"left:" + pctOf(t.orderByWeeks) + "%\"></span>";
+
+    var dry = clipped ? "lasts past " + dshort(span) : "runs dry " + dshort(t.coverWeeks);
+    var when = t.orderByWeeks == null
+      ? (r.retiring ? "not reordered" : "—")
+      : t.orderByWeeks <= 0 ? "order now"
+      // a date two years out is arithmetic, not a plan
+      : t.orderByWeeks > span ? "not yet"
+      : "order by " + dshort(t.orderByWeeks);
+
+    return "<div class=\"bar" + (r.members ? " grouprow" : "") + "\">" + nm +
+      frame + bar + pin + "</div>" +
+      "<div class=\"val\" style=\"color:" + txt + "\">" + when +
+      "<small><em>" + dry + "</em></small></div></div>";
   }
 
   /* Only short and tight need a decision. The rest stay one click away rather than
      filling four screens with rows nobody has to act on. */
-  var needsEye = rows.filter(function (x) { return x.c.status === "late" || x.c.status === "watch"; });
-  var rest = rows.filter(function (x) { return x.c.status !== "late" && x.c.status !== "watch"; });
+  var needsEye = tl.filter(function (x) { return x.c.status === "late" || x.c.status === "watch"; });
+  var rest = tl.filter(function (x) { return x.c.status !== "late" && x.c.status !== "watch"; });
   var split = !state.focus && !state.showRest && needsEye.length > 0 && rest.length > 0;
-  var shown = split ? needsEye : rows;
+  var shown = split ? needsEye : tl;
 
-  document.getElementById("bars").innerHTML = shown.map(bar).join("") +
+  document.getElementById("bars").innerHTML = shown.map(runway).join("") +
     (split
       ? "<button class=\"more\" type=\"button\" id=\"showRest\">Show " + rest.length +
         " more — covered, winding down and no demand</button>"
@@ -511,7 +575,14 @@ function render() {
   }
 
   document.getElementById("ticks").innerHTML =
-    "<span>runs dry</span><span>exactly covered</span><span>" + (hi * 100).toFixed(0) + "% spare</span>";
+    marks.map(function (m) {
+      var at = pctOf(m.wk);
+      // the lead rule owns its slot; a month label landing under it would collide
+      if (Math.abs(at - pctOf(state.lead)) < 4) return "";
+      return "<span style=\"left:" + at + "%\">" + m.label + "</span>";
+    }).join("") +
+    "<span class=\"lead\" style=\"left:" + pctOf(state.lead) + "%\">\u25b2 " +
+      state.lead + "-week lead</span>";
 
   /* Six columns answer the question; the other seven are the working out. */
   var NARROW = ["Film", "Stock", "Demand in the window", "Free position", "Order", "Status"];

@@ -14,7 +14,7 @@ import { fileURLToPath } from "node:url";
 import { createRequire } from "node:module";
 
 const require = createRequire(import.meta.url);
-const { compute, orderPlan, runLedger, fmt } = require("./coverage.cjs");
+const { compute, orderPlan, timeline, workingRows, runLedger, fmt } = require("./coverage.cjs");
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DATA_DIR = path.join(ROOT, "data");
@@ -127,6 +127,20 @@ function validate(d, period) {
     if (typeof t.onHand !== "number") E(`transition ${t.item}: onHand is not a number`);
     if (typeof t.weeklyRate !== "number") E(`transition ${t.item}: weeklyRate is not a number`);
   }
+  for (const g of d.substituteGroups || []) {
+    const where = `group ${g.id || "(no id)"}`;
+    if (!g.id || !g.name) E(`${where}: a group needs an id and a name`);
+    if (!Array.isArray(g.items) || g.items.length < 2) E(`${where}: a group needs at least two items`);
+    const members = (g.items || []).map(id => (d.films || []).find(r => r.item === id));
+    members.forEach((m, k) => { if (!m) E(`${where}: item ${g.items[k]} is not in films`); });
+    const found = members.filter(Boolean);
+    if (found.length && new Set(found.map(m => m.unit)).size > 1) {
+      E(`${where}: members are held in different units (${found.map(m => m.item + " in " + m.unit).join(", ")}) — pooling them would add unlike quantities`);
+    }
+    if (g.orderItem && !g.items.includes(g.orderItem)) E(`${where}: orderItem ${g.orderItem} is not one of its items`);
+    if (!g.orderItem) W(`${where}: no orderItem, so the order panel cannot say which item to raise the PO against`);
+  }
+
   const LEDGER_TYPES = ["received", "used", "count", "adjustment"];
   for (const t of d.trackers || []) {
     const where = `tracker ${t.item || "(no item)"}`;
@@ -180,14 +194,15 @@ function validate(d, period) {
 function summarise(d) {
   const lead = d.meta.defaultLeadWeeks || d.meta.baseLeadWeeks || 16;
   const opts = { basis: "max", lead, baseLead: d.meta.baseLeadWeeks || 16 };
-  const rows = d.films.map(r => ({ r, c: compute(r, opts) }));
+  const working = workingRows(d.films, d.substituteGroups || []);
+  const rows = working.map(r => ({ r, c: compute(r, opts) }));
   const pick = s => rows.filter(x => x.c.status === s);
   const late = pick("late"), watch = pick("watch"), winding = pick("retiring");
   const quiet = rows.filter(x => x.c.quiet);
 
   const lines = [];
 
-  const toOrder = d.films
+  const toOrder = working
     .filter(r => r.stockedBy === "MP")
     .map(r => ({ r, p: orderPlan(r, opts) }))
     .filter(x => x.p && x.p.orderInWeeks <= 8)
@@ -195,9 +210,22 @@ function summarise(d) {
   const tracked = new Set((d.trackers || []).map(t => t.item));
 
   lines.push(toOrder.length ? "To order inside the next 8 weeks:" : "Nothing to order inside the next 8 weeks.");
+  const later = working
+    .filter(r => r.stockedBy === "MP")
+    .map(r => ({ r, t: timeline(r, opts) }))
+    .filter(x => x.t.orderByWeeks != null && x.t.orderByWeeks > 8)
+    .sort((a, b2) => a.t.orderByWeeks - b2.t.orderByWeeks)
+    .slice(0, 5);
   for (const { r, p } of toOrder) {
     lines.push(`  ${p.overdue ? "NOW" : "by "}  ${fmt(p.qty).padStart(7)} ${r.unit.padEnd(2)} ${r.item} ${r.name}` +
                (tracked.has(r.item) ? "   [held off-site — check the tracker]" : ""));
+  }
+  if (later.length) {
+    lines.push("Next after that:");
+    for (const { r, t } of later) {
+      lines.push(`  ${t.orderByWeeks.toFixed(0).padStart(3)}wk  ${r.item} ${r.name}` +
+                 `  (runs dry in ${t.coverWeeks.toFixed(0)} wks)`);
+    }
   }
   for (const t of d.trackers || []) {
     const L = runLedger(t);

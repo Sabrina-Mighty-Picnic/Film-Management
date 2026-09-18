@@ -137,5 +137,72 @@ function runLedger(t) {
            low: num(t.reorderAt) > 0 && balance <= t.reorderAt };
 }
 
-return { compute: compute, orderPlan: orderPlan, runLedger: runLedger, fmt: fmt, num: num };
+/* When does this film run out, and when must it be ordered?
+   The rate is the faster of the recent build rate and the rate the chosen demand basis
+   implies over the lead time, so a film with orders but no build history still gets a
+   date. A film being run out still runs dry — it just has no order-by date. */
+function timeline(r, opts) {
+  var c = compute(r, opts);
+  var lead = r.leadWeeks != null ? r.leadWeeks : opts.lead;
+  var rate = Math.max(num(r.weeklyBuildRate), c.quiet ? 0 : c.need / lead);
+  var out = { lead: lead, rate: rate, stock: c.stock, gap: c.gap, headroom: c.headroom,
+              status: c.quiet ? "quiet" : c.status, reorder: !r.retiring && !c.quiet };
+  if (rate <= 0) { out.coverWeeks = null; out.orderByWeeks = null; return out; }
+  out.coverWeeks = c.stock / rate;
+  out.orderByWeeks = out.reorder ? out.coverWeeks - lead : null;
+  return out;
+}
+
+/* Two items that feed the same line are one buying decision. A group is judged on the
+   pooled position and the pooled draw; the lead time is the one you actually have to
+   commit to, which is the item you reorder. Members keep their own rows in the data —
+   the group replaces them in the working views. */
+function mergeGroup(films, g) {
+  var members = g.items.map(function (id) {
+    return films.filter(function (r) { return r.item === id; })[0];
+  }).filter(Boolean);
+  if (!members.length) return null;
+
+  var sum = function (k) {
+    return members.reduce(function (a, r) { return a + num(r[k]); }, 0);
+  };
+  var orderItem = members.filter(function (r) { return r.item === g.orderItem; })[0] || members[0];
+
+  return {
+    item: g.id,
+    name: g.name,
+    group: g,
+    members: members,
+    memberIds: members.map(function (r) { return r.item; }),
+    orderItem: orderItem,
+    unit: members[0].unit,
+    stockedBy: members[0].stockedBy,
+    note: g.note,
+    leadWeeks: orderItem.leadWeeks != null ? orderItem.leadWeeks : null,
+    onHand: sum("onHand"), onOrder: sum("onOrder"),
+    committed: sum("committed"), backordered: sum("backordered"),
+    onWorkOrders: sum("onWorkOrders"), soNotYetWO: sum("soNotYetWO"),
+    forecastBeyond: sum("forecastBeyond"), weeklyBuildRate: sum("weeklyBuildRate"),
+    retiring: members.every(function (r) { return r.retiring; }),
+    rollSize: orderItem.rollSize, minOrder: orderItem.minOrder
+  };
+}
+
+/* The rows the working views use: films that are not in a group, plus one row per group. */
+function workingRows(films, groups) {
+  var claimed = {};
+  (groups || []).forEach(function (g) {
+    g.items.forEach(function (id) { claimed[id] = true; });
+  });
+  var rows = films.filter(function (r) { return !claimed[r.item]; });
+  (groups || []).forEach(function (g) {
+    var m = mergeGroup(films, g);
+    if (m) rows.push(m);
+  });
+  return rows;
+}
+
+return { compute: compute, orderPlan: orderPlan, timeline: timeline,
+         mergeGroup: mergeGroup, workingRows: workingRows,
+         runLedger: runLedger, fmt: fmt, num: num };
 });

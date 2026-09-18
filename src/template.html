@@ -138,7 +138,7 @@ input[type=number]:focus-visible{outline:2px solid var(--pomegranate);outline-of
 .runway{padding:8px 20px 20px}
 .legend{display:flex;gap:18px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);padding:12px 0 14px}
 .legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:6px;vertical-align:-1px}
-.bar{display:grid;grid-template-columns:265px 1fr 116px;gap:14px;align-items:center;
+.bar{display:grid;grid-template-columns:265px 1fr 146px;gap:14px;align-items:center;
   padding:5px 0;border-bottom:1px solid var(--hair)}
 .bar:last-child{border-bottom:0}
 .bar .nm{font-size:13.5px;font-weight:600;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -148,7 +148,7 @@ input[type=number]:focus-visible{outline:2px solid var(--pomegranate);outline-of
 .fill{position:absolute;top:5px;bottom:5px;border-radius:4px}
 .bar .val{font-size:13.5px;font-weight:700;text-align:right}
 .bar .val small{display:block;font-weight:500;font-size:11px;color:var(--faint)}
-.axis{display:grid;grid-template-columns:265px 1fr 116px;gap:14px;font-size:11.5px;color:var(--faint);padding-top:8px}
+.axis{display:grid;grid-template-columns:265px 1fr 146px;gap:14px;font-size:11.5px;color:var(--faint);padding-top:8px}
 .axis div:nth-child(2){display:flex;justify-content:space-between}
 .scroll{overflow-x:auto}
 table{border-collapse:collapse;width:100%;min-width:1040px;font-size:13px}
@@ -207,6 +207,22 @@ tr.drill td{background:var(--sunk);padding:0}
 .secthead em{font-style:normal;font-weight:500;color:var(--muted);font-size:12.5px;
   text-transform:none;letter-spacing:.012em;margin-left:10px}
 .notes.tight{margin-top:12px}
+
+/* the runway timeline */
+.track.tl{height:30px}
+.gl{position:absolute;top:0;bottom:0;width:1px;background:var(--rule);opacity:.5;z-index:1}
+.leadline{position:absolute;top:-5px;bottom:-5px;width:2px;background:var(--ink);opacity:.6;z-index:4}
+.run{position:absolute;top:6px;bottom:6px;left:0;border-radius:4px;z-index:2}
+.run.clip{border-top-right-radius:0;border-bottom-right-radius:0}
+.pin.order{position:absolute;top:1px;bottom:1px;width:3px;border-radius:2px;background:var(--ink);z-index:5}
+.pin.overdue{left:0;width:5px;background:var(--late-mark)}
+.axis .months{position:relative;height:16px;display:block}
+.axis .months span{position:absolute;transform:translateX(-50%);white-space:nowrap}
+.axis .months span.lead{color:var(--ink);font-weight:700;background:var(--surface);padding:0 5px;border-radius:4px}
+.bar .val em{font-style:normal;color:var(--faint);font-weight:500}
+.grouprow .nm b{display:inline-block;font-size:10px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.06em;color:var(--retiring);background:var(--retiring-soft);
+  border-radius:99px;padding:1px 7px;margin-left:6px;vertical-align:1px}
 
 /* status tiles — the colour key, the counts and the filter, in one strip */
 .tiles{display:flex;flex-wrap:wrap;gap:10px;padding:14px 0 4px}
@@ -356,12 +372,14 @@ details.panel > summary .colbtn{margin-left:auto;float:none}
   </div>
 
   <section class="panel">
-    <h2>Cover to <span id="horizon"></span> <em>on hand plus on order, minus the demand basis chosen above</em></h2>
+    <h2>Runway <em>how long each film lasts, and the last date an order still lands in time.
+      The rule is <span id="horizon"></span> — today plus the lead time. A bar ending left of it
+      cannot be saved by ordering now.</em></h2>
     <div class="runway">
       <div class="tiles" id="tiles" role="group" aria-label="Filter by status"></div>
       <div class="filterhint" id="filterhint" hidden></div>
       <div id="bars"></div>
-      <div class="axis"><div></div><div id="ticks"></div><div></div></div>
+      <div class="axis"><div></div><div class="months" id="ticks"></div><div></div></div>
     </div>
   </section>
 

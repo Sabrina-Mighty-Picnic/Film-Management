@@ -1492,18 +1492,20 @@
   },
   "notes": [
     {
-      "title": "The primary blank has 11 weeks against a 16-week lead",
+      "title": "The blank is not short today, but it is the next order to place",
       "flag": true,
       "body": [
-        "1094 holds 145,200&nbsp;m counting the 3,530 on order. Open sales orders already claim 72,180&nbsp;m, leaving <strong>73,020&nbsp;m free</strong> — about 11.3 weeks at the 6,470&nbsp;m a week the FFW blank line has been drawing. Over a 16-week lead that is a <strong>30,500&nbsp;m gap</strong>.",
-        "1129 is the relief, not the problem: 14,179&nbsp;m is roughly two more weeks and it reorders in four, so it can be topped up on short notice. What it cannot do is cover a 16-week hole. The 1094 order is the one with a date on it."
+        "Judged as one pool, 1094 and 1129 hold <strong>159,379&nbsp;m</strong> counting the 3,530 on order, against <strong>92,372&nbsp;m</strong> already on work orders. The line has been drawing <strong>6,470&nbsp;m a week</strong>, which is <strong>24.6 weeks of cover</strong> — so over a 16-week lead it is covered, with 54% headroom.",
+        "That makes <strong>15 November</strong> the date: the last day an order can be placed and still land before the pool runs dry. It sits just outside the eight-week window the order panel opens with, which is why the blank does not appear there yet.",
+        "Two reasons to treat that date as the late end of the range rather than the answer. The trailing build rate is measured across May and June, when 1094 was <em>empty</em> and the line was starved — so 6,470&nbsp;m/wk understates what the line runs at when it has film. And the FILM plan has no row for the new FFW business that is already drawing the blank, so the forecast tier adds nothing here. Both push the real date earlier."
       ]
     },
     {
-      "title": "How the two blanks actually behave",
+      "title": "Why the two blanks are judged as one",
       "body": [
         "1094 ran down through May and mid-June, builds moved onto 1129 from 24 June while the primary sat empty, and 136,470&nbsp;m of 1094 landed on 9 September. The backup did what a backup is for — which is why 1129 reads low today.",
-        "Judge them on different clocks: <strong>1094 against 16 weeks, 1129 against 4</strong>. The dashboard does this per item, so changing the lead-time box moves 1094 and leaves 1129 alone."
+        "That substitution is also why neither item's own build rate means much: <strong>3,129&nbsp;m/wk on 1094 plus 3,341&nbsp;m/wk on 1129 is the same one line drawing 6,470&nbsp;m/wk</strong>. Judged separately, 1094 looks comfortable and 1129 looks short; judged as the pool they actually are, the blank has 24.6 weeks and one order-by date.",
+        "The order still goes against <strong>1094 on a 16-week lead</strong>. 1129 reorders in four, so it is the relief valve, not the plan."
       ]
     },
     {
@@ -1562,12 +1564,16 @@
       "group": "Reading the page",
       "terms": [
         {
+          "term": "Runway",
+          "def": "The main chart. Each bar runs from today to the day that film runs dry, with a pin at the <strong>order-by date</strong> — the last day an order still lands in time. The vertical rule is today plus the lead time: a bar ending left of it cannot be saved by ordering now, which is what <strong>Order now</strong> means. Rows are sorted by the order you have to place soonest."
+        },
+        {
           "term": "Free position",
           "def": "What is left over: everything <strong>on hand plus on order</strong>, minus the demand on whichever basis is selected. A minus number means the demand already exceeds the film."
         },
         {
           "term": "Headroom",
-          "def": "The free position as a percentage of the demand. <strong>+50%</strong> means half as much film again as the window needs; <strong>−20%</strong> means a fifth short. It is shown as a percentage rather than a quantity so films measured in metres, millimetres and each can be ranked against each other."
+          "def": "The free position as a percentage of the demand. <strong>+50%</strong> means half as much film again as the window needs; <strong>−20%</strong> means a fifth short. It is shown as a percentage rather than a quantity so films measured in metres, millimetres and each can be ranked against each other. It now lives in the detail table rather than the main chart, because a percentage does not tell you <em>when</em>."
         },
         {
           "term": "Cover",
@@ -1588,6 +1594,10 @@
         {
           "term": "Switch by",
           "def": "The runout date less the lead time: the point by which the replacement blank has to be ordered and the BOM repointed."
+        },
+        {
+          "term": "Pooled",
+          "def": "Two items that feed the same line are one buying decision, so the page judges them together — currently 1094 and 1129, the FFW blank. Their stock, their demand and their draw are summed, and the order-by date is worked out against the item you actually raise the purchase order for. Judged apart they mislead: the line draws 6,470&nbsp;m a week, but it shows as 3,129 on one item and 3,341 on the other depending on which one was in the machine."
         }
       ]
     },
@@ -1722,6 +1732,18 @@
       "purpose": "FFW manage this stock, so it is not in our NetSuite on-hand. This log is our own running check that it does not run out for Hello Fresh.",
       "reorderAt": null,
       "ledger": []
+    }
+  ],
+  "substituteGroups": [
+    {
+      "id": "ffw-blank",
+      "name": "The FFW blank — 1094, with 1129 behind it",
+      "items": [
+        "1094",
+        "1129"
+      ],
+      "orderItem": "1094",
+      "note": "one line, two items — builds move onto 1129 whenever 1094 is empty, so the draw splits between them and neither reads the line's real rate on its own"
     }
   ]
 }

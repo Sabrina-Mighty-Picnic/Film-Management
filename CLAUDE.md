@@ -86,6 +86,21 @@ detail panels are folded shut. Everything else is one click away, never removed.
 - The status tiles carry the month's real counts — they ignore the tile filter and the
   no-demand checkbox on purpose, so the numbers do not move when you click one.
 
+## Pooled items
+
+`substituteGroups[]` pools items that feed the same line — currently 1094 and 1129,
+the FFW blank. The working views show the pool; the members keep their own rows.
+
+- **A split build rate is the trap this exists for.** When a backup is substituted at
+  build time, each item shows only the share of the draw that ran through it. 1094 at
+  3,129 m/wk and 1129 at 3,341 m/wk are one line drawing 6,470. Never read one member's
+  rate as the line's rate.
+- Members must share a unit; the build refuses to pool unlike units.
+- `orderItem` decides the group's lead time and is what the order panel tells you to
+  raise the PO against.
+- Judge whether a new pair is really substitutable before grouping them. Two films that
+  merely look similar are two decisions.
+
 ## Rules
 
 - **Numbers live in `data/`, never in `src/`.** If a figure is hardcoded in a `src/`

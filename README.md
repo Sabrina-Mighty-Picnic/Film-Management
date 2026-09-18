@@ -43,6 +43,7 @@ NetSuite it comes from. In short:
 | `forecastMonths{}` | the FILM tab rows by film |
 | `noFilmWorkOrders[]` | open work orders carrying no film line at all |
 | `transitions[]` | each printed film being run out: stock in hand and the weekly draw |
+| `substituteGroups[]` | items that feed one line and are therefore one buying decision |
 | `trackers[].ledger` | this month's deliveries and shipments for consignment stock — **append, never replace** |
 | `notes[]`, `sourceNotes` | the written cards — **these are last month's words, re-read them** |
 | `glossary` | only when the vocabulary itself changes |
@@ -125,11 +126,15 @@ can link someone straight to the one you mean.
   builds / worst case) and the lead time in weeks. A film with its own `leadWeeks`,
   like the 4-week backup blank 1129, is always judged on its own clock. Everything
   above and below these controls follows them.
-- **Cover to <date>** — five tiles counting the month (short, tight, covered, winding
-  down, no demand), then a bar per film. **Click a tile to see only those films**; the
-  bars and the detail table both follow it. Only the short and tight films are drawn
-  on arrival — the rest are one click behind "Show N more", because they need no
-  decision.
+- **Runway** — five tiles counting the month (short, tight, covered, winding down,
+  no demand), then a timeline. Each bar runs from today to the day that film runs dry,
+  with a pin at the last date an order still lands in time, and a vertical rule at
+  today plus the lead time: **a bar ending left of that rule cannot be saved by
+  ordering now.** Rows are sorted by the order you have to place soonest. **Click a
+  tile to see only those films**; the timeline and the detail table both follow it.
+  Only short and tight are drawn on arrival — the rest are behind "Show N more".
+  Headroom as a percentage still exists, in the detail table, where comparing films
+  measured in metres, millimetres and each needs a ratio rather than a date.
 - **Printed film, and what it becomes** — each film being retired, when it runs dry,
   and the date by which its blank has to be ordered. Folded shut; the summary line
   says how many are already past their switch-by date.

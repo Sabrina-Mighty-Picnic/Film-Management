@@ -189,3 +189,23 @@ new month's entries rather than starting again.
 
 Neither is populated yet. Add them and the What to order panel starts quoting orders you
 can actually place.
+
+## `substituteGroups[]` — items that are one buying decision
+
+Two films that feed the same line are not two decisions. A group pools them: the
+working views (What to order, the runway, the detail table) show the group in place of
+its members, and the members keep their own rows in the data and appear in the group's
+drill-down.
+
+| Field | Meaning |
+| --- | --- |
+| `id` | the group's own key, e.g. `"ffw-blank"` |
+| `name` | how it reads on the page |
+| `items` | two or more item numbers, all held in the **same unit** — the build refuses to pool metres with each |
+| `orderItem` | which member you actually raise the purchase order against. Its lead time is the group's lead time, and the order panel names it |
+| `note` | why these are one decision, shown under the name |
+
+Positions, demand tiers and build rates are summed. This matters most where a backup
+item is substituted at build time: the line's real draw is split across both items, so
+neither reads the true rate on its own.
+
