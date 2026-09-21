@@ -114,6 +114,18 @@ will be late. Two decisions. What the default inherits is the line's whole draw.
   runs out. That date is derived; do not hardcode it. Cross-unit handovers need
   `successorPerUnit` or the step is left out and the build warns.
 
+## Estimated impressions
+
+Quantities can be shown in packs as well as film. The pack size comes from the film's
+open sales order lines (`filmQty / units`) — observed, and blended across the order mix
+where a film runs several SKUs.
+
+- **Never guess a pack size.** A film with no sales orders and no `filmPerImpression`
+  shows nothing, and that is correct. Set the field only where a figure is stated in
+  the data, and say in the commit where it came from.
+- A blended factor moves with the order mix, so it is an estimate and is always
+  labelled as one. Do not present impressions as an exact count.
+
 ## Rules
 
 - **Numbers live in `data/`, never in `src/`.** If a figure is hardcoded in a `src/`

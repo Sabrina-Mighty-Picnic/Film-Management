@@ -47,6 +47,7 @@ NetSuite it comes from. In short:
 | `lines[]` | a default film and its backup: two decisions, but the default carries the line's draw |
 | `successorItem` | where a retiring film's draw transfers, and therefore when the successor's runway steps down |
 | `trackers[].ledger` | this month's deliveries and shipments for consignment stock — **append, never replace** |
+| `filmPerImpression` | only for a film with no sales orders to derive a pack size from |
 | `notes[]`, `sourceNotes` | the written cards — **these are last month's words, re-read them** |
 | `glossary` | only when the vocabulary itself changes |
 

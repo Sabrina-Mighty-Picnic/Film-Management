@@ -242,3 +242,19 @@ A film can also carry manual `incoming` entries, `{ fromWeek, rate, source, note
 a transfer with no retiring film behind it. `fromWeek: null` means agreed but
 unscheduled: it is listed on the page and deliberately left out of the dates.
 
+
+## `filmPerImpression` — saying a quantity in packs
+
+How much film makes one impression (one pack). It lets the page show stock and orders
+in impressions beside the metres.
+
+It is normally **not needed**: the page derives it from the film's own open sales order
+lines, which carry both `units` and `filmQty`, so the factor is observed. Where a film
+runs several SKUs, as the blank does, the derived figure is blended across the current
+order mix and moves with it.
+
+Set it explicitly only where the data states it and there are no sales orders to read —
+`1095` at `0.051` and `1090` at `0.06633` both come from those films' own notes. **A film
+with neither shows no estimate**, which is the intended behaviour: a guessed pack size
+would put a wrong number in front of a buyer.
+

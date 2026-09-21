@@ -161,6 +161,13 @@ function validate(d, period) {
   }
 
   for (const r of d.films || []) {
+    if (r.filmPerImpression != null &&
+        (typeof r.filmPerImpression !== "number" || r.filmPerImpression <= 0)) {
+      E(`film ${r.item}: filmPerImpression must be a positive number (${JSON.stringify(r.filmPerImpression)})`);
+    }
+  }
+
+  for (const r of d.films || []) {
     if (!r.successorItem) continue;
     const suc = (d.films || []).find(x => x.item === r.successorItem);
     if (!suc) { W(`film ${r.item}: successorItem ${r.successorItem} is not in films — its draw will not transfer anywhere`); continue; }

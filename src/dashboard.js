@@ -64,7 +64,7 @@ var GROUPS = D.substituteGroups || [];
 var LINES = D.lines || [];
 function OPTS() {
   return { basis: state.basis, lead: state.lead, baseLead: BASE_LEAD,
-           films: FILMS, transitions: TRANS };
+           films: FILMS, transitions: TRANS, salesOrderLines: SOLINES };
 }
 /* Two items that feed the same line are one buying decision, so the working views
    show the pool. The members keep their own rows in the data and in the drill-down. */
@@ -173,6 +173,12 @@ function renderTiles(base) {
 }
 
 /* What to order — the first thing on the page, and the only panel that says "do this" */
+function impsOf(r, qty) {
+  var b = window.FilmCoverage.impressionBasis(r, OPTS());
+  var n = window.FilmCoverage.impressions(qty, b);
+  return n == null ? null : { text: "\u2248 " + fmt(n) + " impressions", basis: b };
+}
+
 function heldNote(r) {
   var t = idsOf(r).map(function (id) { return TRACKED[id]; }).filter(Boolean)[0];
   return t ? "held at " + t.heldBy + ", see Tracker" : "";
@@ -225,6 +231,7 @@ function renderActions() {
       "<div class=\"qty\" style=\"color:" + (held ? "var(--muted)" : col) + "\">" +
         fmt(p.qty) + " " + r.unit +
         "<small>" + (held ? "check tracker first" : p.rolls ? "\u2248 " + p.rolls + " rolls" : "suggested order") +
+          (function () { var im = impsOf(r, p.qty); return im ? "<br>" + im.text : ""; })() +
         "</small></div>" +
       "<div class=\"what\">" + r.name + "<small>" +
         (r.members
@@ -280,15 +287,20 @@ function renderTrackers() {
 
     if (L.stale) {
       return "<section class=\"panel\">" + head + purpose +
-        "<p class=\"empty\">No entries yet. Tell Claude Code the deliveries and the shipments — " +
-        "a date, a quantity and a reference for each — and it will fill this in; the running " +
-        "balance, the usage rate and the weeks of cover all fall out of the log. Each line ends " +
-        "up in <code>trackers[].ledger</code> in the month's data file looking like this:<br><br>" +
-        "<code>{\"date\":\"2026-07-24\", \"type\":\"received\", \"qty\":100000, \"ref\":\"PO1277\"}</code><br>" +
-        "<code>{\"date\":\"2026-08-12\", \"type\":\"used\", \"qty\":25102, \"ref\":\"HF 1oz ship\"}</code><br>" +
-        "<code>{\"date\":\"2026-09-01\", \"type\":\"count\", \"qty\":52000, \"ref\":\"FFW count\"}</code>" +
-        "<br><br>A <code>count</code> is what they report holding; it overrides the running " +
-        "balance and the difference shows as a variance line.</p></section>";
+        "<div class=\"stats\">" +
+        "<div class=\"stat\"><b style=\"color:var(--faint)\">—</b><span>they hold now</span></div>" +
+        "<div class=\"stat\"><b style=\"color:var(--faint)\">—</b><span>used a week</span></div>" +
+        "<div class=\"stat\"><b style=\"color:var(--faint)\">—</b><span>cover</span></div></div>" +
+        "<div class=\"ledger scroll\"><table>" +
+        "<thead><tr><th>Date</th><th>What happened</th><th>Reference</th>" +
+        "<th class=\"n\">In</th><th class=\"n\">Out</th><th class=\"n\">Balance</th></tr></thead>" +
+        "<tbody><tr><td colspan=\"6\" class=\"empty-row\">" +
+        "The log is empty. It fills from two things: each delivery into " + t.heldBy +
+        ", and each shipment that consumed film — a date, a quantity and a PO or " +
+        "shipment reference for each. A count " + t.heldBy + " report is welcome too, and " +
+        "overrides the running balance. Send those over and they go straight in; the " +
+        "balance, the weekly usage and the weeks of cover are all worked out from them." +
+        "</td></tr></tbody></table></div></section>";
     }
 
     var col = L.low ? "var(--late)" : L.coverWeeks !== null && L.coverWeeks < 6 ? "var(--watch)" : "var(--ok)";
@@ -299,10 +311,13 @@ function renderTrackers() {
     var stats = "<div class=\"stats\">" +
       "<div class=\"stat\"><b style=\"color:" + col + "\">" + fmt(L.balance) + " " + t.unit +
         "</b><span>they hold now</span></div>" +
-      "<div class=\"stat\"><b>" + (L.weeklyUsage > 0 ? fmt(L.weeklyUsage) + " " + t.unit : "\u2014") +
-        "</b><span>used a week</span></div>" +
+      "<div class=\"stat\"><b>" + (L.weeklyUsage > 0 ? fmt(L.weeklyUsage) + " " + t.unit : "—") +
+        "</b><span>" + (L.weeklyUsage > 0
+          ? "a week, from " + L.shipments + " shipment" + (L.shipments > 1 ? "s" : "") +
+            " over " + L.usageWeeks.toFixed(0) + " wks"
+          : "used a week — no shipments logged") + "</span></div>" +
       "<div class=\"stat\"><b style=\"color:" + col + "\">" +
-        (L.coverWeeks === null ? "\u2014" : L.coverWeeks.toFixed(1) + " wks") +
+        (L.coverWeeks === null ? "—" : L.coverWeeks.toFixed(1) + " wks") +
         "</b><span>" + (dry ? "runs out " + dry : "cover") + "</span></div>" +
       "<div class=\"stat\"><b>" + fmt(L.received) + " " + t.unit + "</b><span>received in total</span></div>" +
       "<div class=\"stat\"><b>" + fmt(L.used) + " " + t.unit + "</b><span>used in total</span></div>" +
@@ -641,7 +656,8 @@ function render() {
     var wideRow =
       "<td class=\"item\">" + r.name + "<small>item " + r.item + (r.note ? " · " + r.note : "") + "</small></td>" +
       "<td>" + (r.stockedBy === "THEM" ? "THEM (Maruto)" : "MP (Lamick)") + "</td>" +
-      "<td class=\"n\">" + fmt(num(r.onHand)) + " " + r.unit + "</td>" +
+      "<td class=\"n\">" + fmt(num(r.onHand)) + " " + r.unit +
+        (function () { var im = impsOf(r, num(r.onHand)); return im ? "<small>" + im.text + "</small>" : ""; })() + "</td>" +
       "<td class=\"n\">" + (r.onOrder ? fmt(r.onOrder) : "—") + "</td>" +
       "<td class=\"n\">" + (r.committed ? fmt(r.committed) : "—") + "</td>" +
       "<td class=\"n\" style=\"" + (r.backordered ? "color:var(--late);font-weight:600" : "") + "\">" +
@@ -664,7 +680,8 @@ function render() {
         (r.stockedBy === "THEM" ? "THEM (Maruto)" : "MP (Lamick)") +
         (r.note ? " · " + r.note : "") +
         (heldNote(r) ? " · " + heldNote(r) : "") + "</small></td>" +
-      "<td class=\"n\">" + fmt(c.stock) + " " + r.unit + "</td>" +
+      "<td class=\"n\">" + fmt(c.stock) + " " + r.unit +
+        (function () { var im = impsOf(r, c.stock); return im ? "<small>" + im.text + "</small>" : ""; })() + "</td>" +
       "<td class=\"n\">" + (demand ? fmt(demand) + " " + r.unit : "—") + "</td>" +
       "<td class=\"n\">" + (tRow.coverWeeks == null ? "—"
         : tRow.coverWeeks.toFixed(0) + " wks") + "</td>" +
@@ -704,6 +721,21 @@ function render() {
           r.unit + " of this has no work order raised yet.</td></tr>" : "") + "</table>"
       : "<h4>Open sales orders</h4><p class=\"dnone\">None on this film.</p>";
 
+    var imDrill = (function () {
+      var b = window.FilmCoverage.impressionBasis(r, OPTS());
+      if (!b) {
+        return "<h4>Estimated impressions</h4><p class=\"dnone\">No basis for this film \u2014 " +
+          "it has no open sales orders to read a pack size from, and none is stated. " +
+          "Add <b>filmPerImpression</b> to the film, or leave it blank rather than guess.</p>";
+      }
+      var st = window.FilmCoverage.impressions(c.stock, b);
+      var nd = c.quiet ? null : window.FilmCoverage.impressions(c.rawNeed != null ? c.rawNeed : c.need, b);
+      return "<h4>Estimated impressions</h4><p class=\"dnone\">" +
+        "At <b>" + b.per.toFixed(b.per < 1 ? 4 : 2) + " " + r.unit + "</b> an impression (" + b.source + "), " +
+        "the " + fmt(c.stock) + " " + r.unit + " in hand and on order is about <b>" + fmt(st) + " impressions</b>" +
+        (nd ? ", against " + fmt(nd) + " of demand over the window" : "") + ".</p>";
+    })();
+
     var nlHtml = r.nextInLineNote
       ? "<h4>Next in line — not drawn yet</h4><p class=\"dnone\">" + r.nextInLineNote + "</p>" : "";
 
@@ -732,7 +764,7 @@ function render() {
            (r.weeklyBuildRate ? " — yet it is being consumed, so the plan has a gap" : "") + ".")) + "</p>";
 
     return head + "<tr class=\"drill\" data-for=\"" + r.item + "\" hidden><td colspan=\"" + cols.length + "\">" +
-      "<div class=\"drillbox\">" + nlHtml + rtHtml + woHtml + soHtml + fcHtml + nbHtml + "</div></td></tr>";
+      "<div class=\"drillbox\">" + nlHtml + rtHtml + woHtml + soHtml + fcHtml + imDrill + nbHtml + "</div></td></tr>";
   }).join("");
 
   Array.prototype.forEach.call(document.querySelectorAll("tbody tr.head"), function (tr) {

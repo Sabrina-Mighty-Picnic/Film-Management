@@ -228,7 +228,8 @@
       "retiring": true,
       "successor": "FG 410 already moved — its demand now sits on 1094",
       "note": "plan row is 50,600 UNITS ≈ 3,356 m, not metres",
-      "successorItem": "1094"
+      "successorItem": "1094",
+      "filmPerImpression": 0.06633
     },
     {
       "item": "1040",
@@ -526,7 +527,8 @@
       "forecastBeyond": 0,
       "weeklyBuildRate": 0,
       "note": "runway for the TJS Honey move to FFW",
-      "nextInLineNote": "No build has consumed this film. It carries TJS Honey once FG 422's FFW revision exists, at about <b>1,542 m a week</b> (1,571,200 units a year at 0.051 m each). <b>116k m</b> in hand is roughly <b>75 weeks</b> at that rate — so it runs out well before white is needed. Created by unit conversion IA177 and moved to FFW on IT105; there is no purchase order behind it."
+      "nextInLineNote": "No build has consumed this film. It carries TJS Honey once FG 422's FFW revision exists, at about <b>1,542 m a week</b> (1,571,200 units a year at 0.051 m each). <b>116k m</b> in hand is roughly <b>75 weeks</b> at that rate — so it runs out well before white is needed. Created by unit conversion IA177 and moved to FFW on IT105; there is no purchase order behind it.",
+      "filmPerImpression": 0.051
     },
     {
       "item": "937",
@@ -1610,6 +1612,10 @@
         {
           "term": "Default and Backup",
           "def": "1094 is the default blank on a 16-week lead and carries the line's whole draw. 1129 is the backup on a 4-week lead, ordered only when 1094 will not arrive in time. They are <strong>two decisions, not one pool</strong> — but 1094 is judged at the full line rate, because every week 1129 was in the machine is a week 1094 would otherwise have supplied."
+        },
+        {
+          "term": "Estimated impressions",
+          "def": "The same quantity said in packs instead of film. The pack size is <strong>observed, not assumed</strong>: open sales orders carry both the finished units and the film they convert to, so dividing one by the other gives a real figure — blended across the order mix where a film runs several SKUs, as the blank does. A film with no open sales orders and no stated pack size shows no estimate rather than a guess."
         }
       ]
     },

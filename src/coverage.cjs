@@ -20,6 +20,37 @@ function fmt(n) {
    line's draw, even where a backup took some of it while the default was empty. */
 function buildRate(r) { return num(r.lineRate) || num(r.weeklyBuildRate); }
 
+/* Estimated impressions — how many packs a quantity of film makes.
+   Preferred source is the film's own open sales orders, which carry both the finished
+   units and the film they convert to, so the factor is observed rather than assumed.
+   A film can state `filmPerImpression` instead. A film with neither gets no estimate:
+   the page leaves it blank rather than guessing a pack size. */
+function impressionBasis(r, opts) {
+  if (num(r.filmPerImpression) > 0) {
+    return { per: num(r.filmPerImpression), source: "stated for this film", lines: 0 };
+  }
+  var so = (opts && opts.salesOrderLines) || {};
+  var spec = r.memberSpec || [{ r: r, perUnit: 1 }];
+  var film = 0, units = 0, lines = 0;
+  spec.forEach(function (m) {
+    (so[m.r.item] || []).forEach(function (s) {
+      film += num(s.filmQty) / m.perUnit;      // into the row's own unit
+      units += num(s.units);
+      lines++;
+    });
+  });
+  if (film <= 0 || units <= 0) return null;
+  return {
+    per: film / units,
+    lines: lines,
+    source: "blended across " + lines + " open sales order line" + (lines > 1 ? "s" : "")
+  };
+}
+
+function impressions(qty, basis) {
+  return basis && basis.per > 0 ? num(qty) / basis.per : null;
+}
+
 /* What is coming onto this film later.
    A film being run out hands its draw to its successor the week its own stock is gone,
    so the step date is derived, not guessed: it is the retiring film's runout. Anything
@@ -198,16 +229,17 @@ function runLedger(t) {
     return { entry: e, delta: delta, balance: balance };
   });
 
-  // usage rate from the span of the "used" entries, so a single shipment cannot imply a rate
+  // Usage over the whole life of the log: everything consumed, across the weeks from the
+  // first entry to the last. Measuring between shipments instead needed three of them
+  // before it said anything, and read far too high when there were exactly two.
   var uses = entries.filter(function (e) { return e.type === "used"; });
-  var weeklyUsage = 0;
-  if (uses.length >= 2) {
-    var first = new Date(uses[0].date + "T00:00:00");
-    var last = new Date(uses[uses.length - 1].date + "T00:00:00");
-    var weeks = (last - first) / (7 * 864e5);
-    // the first entry opens the window rather than falling inside it
-    var consumed = uses.slice(1).reduce(function (a, e) { return a + num(e.qty); }, 0);
-    if (weeks > 0) weeklyUsage = consumed / weeks;
+  var consumed = uses.reduce(function (a, e) { return a + num(e.qty); }, 0);
+  var weeklyUsage = 0, usageWeeks = 0;
+  if (entries.length >= 2 && consumed > 0) {
+    var first = new Date(entries[0].date + "T00:00:00");
+    var last = new Date(entries[entries.length - 1].date + "T00:00:00");
+    usageWeeks = (last - first) / (7 * 864e5);
+    if (usageWeeks > 0) weeklyUsage = consumed / usageWeeks;
   }
 
   var coverWeeks = weeklyUsage > 0 ? balance / weeklyUsage : null;
@@ -215,6 +247,7 @@ function runLedger(t) {
 
   return { rows: rows, balance: balance, received: received, used: used,
            counted: counted, weeklyUsage: weeklyUsage, coverWeeks: coverWeeks,
+           usageWeeks: usageWeeks, shipments: uses.length,
            lastDate: lastDate, stale: !entries.length,
            low: num(t.reorderAt) > 0 && balance <= t.reorderAt };
 }
@@ -338,5 +371,6 @@ function workingRows(films, groups, lines) {
 return { compute: compute, orderPlan: orderPlan, timeline: timeline,
          mergeGroup: mergeGroup, workingRows: workingRows, buildRate: buildRate,
          incomingSteps: incomingSteps, drawBetween: drawBetween, weeksOfCover: weeksOfCover,
+         impressionBasis: impressionBasis, impressions: impressions,
          runLedger: runLedger, fmt: fmt, num: num };
 });

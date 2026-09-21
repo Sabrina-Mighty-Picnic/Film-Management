@@ -167,6 +167,7 @@ tbody tr:last-child td{border-bottom:0}
 .t-retiring{background:var(--retiring-soft);color:var(--retiring)}
 .item{font-weight:600}
 .item small{display:block;color:var(--faint);font-weight:500;font-size:11.5px}
+td.n small{display:block;color:var(--faint);font-weight:500;font-size:11px;margin-top:2px}
 .est{color:var(--faint)}
 table.wrapcells{min-width:0}
 table.wrapcells th,table.wrapcells td{white-space:normal}
@@ -280,11 +281,12 @@ details.panel > summary .colbtn{margin-left:auto;float:none}
 .tracknote{padding:14px 20px 0;font-size:13.5px;color:var(--muted);line-height:1.6;margin:0}
 .tracknote strong{color:var(--ink);font-weight:700}
 .ledger{padding:10px 20px 18px}
-.ledger table{min-width:720px}
+.ledger table{min-width:640px}
 .ledger td.in{color:var(--ok);font-weight:700;text-align:right}
 .ledger td.out{color:var(--late);font-weight:700;text-align:right}
 .ledger td.bal{text-align:right;font-weight:700}
 .ledger tr.count td{background:var(--sunk)}
+.ledger td.empty-row{white-space:normal;color:var(--faint);padding:18px 12px;line-height:1.6}
 .empty{margin:0;padding:18px 20px 20px;font-size:13.5px;color:var(--muted);line-height:1.65}
 .empty code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;
   background:var(--sunk);padding:1px 6px;border-radius:5px;color:var(--ink)}
