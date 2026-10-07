@@ -392,8 +392,9 @@ function renderTrans() {
     return num(t.onHand) / num(t.weeklyRate);
   }))) * 1.06;
 
+  var rateOf = function (t) { return window.FilmCoverage.transitionRate(t, OPTS()); };
   var overdue = TRANS.filter(function (t) {
-    var rate = num(t.weeklyRate);
+    var rate = rateOf(t).rate;
     return rate > 0 && (num(t.onHand) / rate) - state.lead <= 0;
   }).length;
   document.getElementById("transHead").innerHTML = META.transitionsHeading +
@@ -403,12 +404,13 @@ function renderTrans() {
   document.getElementById("trans").innerHTML =
     "<p class=\"dnone\" style=\"padding:12px 0 2px\">" + META.transitionsSub + "</p>" +
     TRANS.map(function (t) {
-    var rate = num(t.weeklyRate);
+    var rb = rateOf(t);
+    var rate = rb.rate;
     var head = "<div class=\"thead\"><b>" + t.name + "</b>" +
       "<span class=\"who " + (t.stockedBy === "MP" ? "mp" : "") + "\">" +
         (t.stockedBy === "MP" ? "we buy it" : "THEM stock it") + "</span>" +
       "<span class=\"qty\">item " + t.item + " &middot; " + fmt(num(t.onHand)) + " " + t.unit +
-        " on hand" + (rate > 0 ? " &middot; " + fmt(rate) + " " + t.unit + "/wk from " + t.rateBasis : "") +
+        " on hand" + (rate > 0 ? " &middot; " + fmt(rate) + " " + t.unit + "/wk from " + rb.basis : "") +
       "</span></div>";
 
     var foot = "<div class=\"tfoot\"><div>Replaced by <strong>" + t.successor + "</strong>" +

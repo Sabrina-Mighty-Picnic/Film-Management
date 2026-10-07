@@ -51,6 +51,28 @@ function impressions(qty, basis) {
   return basis && basis.per > 0 ? num(qty) / basis.per : null;
 }
 
+/* How fast a film being run out is actually going away.
+   The three readings disagree, and each is wrong on its own: a trailing build rate
+   reads near zero for a film whose orders are all still open; committed orders miss
+   what the plan says is coming; a plan rate misses orders beyond it. Take the fastest,
+   which is the same worst-case rule the coverage rows use, and say which one won — a
+   retiring film that empties sooner than expected is the one that catches you out. */
+function transitionRate(t, opts) {
+  var films = (opts && opts.films) || [];
+  var r = films.filter(function (f) { return f.item === t.item; })[0];
+  var cands = [];
+  if (num(t.weeklyRate) > 0) cands.push({ rate: num(t.weeklyRate), basis: t.rateBasis || "the plan" });
+  if (r) {
+    if (buildRate(r) > 0) cands.push({ rate: buildRate(r), basis: "recent builds" });
+    var c = compute(r, opts);
+    var lead = r.leadWeeks != null ? r.leadWeeks : (opts && opts.lead) || 16;
+    var need = c.rawNeed != null ? c.rawNeed : c.need;
+    if (need > 0) cands.push({ rate: need / lead, basis: "orders already committed" });
+  }
+  if (!cands.length) return { rate: 0, basis: t.rateBasis || "no draw" };
+  return cands.sort(function (a, b) { return b.rate - a.rate; })[0];
+}
+
 /* What is coming onto this film later.
    A film being run out hands its draw to its successor the week its own stock is gone,
    so the step date is derived, not guessed: it is the retiring film's runout. Anything
@@ -67,7 +89,7 @@ function incomingSteps(r, opts) {
     // the transition panel carries — the trailing build rate can be near zero for a SKU
     // that simply has not been built lately, and would put the handover decades out
     var tr = transitions.filter(function (t) { return t.item === o.item; })[0];
-    var rate = tr && num(tr.weeklyRate) > 0 ? num(tr.weeklyRate) : buildRate(o);
+    var rate = tr ? transitionRate(tr, opts).rate : buildRate(o);
     if (rate <= 0) return;
     var conv = o.unit === r.unit ? 1 : num(o.successorPerUnit);
     if (!conv) { unscheduled.push({ from: o.item, name: o.name, rate: null, why: "units differ and no conversion is given" }); return; }
@@ -183,7 +205,8 @@ function orderPlan(r, opts) {
   if (c.quiet || r.retiring) return null;
 
   var lead = r.leadWeeks != null ? r.leadWeeks : opts.lead;
-  var rate = Math.max(buildRate(r), c.need / lead);
+  var trp = ((opts && opts.transitions) || []).filter(function (x) { return x.item === r.item; })[0];
+  var rate = Math.max(buildRate(r), c.need / lead, trp ? num(trp.weeklyRate) : 0);
   var stepped = weeksOfCover(c.stock, r, opts);
   var coverWeeks = rate > 0 ? Math.min(stepped == null ? Infinity : stepped, c.stock / rate) : Infinity;
   var orderInWeeks = coverWeeks - lead;
@@ -259,7 +282,9 @@ function runLedger(t) {
 function timeline(r, opts) {
   var c = compute(r, opts);
   var lead = r.leadWeeks != null ? r.leadWeeks : opts.lead;
-  var rate = Math.max(buildRate(r), c.quiet ? 0 : c.need / lead);
+  var tr = ((opts && opts.transitions) || []).filter(function (x) { return x.item === r.item; })[0];
+  var rate = Math.max(buildRate(r), c.quiet ? 0 : c.need / lead,
+                      tr ? num(tr.weeklyRate) : 0);
   var out = { lead: lead, rate: rate, stock: c.stock, gap: c.gap, spare: c.spare,
               status: c.quiet ? "quiet" : c.status, reorder: !r.retiring && !c.quiet };
   if (rate <= 0) { out.coverWeeks = null; out.orderByWeeks = null; return out; }
@@ -372,5 +397,6 @@ return { compute: compute, orderPlan: orderPlan, timeline: timeline,
          mergeGroup: mergeGroup, workingRows: workingRows, buildRate: buildRate,
          incomingSteps: incomingSteps, drawBetween: drawBetween, weeksOfCover: weeksOfCover,
          impressionBasis: impressionBasis, impressions: impressions,
+         transitionRate: transitionRate,
          runLedger: runLedger, fmt: fmt, num: num };
 });
