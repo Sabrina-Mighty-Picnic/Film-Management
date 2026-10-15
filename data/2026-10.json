@@ -97,10 +97,10 @@
       "onHand": 115117,
       "weeklyRate": 3465,
       "rateBasis": "Misfits projection, 13 Oct",
-      "successor": "Lamick blank 1094, backed by 1129, at FFW",
+      "successor": "Lamick blank 1094 at FFW, when this film runs out",
       "buyer": "Mighty Picnic",
       "decided": false,
-      "bomAction": "Repoint six revisions to the blank: Hoisin 1.38oz (221), Rice Vinegar .5oz (246), Blazing Buffalo 2oz (192), Soy Miso 56g (222), Savory Black Bean 56g (223), Sambal 21g (224)."
+      "bomAction": "Every revision drawing 1087 has to be repointed to the blank when it runs out: <strong>Hoisin 1.38oz, Sambal 21g, Savory Black Bean 56g, Soy Miso 56g, Blazing Buffalo 2oz, Chipotle 9g, BA Rice Vinegar .5oz and Pomegranate Syrup .5oz</strong>, plus the Sweet Chili 51g printed sub-assembly. Soy Miso, Hoisin, Savory Black Bean, Buffalo and Sambal are on open work orders against it today."
     },
     {
       "item": "1095",
@@ -351,7 +351,7 @@
       "forecastBeyond": 20801,
       "weeklyBuildRate": 295,
       "retiring": true,
-      "successor": "blank 1094 at FFW, from around July 2027",
+      "successor": "the blank 1094 at FFW, when this film runs out",
       "note": "not being reordered",
       "successorItem": "1094"
     },
@@ -1419,7 +1419,7 @@
     ]
   },
   "forecastNotes": {
-    "1087": "The corrected Misfits Market / Blue Apron projection of 13 October, converted at what each pack has actually drawn on 1087 in this year's builds. Nine products: Sambal, Hoisin 1.38oz, Chipotle 9g, Sweet Chili 1.8oz, Dijonnaise, Buffalo, Savory Black Bean, Black Vinegar and Soy Miso. <strong>Demand rises through the window</strong> — 2,408&nbsp;m a week over the first four, 3,465 over the last four — so the rate carried forward is the exit rate, not the average.",
+    "1087": "The corrected Misfits Market / Blue Apron projection of 13 October, converted at what each pack has actually drawn on 1087 — from this year's builds, or from an open work order where there is one. <strong>Demand rises through the window</strong>: 2,408&nbsp;m a week over the first four weeks, 3,465 over the last four, so the rate carried forward is the exit rate rather than the average. Two of the nine have no 1087 history and are converted from the same pack on 929 — <strong>Black Vinegar and Dijonnaise 18g</strong>, together about 3,650&nbsp;m of the 34,630.",
     "1094": "The Misfits share only — BBQ 2.5oz, Orange Marmalade, Hoisin 2oz, Thai Sweet Chili 3oz, Blueberry Bourbon and Fish Sauce, 8,790&nbsp;m over twelve weeks. The blank also runs Hello Fresh and Purple Carrot, and at 7,093&nbsp;m a week across all of them this sits well inside what the orders and the build rate already count, so it adds nothing to the demand figure. It is here to show what of the projection lands on the blank.",
     "1095": "Projected from TJS Honey volume, not a FILM-tab row — that SKU still sits under item 127 at THEM."
   },
@@ -1430,7 +1430,8 @@
       "body": [
         "The 13 October projection, re-read against the corrected film mapping, puts <strong>34,630&nbsp;m over twelve weeks</strong> on BA Repeat across nine products. Chipotle 9g and Dijonnaise 18g moved onto it, and the five TMP products that had been sitting on it moved off — four to the blank and the peanut butter to THEM.",
         "Demand rises through the window: 2,408&nbsp;m a week over the first four weeks, <strong>3,465 over the last four</strong>. On that exit rate the 115,117&nbsp;m in hand is <strong>33 weeks — dry 27 May 2027</strong>, against 14 July on the old FILM plan rate. <strong>The handover onto the blank comes forward about seven weeks.</strong>",
-        "It still does not touch this October's blank order. 1094's own stock is gone by 1 February 2027, long before the step, so the order-by date of 12 October stands. What it changes is the order after it, which now has to carry the extra 3,465&nbsp;m a week from late May rather than mid-July."
+        "It still does not touch this October's blank order. 1094's own stock is gone by 1 February 2027, long before the step, so the order-by date of 12 October stands. What it changes is the order after it, which now has to carry the extra 3,465&nbsp;m a week from late May rather than mid-July.",
+        "What it means for the blank: today the line draws <strong>7,093&nbsp;m a week</strong>. From late May, with BA Repeat on it, that becomes <strong>10,558&nbsp;m a week — half as much again</strong>. A 16-week order at that rate is 168,928&nbsp;m, or <strong>130 rolls</strong> against the 88 going in now."
       ]
     },
     {
