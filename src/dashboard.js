@@ -211,7 +211,8 @@ function renderActions() {
       (p.gap < 0
         ? " — " + fmt(Math.abs(p.gap)) + " " + r.unit + " short of the " + fmt(p.need) +
           " that " + BASIS_LABEL[state.basis] + " needs"
-        : " — " + Math.round(p.orderInWeeks) + " weeks of slack left");
+        : " — " + Math.round(p.orderInWeeks) +
+          (Math.round(p.orderInWeeks) === 1 ? " week" : " weeks") + " of slack left");
     var inSteps = window.FilmCoverage.incomingSteps(r, opts);
     if (inSteps.steps.length) {
       why += ". <strong>" + inSteps.steps.map(function (st) {
@@ -221,6 +222,14 @@ function renderActions() {
     if (r.lineRole === "backup" && r.line) {
       why += ". <strong>Backup on " + r.line.name + "</strong> — ordered only when " +
              r.line.defaultItem + " will not arrive in time";
+    }
+    var sib = idsOf(r).map(function (id) {
+      var m = FILMS.filter(function (x) { return x.item === id; })[0];
+      return m && m.siblingOrder ? m.siblingOrder : null;
+    }).filter(Boolean)[0];
+    if (sib) {
+      why += ". <strong>" + sib.qty.toLocaleString() + " " + sib.unit + " is already on " + sib.ref +
+             " against item " + sib.item + "</strong> \u2014 " + sib.note;
     }
     var held = idsOf(r).map(function (id) { return TRACKED[id]; }).filter(Boolean)[0];
     if (held) {

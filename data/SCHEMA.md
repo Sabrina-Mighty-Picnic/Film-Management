@@ -53,6 +53,7 @@ Optional:
 | `noBom` | no BOM revision points at this item; says so in the drill-down |
 | `note` | one line under the name, in the table and the bars |
 | `nextInLineNote` | a paragraph at the top of the drill-down, for stock bought for a move that has not happened yet |
+| `siblingOrder` | an order for the same film sitting on a differently-denominated item that cannot be pooled. Takes `item`, `qty`, `unit`, `ref` and a `note`. Flagged on the order card and in the build summary; never folded into the runway |
 
 ### How a film is judged
 

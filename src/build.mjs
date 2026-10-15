@@ -177,6 +177,23 @@ function validate(d, period) {
     }
   }
 
+  for (const r of d.films || []) {
+    const so = r.siblingOrder;
+    if (!so) continue;
+    if (!so.item || so.qty == null || !so.unit || !so.ref) {
+      E(`film ${r.item}: siblingOrder needs item, qty, unit and ref`);
+      continue;
+    }
+    const sib = (d.films || []).find(x => x.item === so.item);
+    if (!sib) { W(`film ${r.item}: siblingOrder points at ${so.item}, which is not in films`); continue; }
+    if (sib.onOrder !== so.qty) {
+      W(`film ${r.item}: siblingOrder says ${fmt(so.qty)} ${so.unit} on ${so.ref}, but item ${so.item} reads ${fmt(sib.onOrder)} ${sib.unit} on order — one of the two is stale`);
+    }
+    const pooled = (d.substituteGroups || []).some(g =>
+      (g.items || []).map(it => (typeof it === "string" ? it : it.item)).includes(so.item));
+    if (pooled) W(`film ${r.item}: siblingOrder names ${so.item}, which is already pooled in a substituteGroup — the order would be counted twice`);
+  }
+
   const LEDGER_TYPES = ["received", "used", "count", "adjustment"];
   for (const t of d.trackers || []) {
     const where = `tracker ${t.item || "(no item)"}`;
@@ -227,6 +244,18 @@ function validate(d, period) {
 
 /* ---------- what the dashboard will say ---------- */
 
+/* A film whose stock sits partly on a differently-denominated sibling item: the order
+   on the sibling cannot be pooled without a stated conversion, so it is flagged, never
+   quietly folded into the runway. */
+function sibling(d, r) {
+  const ids = r.memberIds || [r.item];
+  for (const id of ids) {
+    const f = d.films.find(x => x.item === id);
+    if (f && f.siblingOrder) return f.siblingOrder;
+  }
+  return null;
+}
+
 function summarise(d) {
   const lead = d.meta.defaultLeadWeeks || d.meta.baseLeadWeeks || 16;
   const opts = { basis: "max", lead, baseLead: d.meta.baseLeadWeeks || 16,
@@ -255,7 +284,8 @@ function summarise(d) {
     .slice(0, 5);
   for (const { r, p } of toOrder) {
     lines.push(`  ${p.overdue ? "NOW" : "by "}  ${fmt(p.qty).padStart(7)} ${r.unit.padEnd(2)} ${r.item} ${r.name}` +
-               (tracked.has(r.item) ? "   [held off-site — check the tracker]" : ""));
+               (tracked.has(r.item) ? "   [held off-site — check the tracker]" : "") +
+               (sibling(d, r) ? `   [${sibling(d, r).qty.toLocaleString()} ${sibling(d, r).unit} already on ${sibling(d, r).ref}, item ${sibling(d, r).item} — not counted]` : ""));
   }
   if (later.length) {
     lines.push("Next after that:");
