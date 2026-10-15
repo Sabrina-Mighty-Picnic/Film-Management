@@ -95,7 +95,7 @@
       "stockedBy": "MP",
       "unit": "m",
       "onHand": 115117,
-      "weeklyRate": 3465,
+      "weeklyRate": 3096,
       "rateBasis": "Misfits projection, 13 Oct",
       "successor": "Lamick blank 1094 at FFW, when this film runs out",
       "buyer": "Mighty Picnic",
@@ -348,7 +348,7 @@
       "backordered": 0,
       "onWorkOrders": 34639.73,
       "soNotYetWO": 0,
-      "forecastBeyond": 20801,
+      "forecastBeyond": 14897,
       "weeklyBuildRate": 295,
       "retiring": true,
       "successor": "the blank 1094 at FFW, when this film runs out",
@@ -1389,18 +1389,32 @@
     ]
   },
   "forecastMonths": {
-    "1087": [
+    "1003": [
       {
         "month": "Oct 2026",
-        "qty": "7,776 m"
+        "qty": "1,211,577 mm"
       },
       {
         "month": "Nov 2026",
-        "qty": "12,993 m"
+        "qty": "959,035 mm"
       },
       {
         "month": "Dec 2026",
-        "qty": "13,861 m"
+        "qty": "1,478,159 mm"
+      }
+    ],
+    "1087": [
+      {
+        "month": "Oct 2026",
+        "qty": "6,570 m"
+      },
+      {
+        "month": "Nov 2026",
+        "qty": "12,040 m"
+      },
+      {
+        "month": "Dec 2026",
+        "qty": "12,385 m"
       }
     ],
     "1094": [
@@ -1419,19 +1433,19 @@
     ]
   },
   "forecastNotes": {
-    "1087": "The corrected Misfits Market / Blue Apron projection of 13 October, converted at what each pack has actually drawn on 1087 — from this year's builds, or from an open work order where there is one. <strong>Demand rises through the window</strong>: 2,408&nbsp;m a week over the first four weeks, 3,465 over the last four, so the rate carried forward is the exit rate rather than the average. Two of the nine have no 1087 history and are converted from the same pack on 929 — <strong>Black Vinegar and Dijonnaise 18g</strong>, together about 3,650&nbsp;m of the 34,630.",
+    "1003": "Black Vinegar .5oz and Dijonnaise 18g from the Misfits projection, mapped here rather than to BA Repeat. <strong>Both draw 929 in NetSuite today, not 1003</strong>, so this is a stated move rather than what the revisions currently say, and the pack length is taken from their 929 builds. 3.65M&nbsp;mm over twelve weeks, about 304,000&nbsp;mm a week, which sits inside the 830,730 this film already draws.",
+    "1087": "The Misfits Market / Blue Apron projection of 13 October across the <strong>seven products confirmed on BA Repeat</strong>: Sambal 21g, Hoisin 1.38oz, Chipotle 9g, Sweet Chili 1.8oz, Buffalo 2oz, Savory Black Bean 56g and Soy Miso 56g. Every one is converted at what it has actually drawn on 1087, from this year's builds or an open work order — <strong>nothing here is inferred</strong>. Demand rises through the window, 2,101&nbsp;m a week over the first four and 3,096 over the last four, so the exit rate is what carries forward.",
     "1094": "The Misfits share only — BBQ 2.5oz, Orange Marmalade, Hoisin 2oz, Thai Sweet Chili 3oz, Blueberry Bourbon and Fish Sauce, 8,790&nbsp;m over twelve weeks. The blank also runs Hello Fresh and Purple Carrot, and at 7,093&nbsp;m a week across all of them this sits well inside what the orders and the build rate already count, so it adds nothing to the demand figure. It is here to show what of the projection lands on the blank.",
     "1095": "Projected from TJS Honey volume, not a FILM-tab row — that SKU still sits under item 127 at THEM."
   },
   "notes": [
     {
-      "title": "The corrected Misfits mapping pulls BA Repeat forward seven weeks",
+      "title": "BA Repeat on the confirmed mapping: dry 24 June 2027",
       "flag": true,
       "body": [
-        "The 13 October projection, re-read against the corrected film mapping, puts <strong>34,630&nbsp;m over twelve weeks</strong> on BA Repeat across nine products. Chipotle 9g and Dijonnaise 18g moved onto it, and the five TMP products that had been sitting on it moved off — four to the blank and the peanut butter to THEM.",
-        "Demand rises through the window: 2,408&nbsp;m a week over the first four weeks, <strong>3,465 over the last four</strong>. On that exit rate the 115,117&nbsp;m in hand is <strong>33 weeks — dry 27 May 2027</strong>, against 14 July on the old FILM plan rate. <strong>The handover onto the blank comes forward about seven weeks.</strong>",
-        "It still does not touch this October's blank order. 1094's own stock is gone by 1 February 2027, long before the step, so the order-by date of 12 October stands. What it changes is the order after it, which now has to carry the extra 3,465&nbsp;m a week from late May rather than mid-July.",
-        "What it means for the blank: today the line draws <strong>7,093&nbsp;m a week</strong>. From late May, with BA Repeat on it, that becomes <strong>10,558&nbsp;m a week — half as much again</strong>. A 16-week order at that rate is 168,928&nbsp;m, or <strong>130 rolls</strong> against the 88 going in now."
+        "Seven products stay on BA Repeat until it runs out and then move to the blank — <strong>Sambal 21g, Hoisin 1.38oz, Chipotle 9g, Sweet Chili 1.8oz, Buffalo 2oz, Savory Black Bean 56g and Soy Miso 56g</strong>. Black Vinegar and Dijonnaise have moved to 1003, and the five TMP products to the blank. Every remaining conversion is measured on 1087 itself, so none of this figure is inferred.",
+        "The Misfits projection of 13 October puts <strong>30,995&nbsp;m over twelve weeks</strong> on them, rising from 2,101&nbsp;m a week across the first four to <strong>3,096 across the last four</strong>. On the 115,117&nbsp;m in hand that is <strong>37 weeks — dry 24 June 2027</strong>.",
+        "<strong>This October's blank order is unaffected</strong>: 1094's own stock is gone by 1 February 2027, long before the step. What changes is the order after it. From late June the blank goes from <strong>7,093 to 10,189&nbsp;m a week</strong>, and a 16-week order at that rate is 163,024&nbsp;m — <strong>126 rolls against the 88 going in now</strong>."
       ]
     },
     {
