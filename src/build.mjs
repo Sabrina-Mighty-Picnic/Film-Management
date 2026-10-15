@@ -316,6 +316,17 @@ function summarise(d) {
   }
   for (const x of watch.slice().sort((a, b) => slackOf(a) - slackOf(b))) {
     const w = slackOf(x);
+    // A retiring film is never reordered, so it has no order-by date and no slack.
+    // What matters is how long its own stock lasts and what hands over at the end.
+    if (x.r.retiring) {
+      const t = timeline(x.r, opts);
+      lines.push(`  SOON   ${x.r.item} ${x.r.name} — winding down, ` +
+                 `${t.coverWeeks.toFixed(0)} wks of its own stock left` +
+                 (x.c.transfer > 0
+                   ? `, ${fmt(x.c.transfer)} ${x.r.unit} transfers to ${x.r.successorItem || "its successor"}`
+                   : ""));
+      continue;
+    }
     lines.push(`  SOON   ${x.r.item} ${x.r.name} — ` +
                (w === Infinity ? "little slack left before the order-by date"
                                : `${w.toFixed(0)} wk${w.toFixed(0) === "1" ? "" : "s"} of slack before the order-by date`));
