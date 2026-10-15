@@ -58,10 +58,10 @@
       "onHand": 330513,
       "weeklyRate": 830730,
       "rateBasis": "recent builds",
-      "successor": "THEM's blank foil",
-      "buyer": "THEM — not being reordered by us",
+      "successor": "A special foil for Ketchup and the Peanut Butter Spread — THEM buy and own it",
+      "buyer": "THEM, billed back to us separately",
       "decided": true,
-      "bomAction": "Nearly out and not being reordered. Drop the film line from BOM 79 (Ketchup 21g), BOM 80 (Ketchup 62g) and BOM 70 (BA Peanut Butter Spread .7oz) once THEM's blank is in. All three are THEM-owned, so the draw does not transfer to 929 or any other item of ours."
+      "bomAction": "Nearly out, and we are not reordering it. The Ketchup 21g, Ketchup 62g and BA Peanut Butter Spread .7oz revisions move to a <strong>special foil THEM buy and own</strong>, so no purchase order comes from us and the draw does not transfer to 929 or any other item of ours — but <strong>THEM bill us for it separately</strong>, so it stays a cost even though it leaves our stock. Drop the film line from BOM 79, BOM 80 and BOM 70 once that foil is in."
     },
     {
       "item": "127",
@@ -161,7 +161,7 @@
       "weeklyBuildRate": 830730,
       "retiring": true,
       "expediting": true,
-      "successor": "THEM's own blank foil — every SKU drawing this film is THEM-owned, so the demand leaves our books rather than moving to another of our items",
+      "successor": "a special foil THEM buy and own for Ketchup and the Peanut Butter Spread, billed back to us separately — so there is no purchase order from us, but it is not free either",
       "note": "not being reordered"
     },
     {
@@ -1478,7 +1478,7 @@
       "title": "Why a film being retired never shows as short",
       "body": [
         "We are not reordering BA Repeat Foil, BA Repeat 75mm, BA Repeat Lamick, or the TJS printed family. So a shortfall against them is not a purchasing problem — <strong>demand beyond the stock in hand transfers to the successor</strong> rather than needing an order here. Those rows read <em>Winding down</em> and show where the excess goes.",
-        "The one exception is BA Repeat Foil, which has 6.87M&nbsp;mm backordered against released work orders. That is live, so it reads amber rather than grey — but the answer is THEM's expedite, not a purchase order from us."
+        "The one live exception is BA Repeat Foil, which has 6.87M&nbsp;mm backordered against released work orders. That is real, so it reads amber rather than grey — but the answer is THEM's expedite, not a purchase order from us. <strong>Its replacement is a special foil THEM buy and own for Ketchup and the Peanut Butter Spread and bill back to us</strong>, which is why nothing inherits its draw on this page: the demand leaves our stock without leaving our cost."
       ]
     },
     {
