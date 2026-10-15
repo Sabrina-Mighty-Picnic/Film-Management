@@ -95,8 +95,8 @@
       "stockedBy": "MP",
       "unit": "m",
       "onHand": 115117,
-      "weeklyRate": 2871,
-      "rateBasis": "2026 FILM plan",
+      "weeklyRate": 2733,
+      "rateBasis": "Misfits projection, 13 Oct",
       "successor": "Lamick blank 1094, backed by 1129, at FFW",
       "buyer": "Mighty Picnic",
       "decided": false,
@@ -348,7 +348,7 @@
       "backordered": 0,
       "onWorkOrders": 34639.73,
       "soNotYetWO": 0,
-      "forecastBeyond": 0,
+      "forecastBeyond": 9089,
       "weeklyBuildRate": 295,
       "retiring": true,
       "successor": "blank 1094 at FFW, from around July 2027",
@@ -1388,11 +1388,35 @@
       }
     ]
   },
-  "forecastMonths": {},
+  "forecastMonths": {
+    "1087": [
+      {
+        "month": "Oct 2026",
+        "qty": "5,441 m"
+      },
+      {
+        "month": "Nov 2026",
+        "qty": "10,197 m"
+      },
+      {
+        "month": "Dec 2026",
+        "qty": "10,933 m"
+      }
+    ]
+  },
   "forecastNotes": {
+    "1087": "The Misfits Market / Blue Apron projection of 13 October, converted at what each pack has actually drawn on 1087 in this year's builds. Twelve weeks to 28 December across Sambal, Hoisin 1.38oz, Sweet Chili 1.8oz, Buffalo, Savory Black Bean, Black Vinegar and Soy Miso. The <strong>demand rises through the window</strong> — 1,697&nbsp;m a week over the first four, 2,733 over the last four — so the rate carried forward is the exit rate, not the average.",
     "1095": "Projected from TJS Honey volume, not a FILM-tab row — that SKU still sits under item 127 at THEM."
   },
   "notes": [
+    {
+      "title": "The new Misfits projection moves the handover two weeks, not months",
+      "body": [
+        "Misfits sent a twelve-week projection on 13 October running to 28 December. Converted at what each pack has actually drawn on 1087 in this year's builds, the seven products that genuinely run on BA Repeat come to <strong>26,570&nbsp;m over the twelve weeks</strong>.",
+        "The shape matters more than the total. It <strong>rises through the window</strong>: 1,697&nbsp;m a week across the first four weeks, <strong>2,733&nbsp;m a week across the last four</strong>. Taking the average would have read 2,214 and put the runout in October 2027; the exit rate is what actually carries forward. On the 115,117&nbsp;m in hand that is <strong>42 weeks — dry 28 July 2027</strong>, against 14 July on the 2,871&nbsp;m a week the old FILM plan assumed. <strong>The handover onto the blank moves two weeks later, and this October's blank order is unaffected.</strong>",
+        "Five products on the sheet were marked 1087 but draw something else in NetSuite today: <strong>BBQ 2.5oz, Hoisin 2oz and Thai Sweet Chili 3oz all run on the blank, Blueberry Bourbon on 1129, and Peanut Butter 1.15oz on 937</strong>. They are excluded above. If they are meant to move onto BA Repeat, the exit rate goes to 3,350&nbsp;m a week and the film is dry on <strong>4 June 2027</strong> — seven weeks earlier, and that would pull the blank's step forward with it."
+      ]
+    },
     {
       "title": "The blank order is due this week",
       "flag": true,

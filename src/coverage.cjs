@@ -70,7 +70,11 @@ function transitionRate(t, opts) {
     if (need > 0) cands.push({ rate: need / lead, basis: "orders already committed" });
   }
   if (!cands.length) return { rate: 0, basis: t.rateBasis || "no draw" };
-  return cands.sort(function (a, b) { return b.rate - a.rate; })[0];
+  // on a tie the first candidate wins, so a rate that came from a stated plan or
+  // projection keeps the credit rather than being relabelled as the orders behind it
+  return cands.sort(function (a, b) {
+    return Math.abs(b.rate - a.rate) < 0.5 ? 0 : b.rate - a.rate;
+  })[0];
 }
 
 /* What is coming onto this film later.
