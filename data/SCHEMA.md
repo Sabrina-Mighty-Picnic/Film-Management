@@ -235,9 +235,12 @@ is derived rather than guessed: the retiring film's stock divided by the rate it
 being consumed at (the `transitions` rate where there is one, because a trailing build
 rate can be near zero for a SKU nobody has built lately).
 
-Add `successorPerUnit` when the two are held in different units — how much of the
-retiring film's unit makes one of the successor's. Without it the step is left out and
-the build warns, rather than silently adding metres to each.
+Add `successorPerUnit` when the two are held in different units: **how much of the
+successor's unit one of the retiring film's unit becomes**. The retiring film's weekly
+rate is multiplied by it, so the step arrives denominated in the successor's unit. 880
+hands over to 1152 at `0.110011` — one jerk impression is 0.110011 m of film, stated as
+9.09 impressions per metre. Without it the step is left out and the build warns, rather
+than silently adding metres to each.
 
 A film can also carry manual `incoming` entries, `{ fromWeek, rate, source, note }`, for
 a transfer with no retiring film behind it. `fromWeek: null` means agreed but

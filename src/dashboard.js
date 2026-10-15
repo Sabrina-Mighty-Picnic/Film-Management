@@ -750,6 +750,29 @@ function render() {
     var nlHtml = r.nextInLineNote
       ? "<h4>Next in line — not drawn yet</h4><p class=\"dnone\">" + r.nextInLineNote + "</p>" : "";
 
+    /* A film whose runway is driven by a handover says so: the step is in the maths,
+       so it belongs on the page rather than in prose somebody has to keep current. */
+    var stHtml = (function () {
+      var inc = window.FilmCoverage.incomingSteps(r, opts);
+      if (!inc.steps.length && !inc.unscheduled.length) return "";
+      var t = window.FilmCoverage.timeline(r, opts);
+      var parts = inc.steps.map(function (st) {
+        return "<b>" + fmt(st.rate) + " " + r.unit + " a week</b> from <b>" + st.from + "</b> " +
+               st.name + ", when that film runs out in about <b>" + Math.round(st.week) +
+               " weeks</b> (" + dstr(st.week) + ", on " + st.basis + ")";
+      });
+      var un = inc.unscheduled.map(function (u) {
+        return "<b>" + u.from + "</b> " + (u.name || "") + " \u2014 " + u.why + ", so it is left out of the dates";
+      });
+      return "<h4>Inherits a draw</h4><p class=\"dnone\">This film takes on " +
+        parts.join(", and ") +
+        (parts.length && t.coverWeeks != null && isFinite(t.coverWeeks)
+          ? ". Its " + fmt(c.stock) + " " + r.unit + " covers that to about <b>" +
+            Math.round(t.coverWeeks) + " weeks</b> (" + dstr(t.coverWeeks) + ")"
+          : "") + "." +
+        (un.length ? " Also agreed but unsized: " + un.join("; ") + "." : "") + "</p>";
+    })();
+
     var rtHtml = r.retiring
       ? "<h4>Being run out, not reordered</h4><p class=\"dnone\">Replaced by " + r.successor + "." +
         (c.transfer > 0
@@ -775,7 +798,7 @@ function render() {
            (r.weeklyBuildRate ? " — yet it is being consumed, so the plan has a gap" : "") + ".")) + "</p>";
 
     return head + "<tr class=\"drill\" data-for=\"" + r.item + "\" hidden><td colspan=\"" + cols.length + "\">" +
-      "<div class=\"drillbox\">" + nlHtml + rtHtml + woHtml + soHtml + fcHtml + imDrill + nbHtml + "</div></td></tr>";
+      "<div class=\"drillbox\">" + nlHtml + stHtml + rtHtml + woHtml + soHtml + fcHtml + imDrill + nbHtml + "</div></td></tr>";
   }).join("");
 
   Array.prototype.forEach.call(document.querySelectorAll("tbody tr.head"), function (tr) {

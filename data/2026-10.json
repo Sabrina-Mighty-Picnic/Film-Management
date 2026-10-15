@@ -142,7 +142,7 @@
       "successor": "The per-metre item 1152 at FFW, when this film runs out",
       "buyer": "Mighty Picnic",
       "decided": false,
-      "bomAction": "FG 932 still draws the per-each item 880. It needs a revision on <strong>1152</strong>, the per-metre item, which already has <strong>19,500 m</strong> inbound on PO1277. Two things are outstanding: the revision itself, and a stated <strong>metres per impression</strong> — without it the handover cannot be sized and 1152 shows no demand. Note also that <strong>54,545 ea</strong> of 880 sits at the inactive Blake Hill warehouse against <strong>38,000 ea</strong> backordered at FFW; that is a transfer, not a purchase order."
+      "bomAction": "FG 932 still draws the per-each item <strong>880</strong>. It needs a revision on <strong>1152</strong>, the per-metre item, which already has <strong>19,500&nbsp;m</strong> inbound on PO1277 — about <strong>177,000 impressions</strong> at the stated 9.09 per metre. That is the only thing outstanding: the conversion is known, so the handover is sized and dated here. Note also that <strong>54,545&nbsp;ea</strong> of 880 sits at the inactive Blake Hill warehouse against <strong>38,000&nbsp;ea</strong> backordered at FFW; that is a transfer, not a purchase order."
     }
   ],
   "films": [
@@ -159,18 +159,12 @@
       "soNotYetWO": 0.03,
       "forecastBeyond": 0,
       "weeklyBuildRate": 4321,
-      "note": "69,602 at FFW, 54,545 stranded at the inactive BH warehouse. Being retired in favour of the per-metre item 1152",
-      "siblingOrder": {
-        "item": "1152",
-        "qty": 19500,
-        "unit": "m",
-        "ref": "PO1277",
-        "note": "the same film in metres. No metres-per-impression figure is stated anywhere in the data, so it cannot be pooled into this runway and the suggested order does not count it"
-      },
+      "note": "69,602 at FFW, 54,545 stranded at the inactive BH warehouse. Being retired in favour of the per-metre item 1152, at 9.09 impressions per metre",
       "retiring": true,
       "expediting": true,
       "successorItem": "1152",
-      "successor": "the per-metre item 1152 at FFW, when this film runs out"
+      "successor": "the per-metre item 1152 at FFW, when this film runs out",
+      "successorPerUnit": 0.110011
     },
     {
       "item": "1152",
@@ -186,8 +180,9 @@
       "forecastBeyond": 0,
       "weeklyBuildRate": 0,
       "noBom": true,
-      "note": "19,500 m on PO1277, waiting on the BOM revision that moves Jamaican Jerk off the per-each item 880",
-      "nextInLineNote": "This is the film Jamaican Jerk is moving to. <strong>19,500 m</strong> arrives on <strong>PO1277</strong>, raised in August. Nothing draws it yet: every revision still points at the per-each item <strong>880</strong>. How much runway it buys cannot be stated until somebody gives the metres per impression — without that figure the handover from 880 has no size, and this film shows no demand."
+      "note": "19,500 m on PO1277 — about 177k impressions at 9.09 per metre. Takes over from the per-each item 880 when that runs out",
+      "nextInLineNote": "This is the film Jamaican Jerk is moving to. <strong>19,500&nbsp;m</strong> arrives on <strong>PO1277</strong>, raised in August — about <strong>177,000 impressions</strong> at the stated <strong>9.09 per metre</strong>, which is the size of a normal jerk order (the last two purchase orders on the per-each item were 160,000 and 172,727). The draw steps onto this film when <strong>880</strong> runs out; until the BOM revision lands, every revision still points at 880 and nothing here is consumed.",
+      "filmPerImpression": 0.110011
     },
     {
       "item": "1129",
@@ -1311,7 +1306,7 @@
         "<strong>The blank order landed.</strong> 1094 now shows <strong>143,530&nbsp;m on order</strong> against 3,530 a week ago, so it drops out of the eight-week list entirely — its order-by date is now 22 weeks out and it runs dry in 38.",
         "<strong>BA Chipotle 9g is no longer an order.</strong> It holds 14,300&nbsp;m against 12,342 of committed work orders, and it is moving to the blank rather than being reordered, so it reads <em>Winding down</em> like the other retiring films instead of asking for a purchase order.",
         "<strong>BA Repeat Foil is gone from the page.</strong> Never being reordered by us, and THEM supply their own for the SKUs that draw it.",
-        "<strong>Jamaican Jerk is being retired into metres.</strong> <strong>PO1277</strong> put 19,500&nbsp;m on item <strong>1152</strong>, the per-metre version of the same film, in August, and the per-each item <strong>880</strong> is on its way out. 880 now reads <em>Winding down</em> rather than asking for an order — amber, not grey, because <strong>38,000&nbsp;ea</strong> is backordered against released work orders today. Two things are still outstanding: the BOM revision pointing Jamaican Jerk at 1152, and a stated <strong>metres per impression</strong>. Without that figure the handover has no size, so the page shows the transfer but not the step, and 1152 still reads as no demand.",
+        "<strong>Jamaican Jerk is being retired into metres.</strong> <strong>PO1277</strong> put 19,500&nbsp;m on item <strong>1152</strong>, the per-metre version of the same film, in August, and the per-each item <strong>880</strong> is on its way out. 880 reads <em>Winding down</em> rather than asking for an order — amber, not grey, because <strong>38,000&nbsp;ea</strong> is backordered against released work orders today. At <strong>9.09 impressions per metre</strong> the handover is sized: open 1152 in the table to see when the draw steps across and how far its stock goes. The BOM revision pointing FG 932 at 1152 is the one thing still outstanding.",
         "<strong>The jerk backorder is a transfer, not a purchase order.</strong> FFW holds 13,429&nbsp;ea against work orders needing 51,429. The missing <strong>54,545&nbsp;ea</strong> is not missing — it is sitting at the inactive Blake Hill warehouse. Moving it covers the backorder without buying anything."
       ]
     },
