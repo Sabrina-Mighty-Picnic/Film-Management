@@ -67,7 +67,7 @@ function transitionRate(t, opts) {
     var c = compute(r, opts);
     var lead = r.leadWeeks != null ? r.leadWeeks : (opts && opts.lead) || 16;
     var need = c.rawNeed != null ? c.rawNeed : c.need;
-    if (need > 0) cands.push({ rate: need / lead, basis: "orders already committed" });
+    if (need > 0) cands.push({ rate: need / lead, basis: "its orders and draw over the window" });
   }
   if (!cands.length) return { rate: 0, basis: t.rateBasis || "no draw" };
   // on a tie the first candidate wins, so a rate that came from a stated plan or

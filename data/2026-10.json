@@ -58,10 +58,10 @@
       "onHand": 330513,
       "weeklyRate": 830730,
       "rateBasis": "recent builds",
-      "successor": "Blank foil at THEM",
-      "buyer": "THEM — expediting against open orders, balance November or December",
+      "successor": "THEM's blank foil",
+      "buyer": "THEM — not being reordered by us",
       "decided": true,
-      "bomAction": "Drop the film line from BOM 79 (Ketchup 21g), BOM 80 (Ketchup 62g) and BOM 70 (BA Peanut Butter Spread .7oz) once the blank is in."
+      "bomAction": "Nearly out and not being reordered. Drop the film line from BOM 79 (Ketchup 21g), BOM 80 (Ketchup 62g) and BOM 70 (BA Peanut Butter Spread .7oz) once THEM's blank is in. All three are THEM-owned, so the draw does not transfer to 929 or any other item of ours."
     },
     {
       "item": "127",
@@ -161,9 +161,8 @@
       "weeklyBuildRate": 830730,
       "retiring": true,
       "expediting": true,
-      "successor": "blank foil at THEM — THEM expediting against these orders, balance Nov/Dec",
-      "note": "not being reordered",
-      "successorItem": "929"
+      "successor": "THEM's own blank foil — every SKU drawing this film is THEM-owned, so the demand leaves our books rather than moving to another of our items",
+      "note": "not being reordered"
     },
     {
       "item": "880",
@@ -1389,7 +1388,7 @@
     ]
   },
   "forecastMonths": {
-    "1003": [
+    "929": [
       {
         "month": "Oct 2026",
         "qty": "1,211,577 mm"
@@ -1433,7 +1432,7 @@
     ]
   },
   "forecastNotes": {
-    "1003": "Black Vinegar .5oz and Dijonnaise 18g from the Misfits projection, mapped here rather than to BA Repeat. <strong>Both draw 929 in NetSuite today, not 1003</strong>, so this is a stated move rather than what the revisions currently say, and the pack length is taken from their 929 builds. 3.65M&nbsp;mm over twelve weeks, about 304,000&nbsp;mm a week, which sits inside the 830,730 this film already draws.",
+    "929": "Black Vinegar .5oz and Dijonnaise 18g from the Misfits projection of 13 October, converted at what each pack has drawn on 929 in this year's builds. 3.65M&nbsp;mm over twelve weeks, about 304,000&nbsp;mm a week — well inside the 3.27M a week the committed orders already imply, so it adds nothing to the demand figure and is here for visibility.",
     "1087": "The Misfits Market / Blue Apron projection of 13 October across the <strong>seven products confirmed on BA Repeat</strong>: Sambal 21g, Hoisin 1.38oz, Chipotle 9g, Sweet Chili 1.8oz, Buffalo 2oz, Savory Black Bean 56g and Soy Miso 56g. Every one is converted at what it has actually drawn on 1087, from this year's builds or an open work order — <strong>nothing here is inferred</strong>. Demand rises through the window, 2,101&nbsp;m a week over the first four and 3,096 over the last four, so the exit rate is what carries forward.",
     "1094": "The Misfits share only — BBQ 2.5oz, Orange Marmalade, Hoisin 2oz, Thai Sweet Chili 3oz, Blueberry Bourbon and Fish Sauce, 8,790&nbsp;m over twelve weeks. The blank also runs Hello Fresh and Purple Carrot, and at 7,093&nbsp;m a week across all of them this sits well inside what the orders and the build rate already count, so it adds nothing to the demand figure. It is here to show what of the projection lands on the blank.",
     "1095": "Projected from TJS Honey volume, not a FILM-tab row — that SKU still sits under item 127 at THEM."
