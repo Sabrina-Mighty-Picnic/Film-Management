@@ -276,12 +276,19 @@ function summarise(d) {
   lines.push(`  ${late.length} short   ${watch.length} tight   ` +
              `${rows.length - late.length - watch.length - winding.length - quiet.length} covered   ` +
              `${winding.length} winding down   ${quiet.length} no demand`);
-  for (const { r, c } of late.sort((a, b) => a.c.slack - b.c.slack)) {
+  const slackOf = x => {
+    const t = timeline(x.r, opts);
+    return t && t.slackWeeks != null ? t.slackWeeks : Infinity;
+  };
+  for (const { r, c } of late.slice().sort((a, b) => slackOf(a) - slackOf(b))) {
     lines.push(`  SHORT  ${r.item} ${r.name} — ${fmt(Math.abs(c.gap))} ${r.unit} short` +
                (r.stockedBy === "MP" ? `, suggested order ${fmt(c.order)} ${r.unit}` : ` (THEM to order)`));
   }
-  for (const { r, c } of watch.sort((a, b) => a.c.slack - b.c.slack)) {
-    lines.push(`  SOON   ${r.item} ${r.name} — ${(c.spare * 100).toFixed(0)}% over what the window needs`);
+  for (const x of watch.slice().sort((a, b) => slackOf(a) - slackOf(b))) {
+    const w = slackOf(x);
+    lines.push(`  SOON   ${x.r.item} ${x.r.name} — ` +
+               (w === Infinity ? "little slack left before the order-by date"
+                               : `${w.toFixed(0)} wk${w.toFixed(0) === "1" ? "" : "s"} of slack before the order-by date`));
   }
   return lines.join("\n");
 }
