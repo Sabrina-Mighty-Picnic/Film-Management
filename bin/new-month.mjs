@@ -91,6 +91,13 @@ if ((d.trackers || []).length) {
                 "Add this month's deliveries and shipments to the end of it.");
   }
 }
+if ((d.plates?.register || []).length) {
+  const due = d.plates.register.filter(r => r.expired).length;
+  console.log(`Plate register carried over as it stands: ${d.plates.register.length} plates, ` +
+              `pulled ${d.plates.asOf}${due ? `, ${due} already expired` : ""}.`);
+  console.log("  Expiries move only when the supplier reissues the register — re-pull it and");
+  console.log("  update plates.asOf, or the page will keep reporting against a stale one.");
+}
 console.log("Also re-read by hand, because they are last month's words:");
 console.log("  meta.asOfLines, sourceNotes, notes[] — the commentary cards");
 console.log(`Then: npm run build -- ${period}`);

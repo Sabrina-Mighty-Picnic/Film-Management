@@ -199,7 +199,8 @@
       "weeklyBuildRate": 4448,
       "leadWeeks": 4,
       "note": "4-week lead, judged against 4 weeks not 16",
-      "rollSize": 1300
+      "rollSize": 1300,
+      "blank": true
     },
     {
       "item": "1090",
@@ -248,7 +249,8 @@
       "forecastBeyond": 0,
       "weeklyBuildRate": 2018,
       "note": "restocked 9 Sep; carries the whole FFW blank demand",
-      "rollSize": 1300
+      "rollSize": 1300,
+      "blank": true
     },
     {
       "item": "1092",
@@ -1311,6 +1313,17 @@
       ]
     },
     {
+      "title": "Five printing plates need renewing, and two deliberately do not",
+      "flag": true,
+      "body": [
+        "The Taisei Lamick register (pulled <strong>18 August</strong>) is now on the page under <em>Printing plates</em>. A plate lapses on a date rather than with use, so the question is not how long is left but whether a film’s next order falls the wrong side of it.",
+        "<strong>Due now:</strong> TJS Honey .5oz, HF Plum, Crait Repeat and Jamaican Jerk are all given as expired, and GE Thai-Ger Sweet Chili lapses <strong>22 October</strong>. <strong>HF Plum is the one that bites</strong> — it is in the order list today, so that order carries a renewal.",
+        "<strong>Not needed:</strong> BA Repeat and BA Chipotle both have live plates, and both films are being run out. Nothing will be printed from either again, so letting them lapse costs nothing. That is the only thing on this page that says <em>do not spend</em>.",
+        "<strong>Orange Marmalade has a plate and no film.</strong> No item carries it any more — those builds draw the blank 1094. Worth deciding whether to let it go.",
+        "No plate price is held anywhere in this repo, so the page says when a renewal falls due and never what it costs."
+      ]
+    },
+    {
       "title": "The blank order is due this week",
       "flag": true,
       "body": [
@@ -1553,6 +1566,31 @@
           "def": "The bill of materials version a finished good is built to. It is what decides which film a sales order actually draws — which is why a film with stock but no revision pointing at it shows as having no demand."
         }
       ]
+    },
+    {
+      "group": "Printing plates",
+      "terms": [
+        {
+          "term": "Plate",
+          "def": "The printing plate the supplier holds for a film. It lapses on a <strong>date rather than with use</strong>, and renewing it is a charge. Blanks have none, because nothing is printed on them."
+        },
+        {
+          "term": "Covered",
+          "def": "The film’s next order-by date falls inside the plate’s life, so that order carries no renewal."
+        },
+        {
+          "term": "Lapses first",
+          "def": "The plate expires <strong>before</strong> the film’s own order-by date, so the next order carries a renewal."
+        },
+        {
+          "term": "Lapsing",
+          "def": "The plate expires within the next eight weeks — close enough that the charge lands whatever the ordering does."
+        },
+        {
+          "term": "Not needed",
+          "def": "Every item the plate covers is being run out, so nothing will be printed from it again and letting it lapse costs nothing. A plate still counts as needed if <strong>any</strong> item it covers is live."
+        }
+      ]
     }
   ],
   "trackers": [
@@ -1598,5 +1636,149 @@
       ],
       "note": "1094 is the default and carries the line. 1129 is the relief — a 4-week lead, ordered only when 1094 will not arrive in time."
     }
-  ]
+  ],
+  "plates": {
+    "source": "MPC_TLK_FILMS, the Taisei Lamick plate register",
+    "asOf": "2026-08-18",
+    "termMonths": 12,
+    "note": "Plates lapse on a date rather than with use, and renewing one is a charge. Expiries marked without a date are as the register gives them.",
+    "register": [
+      {
+        "plate": "FILM- TJS Honey Film 0.5oz",
+        "item": "tjs-honey-printed",
+        "widthMm": 200,
+        "pitchMm": 50,
+        "expires": null,
+        "expired": true
+      },
+      {
+        "plate": "FILM- HF Plum Spread 1oz",
+        "item": "1040",
+        "widthMm": 200,
+        "pitchMm": 65,
+        "expires": null,
+        "expired": true
+      },
+      {
+        "plate": "FILM- TJS Orange Marmalade Film - 1oz",
+        "item": null,
+        "widthMm": 200,
+        "pitchMm": 65,
+        "expires": null,
+        "expired": true,
+        "note": "No film item carries this any more — Orange Marmalade 1oz builds draw the blank 1094"
+      },
+      {
+        "plate": "FILM- Lamick - Crait Repeat",
+        "item": "1089",
+        "widthMm": 200,
+        "pitchMm": 80,
+        "expires": null,
+        "expired": true
+      },
+      {
+        "plate": "FILM-Hillside Harvest Jamaican Jerk1.5oz",
+        "item": "1152",
+        "widthMm": 200,
+        "pitchMm": 110,
+        "expires": null,
+        "expired": true,
+        "alsoItems": [
+          "880"
+        ],
+        "note": "One plate for the jerk film, which we hold as both the per-each item 880 and the per-metre item 1152"
+      },
+      {
+        "plate": "FILM GE Thai-Ger Sweet Chili 7oz (Meter)",
+        "item": "1053",
+        "widthMm": 300,
+        "pitchMm": 150,
+        "expires": "2026-10-22"
+      },
+      {
+        "plate": "FILM-BA Chipotle 9g(Lamick-Meter)",
+        "item": "1106",
+        "widthMm": 200,
+        "pitchMm": 50,
+        "expires": "2027-01-05"
+      },
+      {
+        "plate": "FILM-BA Sweet Chili 51g(Lamick-Meter)",
+        "item": "1108",
+        "widthMm": 200,
+        "pitchMm": 100,
+        "expires": "2027-01-05"
+      },
+      {
+        "plate": "FILM- BA Repeat (Lamick)",
+        "item": "1087",
+        "widthMm": 200,
+        "pitchMm": 50,
+        "expires": "2027-01-12"
+      },
+      {
+        "plate": "FILM-TBJ Bacon Jam (Uncured) 1oz",
+        "item": "1123",
+        "widthMm": 200,
+        "pitchMm": 80,
+        "expires": "2027-03-04"
+      },
+      {
+        "plate": "FILM- HF Maple Syrup 1oz",
+        "item": "1039",
+        "widthMm": 200,
+        "pitchMm": 65,
+        "expires": "2027-03-13"
+      },
+      {
+        "plate": "FILM- HF Fig Spread 1oz",
+        "item": "1035",
+        "widthMm": 200,
+        "pitchMm": 65,
+        "expires": "2027-05-11"
+      },
+      {
+        "plate": "FILM- HF Honey 0.5oz",
+        "item": "1030",
+        "widthMm": 200,
+        "pitchMm": 50,
+        "expires": "2027-06-23"
+      },
+      {
+        "plate": "FILM- HF Cranberry Spread 1oz",
+        "item": "1036",
+        "widthMm": 200,
+        "pitchMm": 65,
+        "expires": "2027-06-23"
+      },
+      {
+        "plate": "FILM- HF Apricot Spread 1oz",
+        "item": "1037",
+        "widthMm": 200,
+        "pitchMm": 65,
+        "expires": "2027-07-16"
+      },
+      {
+        "plate": "FILM- HF Cherry 1oz",
+        "item": "1038",
+        "widthMm": 200,
+        "pitchMm": 65,
+        "expires": "2027-07-28"
+      },
+      {
+        "plate": "FILM- HF Red Pepper Spread 1oz",
+        "item": "1042",
+        "widthMm": 200,
+        "pitchMm": 65,
+        "expires": "2027-07-28"
+      },
+      {
+        "plate": "FILM- HF Peach Jam Spread 1oz",
+        "item": "1041",
+        "widthMm": 200,
+        "pitchMm": 65,
+        "expires": "2027-07-30"
+      }
+    ]
+  }
 }

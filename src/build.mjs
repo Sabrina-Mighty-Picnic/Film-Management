@@ -14,7 +14,8 @@ import { fileURLToPath } from "node:url";
 import { createRequire } from "node:module";
 
 const require = createRequire(import.meta.url);
-const { compute, orderPlan, timeline, workingRows, runLedger, fmt } = require("./coverage.cjs");
+const { compute, orderPlan, timeline, workingRows, runLedger, fmt,
+        plateSchedule, plateOutlook, weeksUntil } = require("./coverage.cjs");
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DATA_DIR = path.join(ROOT, "data");
@@ -194,6 +195,44 @@ function validate(d, period) {
     if (pooled) W(`film ${r.item}: siblingOrder names ${so.item}, which is already pooled in a substituteGroup — the order would be counted twice`);
   }
 
+  const pl = d.plates;
+  if (pl) {
+    if (!Array.isArray(pl.register)) E("plates.register must be an array");
+    if (!pl.asOf) W("plates.asOf missing — the page cannot say how old the register is");
+    if (!pl.termMonths) W("plates.termMonths missing — the page cannot say how long a plate runs");
+    const seen = new Map();
+    for (const p of pl.register || []) {
+      if (!p.plate) { E("a plates.register entry has no plate name"); continue; }
+      if (p.expires != null && isNaN(new Date(p.expires + "T00:00:00"))) {
+        E(`plate ${p.plate}: expires must be a YYYY-MM-DD date or null (got ${JSON.stringify(p.expires)})`);
+      }
+      if (p.expires == null && !p.expired) {
+        W(`plate ${p.plate}: no expiry and not marked expired — it will read as undated`);
+      }
+      const covers = [p.item].concat(p.alsoItems || []).filter(Boolean);
+      for (const id of covers) {
+        const known = (d.films || []).some(r => r.item === id) ||
+                      (d.substituteGroups || []).some(g => g.id === id);
+        if (!known) W(`plate ${p.plate}: covers ${id}, which is not a film or a substitute group`);
+        if (seen.has(id)) W(`${id} is covered by two plates: ${seen.get(id)} and ${p.plate}`);
+        else seen.set(id, p.plate);
+      }
+      if (!p.item && !p.note) W(`plate ${p.plate}: no item and no note saying why`);
+    }
+    // a printed film we buy, with no plate against it, is a gap in the register
+    for (const r of d.films || []) {
+      if (r.stockedBy !== "MP" || r.blank) continue;
+      const covered = (pl.register || []).some(p =>
+        [p.item].concat(p.alsoItems || []).includes(r.item)) ||
+        (d.substituteGroups || []).some(g =>
+          (g.items || []).map(it => (typeof it === "string" ? it : it.item)).includes(r.item) &&
+          (pl.register || []).some(p => p.item === g.id));
+      if (!covered && !r.retiring && (r.onWorkOrders || r.weeklyBuildRate)) {
+        W(`film ${r.item} is being consumed but no plate in the register covers it — either it is a blank or the register is short a row`);
+      }
+    }
+  }
+
   const LEDGER_TYPES = ["received", "used", "count", "adjustment"];
   for (const t of d.trackers || []) {
     const where = `tracker ${t.item || "(no item)"}`;
@@ -259,7 +298,8 @@ function sibling(d, r) {
 function summarise(d) {
   const lead = d.meta.defaultLeadWeeks || d.meta.baseLeadWeeks || 16;
   const opts = { basis: "max", lead, baseLead: d.meta.baseLeadWeeks || 16,
-                 films: d.films, transitions: d.transitions };
+                 films: d.films, transitions: d.transitions,
+                 plates: d.plates, groups: d.substituteGroups || [], asOf: d.meta.asOf };
   const working = workingRows(d.films, d.substituteGroups || [], d.lines || []);
   const rows = working.map(r => ({ r, c: compute(r, opts) }));
   const pick = s => rows.filter(x => x.c.status === s);
@@ -301,6 +341,39 @@ function summarise(d) {
       : `  tracker ${t.item} ${t.name}: ${fmt(L.balance)} ${t.unit} at ${t.heldBy}` +
         (L.coverWeeks === null ? "" : `, ${L.coverWeeks.toFixed(1)} weeks of cover`));
   }
+  const plates = d.plates || {};
+  if ((plates.register || []).length) {
+    const sched = plateSchedule(opts);
+    const say = s => {
+      const r = s.plate.item
+        ? working.find(x => x.item === s.plate.item || (x.memberIds || []).includes(s.plate.item))
+        : null;
+      return r ? plateOutlook(r, opts) : { state: s.plate.item ? "undated" : "no-film" };
+    };
+    const flag = sched.map(s => ({ s, o: say(s) }))
+      .filter(x => ["expired", "lapsing", "lapses-first"].includes(x.o.state));
+    lines.push("");
+    lines.push(flag.length ? "Plate renewals in sight:" : "No plate renewal is in sight.");
+    const why = ({ s, o }) =>
+      o.state === "lapses-first"
+        ? `lapses ${s.plate.expires}, before its ${Math.round(o.orderByWeeks)}-week order-by`
+        : o.state === "lapsing"
+          ? `lapses ${s.plate.expires}, in ${Math.round(s.weeks)} wk${Math.round(s.weeks) === 1 ? "" : "s"}`
+          : s.plate.expires ? `lapsed ${s.plate.expires}` : "expired, no date given";
+    for (const x of flag) {
+      lines.push(`  ${(x.o.state === "lapses-first" ? "by " : "NOW").padEnd(5)}` +
+                 `${(x.s.plate.item || "—").padEnd(7)} ${x.s.plate.plate}   ${why(x)}`);
+    }
+    const spare = sched.filter(s => s.plate.item && say(s).state === "not-needed");
+    for (const s of spare) {
+      lines.push(`  none ${s.plate.item.padEnd(7)} ${s.plate.plate}   being run out, no renewal needed`);
+    }
+    const orphan = sched.filter(s => !s.plate.item);
+    for (const s of orphan) {
+      lines.push(`  ?    ${"—".padEnd(7)} ${s.plate.plate}   no film item holds this any more`);
+    }
+  }
+
   lines.push("");
   lines.push(`Worst-case basis, ${lead}-week lead:`);
   lines.push(`  ${late.length} short   ${watch.length} tight   ` +

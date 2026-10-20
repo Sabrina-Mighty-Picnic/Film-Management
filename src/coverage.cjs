@@ -397,10 +397,114 @@ function workingRows(films, groups, lines) {
   return rows;
 }
 
+
+/* ---------- printing plates ----------
+   A printed film is run from a plate the supplier holds, and the plate lapses on a
+   fixed date rather than with use. Renewing it is a charge, so what matters is not
+   the expiry on its own but whether the next order falls the wrong side of it. The
+   fee is a date question, like everything else here, so it is answered in weeks. */
+
+function plateFor(ids, plates) {
+  var reg = (plates && plates.register) || [];
+  for (var i = 0; i < reg.length; i++) {
+    var p = reg[i];
+    if (!p.item) continue;
+    var covers = [p.item].concat(p.alsoItems || []);
+    for (var j = 0; j < ids.length; j++) {
+      if (covers.indexOf(ids[j]) >= 0) return p;
+    }
+  }
+  return null;
+}
+
+/* weeks from the as-of date to a YYYY-MM-DD, or null when either is missing */
+function weeksUntil(date, asOf) {
+  if (!date || !asOf) return null;
+  var a = Date.parse(asOf + "T00:00:00"), b = Date.parse(date + "T00:00:00");
+  if (isNaN(a) || isNaN(b)) return null;
+  return (b - a) / (7 * 864e5);
+}
+
+/* A plate is only worth renewing while we still intend to print from it. Every item a
+   plate covers can be on its way out — the jerk plate covers a retiring item and a live
+   one — so it is needed if any one of them is still being bought. */
+function plateNeeded(p, opts) {
+  var films = opts.films || [];
+  var groups = opts.groups || [];
+  var covers = [p.item].concat(p.alsoItems || []);
+  // a plate against a group id covers every member of that group
+  groups.forEach(function (g) {
+    if (covers.indexOf(g.id) < 0) return;
+    (g.items || []).forEach(function (it) {
+      covers.push(typeof it === "string" ? it : it.item);
+    });
+  });
+  var known = false;
+  for (var i = 0; i < covers.length; i++) {
+    var f = films.filter(function (x) { return x.item === covers[i]; })[0];
+    if (!f) continue;
+    known = true;
+    if (!f.retiring) return true;
+  }
+  // nothing we hold is covered by it: not ours to decide, so never "not needed"
+  return !known;
+}
+
+function plateOutlook(r, opts) {
+  opts = opts || {};
+  // a pooled row answers to its group id as well as to its members: one film, one plate
+  var ids = (r.memberIds || []).concat([r.item]);
+  var p = plateFor(ids, opts.plates);
+  if (!p) return { state: "none", plate: null };
+
+  var weeks = weeksUntil(p.expires, opts.asOf);
+  var horizon = opts.plateHorizon != null ? opts.plateHorizon : 8;
+  var needed = plateNeeded(p, opts);
+  var base = { plate: p, weeks: weeks, needed: needed, dated: p.expires != null };
+
+  // nothing will be printed from it again, so letting it lapse costs nothing
+  if (!needed) return assign(base, { state: "not-needed" });
+
+  // the register gives some expiries as "Expired" with no date: no date to count to,
+  // but the renewal is just as due, so it is never reported as covered
+  if (p.expired || (weeks != null && weeks <= 0)) return assign(base, { state: "expired" });
+  if (weeks == null) return assign(base, { state: "undated" });
+
+  // close enough that the charge lands whatever the film's own ordering does
+  if (weeks <= horizon) return assign(base, { state: "lapsing" });
+
+  // otherwise the thing a lapse would land on is the film's next order
+  var t = timeline(r, opts);
+  var order = t && t.orderByWeeks != null ? t.orderByWeeks : null;
+  base.orderByWeeks = order;
+  if (order != null && weeks < order) return assign(base, { state: "lapses-first" });
+  return assign(base, { state: "ok" });
+}
+
+function assign(a, b) { for (var k in b) if (b.hasOwnProperty(k)) a[k] = b[k]; return a; }
+
+/* Every plate, soonest first, with the weeks left and the item it belongs to.
+   Undated expiries sort to the front: they are already due. */
+function plateSchedule(opts) {
+  var reg = (opts.plates && opts.plates.register) || [];
+  return reg.map(function (p) {
+    var weeks = weeksUntil(p.expires, opts.asOf);
+    var expired = p.expired || (weeks != null && weeks <= 0);
+    return { plate: p, weeks: weeks, expired: expired };
+  }).sort(function (a, b) {
+    var av = a.expired ? (a.weeks == null ? -1e9 : a.weeks) : a.weeks;
+    var bv = b.expired ? (b.weeks == null ? -1e9 : b.weeks) : b.weeks;
+    return av - bv;
+  });
+}
+
 return { compute: compute, orderPlan: orderPlan, timeline: timeline,
          mergeGroup: mergeGroup, workingRows: workingRows, buildRate: buildRate,
          incomingSteps: incomingSteps, drawBetween: drawBetween, weeksOfCover: weeksOfCover,
          impressionBasis: impressionBasis, impressions: impressions,
          transitionRate: transitionRate,
+         plateFor: plateFor, plateOutlook: plateOutlook, plateSchedule: plateSchedule,
+         plateNeeded: plateNeeded,
+         weeksUntil: weeksUntil,
          runLedger: runLedger, fmt: fmt, num: num };
 });

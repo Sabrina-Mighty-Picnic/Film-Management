@@ -53,6 +53,7 @@ Optional:
 | `noBom` | no BOM revision points at this item; says so in the drill-down |
 | `note` | one line under the name, in the table and the bars |
 | `nextInLineNote` | a paragraph at the top of the drill-down, for stock bought for a move that has not happened yet |
+| `blank` | unprinted film, so no printing plate exists and none is expected. Stops the plate check reporting it as a gap |
 | `siblingOrder` | an order for the same film sitting on a differently-denominated item that cannot be pooled. Takes `item`, `qty`, `unit`, `ref` and a `note`. Flagged on the order card and in the build summary; never folded into the runway |
 
 ### How a film is judged
@@ -245,6 +246,52 @@ than silently adding metres to each.
 A film can also carry manual `incoming` entries, `{ fromWeek, rate, source, note }`, for
 a transfer with no retiring film behind it. `fromWeek: null` means agreed but
 unscheduled: it is listed on the page and deliberately left out of the dates.
+
+
+## `plates` — printing plate expiries
+
+A printed film is run from a plate the supplier holds. A plate lapses **on a date rather
+than with use**, and renewing one is a charge, so the question is never how long is left
+on its own but whether the next order falls the wrong side of it.
+
+```json
+"plates": {
+  "source": "MPC_TLK_FILMS, the Taisei Lamick plate register",
+  "asOf": "2026-08-18",
+  "termMonths": 12,
+  "register": [
+    { "plate": "FILM- HF Cherry 1oz", "item": "1038", "widthMm": 200, "pitchMm": 65,
+      "expires": "2027-07-28" },
+    { "plate": "FILM- HF Plum Spread 1oz", "item": "1040", "widthMm": 200, "pitchMm": 65,
+      "expires": null, "expired": true }
+  ]
+}
+```
+
+`item` is ours, not the supplier's — the register names films its own way, so the mapping
+is made once, by hand, and checked by the build. `alsoItems` adds the other items one
+plate covers, for a film we hold in more than one item. A plate against a
+`substituteGroups` id covers every member. `expires: null` with `expired: true` is how the
+register gives a lapsed plate with no date; **never put a date to one**.
+
+The state each film gets:
+
+| State | Meaning |
+| --- | --- |
+| `expired` | lapsed. A renewal rides the next order, whenever that is |
+| `lapsing` | lapses inside `plateHorizon` weeks (8 by default), so the charge lands whatever the ordering does |
+| `lapses-first` | lapses before this film's own order-by date, so that order carries a renewal |
+| `ok` | the next order is inside the plate's life |
+| `not-needed` | every item it covers is retiring — nothing will be printed from it again |
+| `no-film` | no item holds it any more |
+| `none` | no plate against this film |
+
+`not-needed` is the one worth reading closely: it is the only state that says *don't*
+spend. A plate is needed if **any** item it covers is still being bought, so the jerk
+plate counts as needed even though 880 is retiring, because 1152 is not.
+
+The build warns when a plate covers an unknown item, when two plates cover the same one,
+and when a film that is being consumed has no plate and is not marked `blank`.
 
 
 ## `filmPerImpression` — saying a quantity in packs

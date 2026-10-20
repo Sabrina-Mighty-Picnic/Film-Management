@@ -73,6 +73,26 @@ record of it.
   order, because our position for it reads zero by design. Do not "fix" that zero by
   putting their stock into `onHand`.
 
+## Printing plates
+
+`plates.register[]` is the supplier's plate list, mapped to our items by hand. A plate
+lapses **on a date rather than with use**, and renewing one is a charge.
+
+- **The expiry on its own is not the answer.** What matters is whether the film's next
+  order-by date falls the wrong side of it, which is what `plateOutlook()` works out.
+  Express it as dates and weeks like everything else — never as a count of days left.
+- **A retiring film's plate needs no renewal**, because nothing will be printed from it
+  again. That is the one state on the page that says don't spend, so do not let it be
+  reported for a plate that still covers something live: a plate is needed if *any*
+  item it covers is still being bought.
+- **The register is the supplier's, and it goes stale.** It carries over untouched each
+  month with its own `asOf`. Re-pull it rather than editing expiries, and never put a
+  date to a plate the register gives as expired without one.
+- Mapping register names to our items is the one hand step. The build checks it: an
+  unknown item, two plates on one item, or a film being consumed with no plate and no
+  `blank` flag all warn.
+- **We hold no plate prices.** Say when a renewal falls due, never what it costs.
+
 ## Keeping it digestible
 
 The coverage tab is deliberately quiet on arrival: only the films needing a decision

@@ -64,12 +64,14 @@ var GROUPS = D.substituteGroups || [];
 var LINES = D.lines || [];
 function OPTS() {
   return { basis: state.basis, lead: state.lead, baseLead: BASE_LEAD,
-           films: FILMS, transitions: TRANS, salesOrderLines: SOLINES };
+           films: FILMS, transitions: TRANS, salesOrderLines: SOLINES,
+           plates: D.plates, groups: GROUPS, asOf: META.asOf };
 }
 /* Two items that feed the same line are one buying decision, so the working views
    show the pool. The members keep their own rows in the data and in the drill-down. */
 var ROWS = window.FilmCoverage.workingRows(FILMS, GROUPS, LINES);
 var idsOf = function (r) { return r.memberIds || [r.item]; };
+var PLATES   = D.plates || {};
 var TRACKERS = D.trackers || [];
 var TRACKED = {};
 TRACKERS.forEach(function (t) { TRACKED[t.item] = t; });
@@ -230,6 +232,11 @@ function renderActions() {
     if (sib) {
       why += ". <strong>" + sib.qty.toLocaleString() + " " + sib.unit + " is already on " + sib.ref +
              " against item " + sib.item + "</strong> \u2014 " + sib.note;
+    }
+    var pl = window.FilmCoverage.plateOutlook(r, opts);
+    if (pl.state === "expired" || pl.state === "lapsing" || pl.state === "lapses-first") {
+      why += ". <strong>Plate " + (pl.state === "lapses-first" ? "lapses " + dstr(pl.weeks) : "has lapsed") +
+             "</strong> \u2014 this order carries a plate renewal";
     }
     var held = idsOf(r).map(function (id) { return TRACKED[id]; }).filter(Boolean)[0];
     if (held) {
@@ -395,6 +402,104 @@ function capPos(p) {
   return "left:" + p + "%";
 }
 
+
+/* Printing plates. A plate lapses on a date, not with use, and renewing it is a charge,
+   so the question is never "how long is left" on its own but "does the next order fall
+   the wrong side of it". Films being run out are called out as needing no renewal at
+   all — we are not printing them again. */
+var PLATE_WORD = {
+  "expired":      { tag: "late",     word: "Expired" },
+  "lapsing":      { tag: "late",     word: "Lapsing" },
+  "lapses-first": { tag: "watch",    word: "Lapses first" },
+  "ok":           { tag: "ok",       word: "Covered" },
+  "undated":      { tag: "watch",    word: "No date" },
+  "not-needed":   { tag: "retiring", word: "Not needed" },
+  "none":         { tag: "dormant",  word: "No plate" },
+  "no-film":      { tag: "dormant",  word: "No film" }
+};
+
+function plateSays(o, unitName) {
+  var w = o.weeks;
+  switch (o.state) {
+    case "expired":
+      return o.dated
+        ? "Lapsed " + Math.round(-w) + " weeks ago. A renewal is due on the next order, whenever that is."
+        : "The register gives this one as expired with no date. A renewal is due on the next order.";
+    case "lapsing":
+      return "Lapses in " + Math.round(w) + " week" + (Math.round(w) === 1 ? "" : "s") +
+             " (" + dstr(w) + "), close enough that the charge lands whatever the ordering does.";
+    case "lapses-first":
+      return "Lapses " + dstr(w) + ", before this film is next due to be ordered (" +
+             dstr(o.orderByWeeks) + ") — so that order carries a renewal.";
+    case "ok":
+      return "Lapses " + dstr(w) + "." + (o.orderByWeeks == null
+        ? " Nothing is due to be ordered before then."
+        : o.orderByWeeks <= 0
+          ? " The order already due is well inside that."
+          : " The next order, due " + dstr(o.orderByWeeks) + ", is inside that.");
+    case "undated":
+      return "The register gives no expiry for this plate.";
+    case "not-needed":
+      return "This film is being run out, so nothing will be printed from this plate again and letting it lapse costs nothing.";
+    default: return "";
+  }
+}
+
+function renderPlates() {
+  var opts = OPTS();
+  if (!PLATES.register || !PLATES.register.length) {
+    document.getElementById("plateHead").innerHTML =
+      "Printing plates <em>no register loaded</em>";
+    document.getElementById("plateNotes").innerHTML =
+      "<p class=\"dnone\">No plate register in this month's data.</p>";
+    return;
+  }
+  var sched = window.FilmCoverage.plateSchedule(opts);
+  var rowFor = function (id) {
+    return ROWS.filter(function (r) {
+      return r.item === id || idsOf(r).indexOf(id) >= 0;
+    })[0];
+  };
+
+  var due = 0, soon = 0;
+  var body = sched.map(function (s) {
+    var p = s.plate;
+    var r = p.item ? rowFor(p.item) : null;
+    var o = r ? window.FilmCoverage.plateOutlook(r, opts)
+              : { state: p.item ? "undated" : "no-film", plate: p, weeks: s.weeks,
+                  dated: p.expires != null, needed: false };
+    if (o.state === "expired" || o.state === "lapsing") due++;
+    else if (o.state === "lapses-first") soon++;
+    var k = PLATE_WORD[o.state] || PLATE_WORD.none;
+    var film = p.item
+      ? (r ? r.name : p.item) + " <small class=\"dnone\">item " + p.item + "</small>"
+      : "<span class=\"dnone\">no film item holds this any more</span>";
+    return "<tr>" +
+      "<td>" + p.plate + "</td>" +
+      "<td>" + film + "</td>" +
+      "<td class=\"n\">" + (p.pitchMm ? p.pitchMm + " mm" : "—") + "</td>" +
+      "<td><span class=\"tag " + k.tag + "\">" + k.word + "</span>" +
+        (p.expires ? "<br><small class=\"dnone\">" + p.expires + "</small>" : "") + "</td>" +
+      "<td class=\"wrapcell\">" + (o.state === "no-film" ? (p.note || "") : plateSays(o)) +
+        (p.note && o.state !== "no-film" ? " <span class=\"dnone\">" + p.note + "</span>" : "") + "</td>" +
+      "</tr>";
+  }).join("");
+
+  document.getElementById("plateHead").innerHTML =
+    "Printing plates <em>" + sched.length + " on the " + PLATES.source +
+    (due ? " · " + due + " needing renewal now" : "") +
+    (soon ? " · " + soon + " lapsing before the next order" : "") + "</em>";
+  document.getElementById("plateBody").innerHTML = body;
+  document.getElementById("plateNotes").innerHTML =
+    "<p class=\"dnone\">Plates run for " + PLATES.termMonths + " months and lapse on a date rather than with use, " +
+    "so a renewal is a charge we choose when to take rather than one the film forces. " +
+    "The register was pulled <b>" + PLATES.asOf + "</b>; the positions on this page are as of <b>" +
+    META.asOf + "</b>, so a plate that lapsed between the two reads as expired here. " +
+    (PLATES.note ? PLATES.note + " " : "") +
+    "Films with no plate are either blanks, which are not printed, or printed films the register does not list — " +
+    "both are worth knowing about and neither is assumed.</p>";
+}
+
 function renderTrans() {
   var live = TRANS.filter(function (t) { return num(t.weeklyRate) > 0; });
   var span = Math.max.apply(null, [46].concat(live.map(function (t) {
@@ -481,6 +586,7 @@ function visible() {
 function render() {
   renderActions();
   renderTrans();
+  renderPlates();
   // Tile counts ignore the tile filter and the no-demand checkbox, so the numbers on the
   // tiles are the month's real totals and do not move when you click one.
   var focus = state.focus, quiet = state.quiet;
@@ -781,6 +887,15 @@ function render() {
           : " Stock in hand covers the window, so nothing transfers yet.") + "</p>"
       : "";
 
+    var plHtml = (function () {
+      var o = window.FilmCoverage.plateOutlook(r, opts);
+      if (o.state === "none") return "";
+      var k = PLATE_WORD[o.state];
+      return "<h4>Printing plate \u2014 " + k.word.toLowerCase() + "</h4><p class=\"dnone\">" +
+             o.plate.plate + (o.plate.pitchMm ? ", " + o.plate.pitchMm + " mm pitch" : "") + ". " +
+             plateSays(o) + "</p>";
+    })();
+
     var nbHtml = r.noBom
       ? "<h4>Not on any bill of materials</h4><p class=\"dnone\">No revision points at this item, so nothing will consume it until a BOM is repointed.</p>"
       : "";
@@ -798,7 +913,7 @@ function render() {
            (r.weeklyBuildRate ? " — yet it is being consumed, so the plan has a gap" : "") + ".")) + "</p>";
 
     return head + "<tr class=\"drill\" data-for=\"" + r.item + "\" hidden><td colspan=\"" + cols.length + "\">" +
-      "<div class=\"drillbox\">" + nlHtml + stHtml + rtHtml + woHtml + soHtml + fcHtml + imDrill + nbHtml + "</div></td></tr>";
+      "<div class=\"drillbox\">" + nlHtml + stHtml + rtHtml + woHtml + soHtml + fcHtml + imDrill + plHtml + nbHtml + "</div></td></tr>";
   }).join("");
 
   Array.prototype.forEach.call(document.querySelectorAll("tbody tr.head"), function (tr) {
