@@ -209,40 +209,34 @@ function renderActions() {
   var rows = mine.map(function (x) {
     var r = x.r, p = x.p;
     var col = "var(--" + (p.overdue ? "late" : "watch") + ")";
-    var why = p.coverWeeks.toFixed(0) + " weeks of runway against a " + p.lead + "-week lead" +
-      (p.gap < 0
-        ? " — " + fmt(Math.abs(p.gap)) + " " + r.unit + " short of the " + fmt(p.need) +
-          " that " + BASIS_LABEL[state.basis] + " needs"
-        : " — " + Math.round(p.orderInWeeks) +
-          (Math.round(p.orderInWeeks) === 1 ? " week" : " weeks") + " of slack left");
-    var inSteps = window.FilmCoverage.incomingSteps(r, opts);
-    if (inSteps.steps.length) {
-      why += ". <strong>" + inSteps.steps.map(function (st) {
-        return "+" + fmt(st.rate) + " " + r.unit + "/wk from " + dshort(st.week) + " (item " + st.from + ")";
-      }).join(", ") + "</strong> transfers onto it";
-    }
-    if (r.lineRole === "backup" && r.line) {
-      why += ". <strong>Backup on " + r.line.name + "</strong> — ordered only when " +
-             r.line.defaultItem + " will not arrive in time";
-    }
+    /* One line of fact, then chips. The lead time and the demand basis are set by the
+       controls above and the lead is repeated on the right of the card, so neither is
+       restated here; everything that qualifies the order reads as a chip instead of a
+       clause, because four clauses in a row stop being read at all. */
+    var why = p.coverWeeks.toFixed(0) + " wks runway" +
+      (p.gap < 0 ? " \u00b7 " + fmt(Math.abs(p.gap)) + " " + r.unit + " short"
+                 : " \u00b7 " + Math.round(p.orderInWeeks) +
+                   (Math.round(p.orderInWeeks) === 1 ? " wk" : " wks") + " slack");
+
+    var chips = [];
+    var chip = function (tone, text) { chips.push("<span class=\"tag t-" + tone + "\">" + text + "</span>"); };
+
+    window.FilmCoverage.incomingSteps(r, opts).steps.forEach(function (st) {
+      chip("watch", "+" + fmt(st.rate) + " " + r.unit + "/wk from " + st.from + ", " + dshort(st.week));
+    });
+    if (r.lineRole === "backup" && r.line) chip("retiring", "backup for " + r.line.defaultItem);
     var sib = idsOf(r).map(function (id) {
       var m = FILMS.filter(function (x) { return x.item === id; })[0];
       return m && m.siblingOrder ? m.siblingOrder : null;
     }).filter(Boolean)[0];
-    if (sib) {
-      why += ". <strong>" + sib.qty.toLocaleString() + " " + sib.unit + " is already on " + sib.ref +
-             " against item " + sib.item + "</strong> \u2014 " + sib.note;
-    }
+    if (sib) chip("watch", sib.qty.toLocaleString() + " " + sib.unit + " on " + sib.ref + ", not counted");
     var pl = window.FilmCoverage.plateOutlook(r, opts);
     if (pl.state === "expired" || pl.state === "lapsing" || pl.state === "lapses-first") {
-      why += ". <strong>Plate " + (pl.state === "lapses-first" ? "lapses " + dstr(pl.weeks) : "has lapsed") +
-             "</strong> \u2014 this order carries a plate renewal";
+      chip("late", "plate renewal");
     }
     var held = idsOf(r).map(function (id) { return TRACKED[id]; }).filter(Boolean)[0];
-    if (held) {
-      why += ". <strong>" + held.heldBy + " hold this stock and it is not in our NetSuite " +
-             "position</strong>, so check the Tracker tab before raising anything";
-    }
+    if (held) chip("dormant", held.heldBy + " hold it \u2014 check tracker");
+    var chipHtml = chips.length ? "<span class=\"chips\">" + chips.join("") + "</span>" : "";
     return "<div class=\"act\">" +
       "<div class=\"qty\" style=\"color:" + (held ? "var(--muted)" : col) + "\">" +
         fmt(p.qty) + " " + r.unit +
@@ -254,7 +248,7 @@ function renderActions() {
           ? "raise it against <strong>" + r.orderItem.item + "</strong> \u00b7 pooled with " +
             r.memberIds.filter(function (id) { return id !== r.orderItem.item; }).join(", ")
           : "item " + r.item) +
-        " \u00b7 " + why + "</small></div>" +
+        " \u00b7 " + why + "</small>" + chipHtml + "</div>" +
       "<div class=\"when\" style=\"color:" + col + "\">" +
         (p.overdue ? "Order now" : "By " + dstr(p.orderInWeeks)) +
         "<small>" + (p.overdue ? "already inside the " + p.lead + "-week lead"
@@ -448,8 +442,7 @@ function plateSays(o, unitName) {
 function renderPlates() {
   var opts = OPTS();
   if (!PLATES.register || !PLATES.register.length) {
-    document.getElementById("plateHead").innerHTML =
-      "Printing plates <em>no register loaded</em>";
+    document.getElementById("plateHead").innerHTML = "Printing plates <em>no register loaded</em>";
     document.getElementById("plateNotes").innerHTML =
       "<p class=\"dnone\">No plate register in this month's data.</p>";
     return;
@@ -477,8 +470,8 @@ function renderPlates() {
     return "<tr>" +
       "<td>" + p.plate + "</td>" +
       "<td>" + film + "</td>" +
-      "<td class=\"n\">" + (p.pitchMm ? p.pitchMm + " mm" : "—") + "</td>" +
-      "<td><span class=\"tag " + k.tag + "\">" + k.word + "</span>" +
+      "<td class=\"n\">" + (p.pitchMm ? p.pitchMm + " mm" : "\u2014") + "</td>" +
+      "<td><span class=\"tag t-" + k.tag + "\">" + k.word + "</span>" +
         (p.expires ? "<br><small class=\"dnone\">" + p.expires + "</small>" : "") + "</td>" +
       "<td class=\"wrapcell\">" + (o.state === "no-film" ? (p.note || "") : plateSays(o)) +
         (p.note && o.state !== "no-film" ? " <span class=\"dnone\">" + p.note + "</span>" : "") + "</td>" +
@@ -486,19 +479,17 @@ function renderPlates() {
   }).join("");
 
   document.getElementById("plateHead").innerHTML =
-    "Printing plates <em>" + sched.length + " on the " + PLATES.source +
-    (due ? " · " + due + " needing renewal now" : "") +
-    (soon ? " · " + soon + " lapsing before the next order" : "") + "</em>";
+    "Printing plates <em>" + sched.length + " plates \u00b7 " +
+    (due ? due + " need renewing now" : "none due now") +
+    (soon ? " \u00b7 " + soon + " lapse before the next order" : "") + "</em>";
   document.getElementById("plateBody").innerHTML = body;
   document.getElementById("plateNotes").innerHTML =
-    "<p class=\"dnone\">Plates run for " + PLATES.termMonths + " months and lapse on a date rather than with use, " +
-    "so a renewal is a charge we choose when to take rather than one the film forces. " +
-    "The register was pulled <b>" + PLATES.asOf + "</b>; the positions on this page are as of <b>" +
-    META.asOf + "</b>, so a plate that lapsed between the two reads as expired here. " +
-    (PLATES.note ? PLATES.note + " " : "") +
-    "Films with no plate are either blanks, which are not printed, or printed films the register does not list — " +
-    "both are worth knowing about and neither is assumed.</p>";
+    "<p class=\"dnone\">Plates run " + PLATES.termMonths + " months. " + (PLATES.note || "") +
+    " Register pulled <b>" + PLATES.asOf + "</b>, positions <b>" + META.asOf +
+    "</b>, so anything that lapsed between the two reads as expired. A film with no plate " +
+    "is either a blank or a gap in the register \u2014 neither is assumed.</p>";
 }
+
 
 function renderTrans() {
   var live = TRANS.filter(function (t) { return num(t.weeklyRate) > 0; });

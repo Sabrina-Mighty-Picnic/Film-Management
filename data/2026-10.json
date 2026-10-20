@@ -4,8 +4,8 @@
     "org": "Mighty Picnic",
     "title": "Film coverage",
     "subtitle": "When printed film runs out, what replaces it, and whether the blank is there",
-    "asOf": "2026-10-15",
-    "asOfLabel": "15 October 2026",
+    "asOf": "2026-10-20",
+    "asOfLabel": "20 October 2026",
     "asOfLines": [
       "Open sales orders, open work orders and the last 13 weeks of builds",
       "Pulled live from NetSuite on 15 October 2026"
@@ -68,8 +68,8 @@
       "name": "BA Repeat 75mm (Maruto)",
       "stockedBy": "THEM",
       "unit": "mm",
-      "onHand": 114419397,
-      "weeklyRate": 2766718,
+      "onHand": 112684704,
+      "weeklyRate": 2417896,
       "rateBasis": "recent builds",
       "successor": "Blank 75mm at THEM",
       "buyer": "THEM",
@@ -81,7 +81,7 @@
       "name": "BA Repeat (Lamick), per metre",
       "stockedBy": "MP",
       "unit": "m",
-      "onHand": 107745,
+      "onHand": 104060,
       "weeklyRate": 3096,
       "rateBasis": "Misfits projection, 13 Oct",
       "successor": "Lamick blank 1094 at FFW, when this film runs out",
@@ -156,7 +156,7 @@
       "committed": 13429,
       "backordered": 37999.57,
       "onWorkOrders": 51428.57,
-      "soNotYetWO": 0.03,
+      "soNotYetWO": 0,
       "forecastBeyond": 0,
       "weeklyBuildRate": 4321,
       "note": "69,602 at FFW, 54,545 stranded at the inactive BH warehouse. Being retired in favour of the per-metre item 1152, at 9.09 impressions per metre",
@@ -196,7 +196,7 @@
       "onWorkOrders": 23934.73,
       "soNotYetWO": 0,
       "forecastBeyond": 0,
-      "weeklyBuildRate": 4448,
+      "weeklyBuildRate": 4340,
       "leadWeeks": 4,
       "note": "4-week lead, judged against 4 weeks not 16",
       "rollSize": 1300,
@@ -227,7 +227,7 @@
       "stockedBy": "MP",
       "unit": "m",
       "onHand": 0,
-      "onOrder": 0,
+      "onOrder": 19500,
       "committed": 0,
       "backordered": 0,
       "onWorkOrders": 0,
@@ -240,14 +240,14 @@
       "name": "Lamick White blank — the primary",
       "stockedBy": "MP",
       "unit": "m",
-      "onHand": 115433,
+      "onHand": 107197,
       "onOrder": 143530,
-      "committed": 54484.59,
+      "committed": 67066.22,
       "backordered": 0,
-      "onWorkOrders": 54484.58,
-      "soNotYetWO": 20664.42,
+      "onWorkOrders": 67066.22,
+      "soNotYetWO": 16028.64,
       "forecastBeyond": 0,
-      "weeklyBuildRate": 2018,
+      "weeklyBuildRate": 2652,
       "note": "restocked 9 Sep; carries the whole FFW blank demand",
       "rollSize": 1300,
       "blank": true
@@ -278,12 +278,12 @@
       "unit": "m",
       "onHand": 18320,
       "onOrder": 1180,
-      "committed": 0,
+      "committed": 3316.33,
       "backordered": 0,
-      "onWorkOrders": 0,
+      "onWorkOrders": 3316.33,
       "soNotYetWO": 0,
       "forecastBeyond": 0,
-      "weeklyBuildRate": 450
+      "weeklyBuildRate": 0
     },
     {
       "item": "1042",
@@ -311,7 +311,7 @@
       "onWorkOrders": 0,
       "soNotYetWO": 0,
       "forecastBeyond": 0,
-      "weeklyBuildRate": 1009
+      "weeklyBuildRate": 1003
     },
     {
       "item": "1038",
@@ -332,14 +332,14 @@
       "name": "BA Repeat (Lamick) FFW",
       "stockedBy": "MP",
       "unit": "m",
-      "onHand": 107745,
+      "onHand": 104060,
       "onOrder": 0,
-      "committed": 23434.29,
+      "committed": 30548.57,
       "backordered": 0,
-      "onWorkOrders": 34639.28,
-      "soNotYetWO": 0,
+      "onWorkOrders": 45438.57,
+      "soNotYetWO": 628.53,
       "forecastBeyond": 14897,
-      "weeklyBuildRate": 862,
+      "weeklyBuildRate": 1145,
       "retiring": true,
       "successor": "the blank 1094 at FFW, when this film runs out",
       "note": "not being reordered",
@@ -390,7 +390,7 @@
       "onWorkOrders": 5013.33,
       "soNotYetWO": 0,
       "forecastBeyond": 0,
-      "weeklyBuildRate": 1129,
+      "weeklyBuildRate": 331,
       "note": "no row on the FILM plan"
     },
     {
@@ -434,7 +434,7 @@
       "onWorkOrders": 3341.92,
       "soNotYetWO": 0,
       "forecastBeyond": 0,
-      "weeklyBuildRate": 769
+      "weeklyBuildRate": 458
     },
     {
       "item": "1108",
@@ -516,10 +516,10 @@
       "unit": "m",
       "onHand": 116460,
       "onOrder": 0,
-      "committed": 0,
+      "committed": 7142.86,
       "backordered": 0,
-      "onWorkOrders": 0,
-      "soNotYetWO": 0,
+      "onWorkOrders": 7142.86,
+      "soNotYetWO": 6918.36,
       "forecastBeyond": 0,
       "weeklyBuildRate": 0,
       "note": "runway for the TJS Honey move to FFW",
@@ -536,7 +536,7 @@
       "committed": 58571.43,
       "backordered": 0,
       "onWorkOrders": 102856.43,
-      "soNotYetWO": 17143.57,
+      "soNotYetWO": 19796.63,
       "forecastBeyond": 0,
       "weeklyBuildRate": 12841
     },
@@ -562,14 +562,14 @@
       "name": "BA Repeat 75mm (Maruto)",
       "stockedBy": "THEM",
       "unit": "mm",
-      "onHand": 114419397,
+      "onHand": 112684704,
       "onOrder": 0,
-      "committed": 13942857.14,
+      "committed": 16616326.53,
       "backordered": 0,
-      "onWorkOrders": 24281631.13,
-      "soNotYetWO": 820919.87,
+      "onWorkOrders": 28689793.53,
+      "soNotYetWO": 780103.54,
       "forecastBeyond": 0,
-      "weeklyBuildRate": 2766718,
+      "weeklyBuildRate": 2417896,
       "retiring": true,
       "successor": "THEM's blank 75mm, when this film runs out",
       "note": "not being reordered"
@@ -595,15 +595,6 @@
       "backordered": 0
     },
     {
-      "wo": "WO683",
-      "date": "26 Jun",
-      "status": "In process",
-      "product": "HF Cranberry 1oz",
-      "film": "1036",
-      "qty": 5013.33,
-      "backordered": 0
-    },
-    {
       "wo": "WO684",
       "date": "26 Jun",
       "status": "In process",
@@ -620,6 +611,15 @@
       "film": "1038",
       "qty": 6335.39,
       "backordered": 2069.39
+    },
+    {
+      "wo": "WO683",
+      "date": "26 Jun",
+      "status": "In process",
+      "product": "HF Cranberry 1oz",
+      "film": "1036",
+      "qty": 5013.33,
+      "backordered": 0
     },
     {
       "wo": "WO687",
@@ -721,15 +721,6 @@
       "backordered": 0
     },
     {
-      "wo": "WO711",
-      "date": "10 Aug",
-      "status": "In process",
-      "product": "HF Red Pepper 1oz",
-      "film": "1042",
-      "qty": 3342.14,
-      "backordered": 557.14
-    },
-    {
       "wo": "WO712",
       "date": "10 Aug",
       "status": "In process",
@@ -737,6 +728,15 @@
       "film": "1039",
       "qty": 6101.86,
       "backordered": 0
+    },
+    {
+      "wo": "WO711",
+      "date": "10 Aug",
+      "status": "In process",
+      "product": "HF Red Pepper 1oz",
+      "film": "1042",
+      "qty": 3342.14,
+      "backordered": 557.14
     },
     {
       "wo": "WO713",
@@ -766,6 +766,15 @@
       "backordered": 408.16
     },
     {
+      "wo": "WO734",
+      "date": "4 Sept",
+      "status": "Released",
+      "product": "BBQ Sauce 2.5oz",
+      "film": "1094",
+      "qty": 14097.96,
+      "backordered": 0
+    },
+    {
       "wo": "WO722",
       "date": "4 Sept",
       "status": "Released",
@@ -784,12 +793,12 @@
       "backordered": 0
     },
     {
-      "wo": "WO726",
+      "wo": "WO729",
       "date": "4 Sept",
       "status": "Released",
-      "product": "Sweet Chili Sauce 3oz",
-      "film": "1094",
-      "qty": 7653.06,
+      "product": "BA Sweet Chili 1.8oz",
+      "film": "1108",
+      "qty": 6146.94,
       "backordered": 0
     },
     {
@@ -802,42 +811,6 @@
       "backordered": 0
     },
     {
-      "wo": "WO729",
-      "date": "4 Sept",
-      "status": "Released",
-      "product": "BA Sweet Chili 1.8oz",
-      "film": "1108",
-      "qty": 6146.94,
-      "backordered": 0
-    },
-    {
-      "wo": "WO730",
-      "date": "4 Sept",
-      "status": "Released",
-      "product": "Blueberry Bourbon 1oz",
-      "film": "1094",
-      "qty": 3356.12,
-      "backordered": 0
-    },
-    {
-      "wo": "WO731",
-      "date": "4 Sept",
-      "status": "Released",
-      "product": "Orange Marmalade 1oz",
-      "film": "1094",
-      "qty": 3276.53,
-      "backordered": 0
-    },
-    {
-      "wo": "WO732",
-      "date": "4 Sept",
-      "status": "Released",
-      "product": "BA Savory Black Bean 56g",
-      "film": "1087",
-      "qty": 1026.12,
-      "backordered": 0
-    },
-    {
       "wo": "WO733",
       "date": "4 Sept",
       "status": "Released",
@@ -847,30 +820,39 @@
       "backordered": 0
     },
     {
-      "wo": "WO734",
-      "date": "4 Sept",
-      "status": "Released",
-      "product": "BBQ Sauce 2.5oz",
-      "film": "1094",
-      "qty": 14097.96,
-      "backordered": 0
-    },
-    {
       "wo": "WO735",
       "date": "4 Sept",
-      "status": "Released",
+      "status": "In process",
       "product": "BA Soy Miso 56g",
       "film": "1087",
-      "qty": 10359.18,
+      "qty": 10358.47,
       "backordered": 0
     },
     {
       "wo": "WO743",
       "date": "4 Sept",
-      "status": "Released",
+      "status": "In process",
       "product": "BA Dijonnaise 18g",
       "film": "929",
-      "qty": 1775510.2,
+      "qty": 1775509.33,
+      "backordered": 0
+    },
+    {
+      "wo": "WO726",
+      "date": "4 Sept",
+      "status": "Released",
+      "product": "Sweet Chili Sauce 3oz",
+      "film": "1094",
+      "qty": 7653.06,
+      "backordered": 0
+    },
+    {
+      "wo": "WO732",
+      "date": "4 Sept",
+      "status": "Released",
+      "product": "BA Savory Black Bean 56g",
+      "film": "1087",
+      "qty": 1026.12,
       "backordered": 0
     },
     {
@@ -955,6 +937,24 @@
       "backordered": 37999.57
     },
     {
+      "wo": "WO765",
+      "date": "15 Oct",
+      "status": "Released",
+      "product": "TJS Honey .5oz",
+      "film": "1095",
+      "qty": 7142.86,
+      "backordered": 0
+    },
+    {
+      "wo": "WO764",
+      "date": "15 Oct",
+      "status": "Released",
+      "product": "HF Apricot 1oz",
+      "film": "1037",
+      "qty": 3316.33,
+      "backordered": 0
+    },
+    {
       "wo": "WO762",
       "date": "15 Oct",
       "status": "Released",
@@ -962,99 +962,93 @@
       "film": "929",
       "qty": 7200000,
       "backordered": 0
+    },
+    {
+      "wo": "WO763",
+      "date": "15 Oct",
+      "status": "Released",
+      "product": "BA Sambal 21g",
+      "film": "1087",
+      "qty": 10800,
+      "backordered": 0
+    },
+    {
+      "wo": "WO766",
+      "date": "15 Oct",
+      "status": "Released",
+      "product": "BA Gochujang 10g",
+      "film": "929",
+      "qty": 4408163.27,
+      "backordered": 0
+    },
+    {
+      "wo": "WO770",
+      "date": "19 Oct",
+      "status": "Released",
+      "product": "Chipotle Chile Paste .5oz",
+      "film": "1094",
+      "qty": 4514.29,
+      "backordered": 0
+    },
+    {
+      "wo": "WO767",
+      "date": "19 Oct",
+      "status": "Released",
+      "product": "Greek Vinaigrette 1.5oz",
+      "film": "1094",
+      "qty": 10414.29,
+      "backordered": 0
+    },
+    {
+      "wo": "WO769",
+      "date": "19 Oct",
+      "status": "Released",
+      "product": "Sambal Oelek 21g",
+      "film": "1094",
+      "qty": 4285.71,
+      "backordered": 0
     }
   ],
-  "noFilmWorkOrders": [
-    {
-      "wo": "WO717",
-      "date": "",
-      "product": "Peanut Butter 1.15oz",
-      "qty": "50,000 units"
-    },
-    {
-      "wo": "WO719",
-      "date": "",
-      "product": "Worcestershire 1oz",
-      "qty": "40,000 units"
-    },
-    {
-      "wo": "WO737",
-      "date": "",
-      "product": "Hot Sauce 1oz",
-      "qty": "50,000 units"
-    },
-    {
-      "wo": "WO738",
-      "date": "",
-      "product": "BA WG Dijon Mustard 21g",
-      "qty": "68,100 units"
-    },
-    {
-      "wo": "WO741",
-      "date": "",
-      "product": "BA Dijon Mustard 21g",
-      "qty": "101,200 units"
-    },
-    {
-      "wo": "WO746",
-      "date": "",
-      "product": "TJS Strawberry Jalapeno 1oz",
-      "qty": "50,600 units"
-    },
-    {
-      "wo": "WO747",
-      "date": "",
-      "product": "Woeber WG Mustard 15g",
-      "qty": "50,000 units"
-    },
-    {
-      "wo": "WO749",
-      "date": "",
-      "product": "Agave Syrup .5oz",
-      "qty": "100,000 units"
-    }
-  ],
+  "noFilmWorkOrders": [],
   "salesOrderLines": {
-    "127": [
-      {
-        "product": "TJS Honey .5oz",
-        "customer": "Misfits",
-        "units": 110000,
-        "due": "4 Nov",
-        "orders": 4,
-        "filmQty": 112244.7
-      }
-    ],
     "880": [
       {
         "product": "Hillside Jamaican Jerk 1.5oz",
-        "customer": "Hillside Harvest",
+        "customer": "Hillside Harvest (c)",
         "units": 50400,
         "due": "26 Oct",
         "orders": 1,
-        "filmQty": 51428.6
+        "filmQty": 51428.57
       }
     ],
     "929": [
       {
         "product": "BA Dijonnaise 18g",
-        "customer": "Misfits",
-        "units": 34800,
-        "due": "28 Oct",
+        "customer": "Imperfect Foods/Misfits Market",
+        "units": 34000,
+        "due": "23 Oct",
         "orders": 4,
-        "filmQty": 1775510.2
+        "filmQty": 1734693.02
+      },
+      {
+        "product": "BA Gochujang 10g",
+        "customer": "Imperfect Foods/Misfits Market",
+        "units": 72000,
+        "due": "4 Dec",
+        "orders": 2,
+        "filmQty": 4408163.27
       },
       {
         "product": "BA Mirin .5oz",
-        "customer": "Misfits",
+        "customer": "Imperfect Foods/Misfits Market",
         "units": 80000,
-        "due": "11 Nov",
+        "due": "5 Nov",
         "orders": 4,
-        "filmQty": 4897959.2
+        "filmQty": 4897959.18
       },
       {
         "product": "BA Worcestershire 1oz",
-        "customer": "Misfits",
+        "customer": "Imperfect Foods/Misfits Market",
         "units": 117600,
         "due": "24 Nov",
         "orders": 6,
@@ -1062,17 +1056,17 @@
       },
       {
         "product": "BA Dijon Mustard 21g",
-        "customer": "Misfits",
+        "customer": "Imperfect Foods/Misfits Market",
         "units": 101200,
-        "due": "20 Oct",
+        "due": "30 Oct",
         "orders": 6,
         "filmQty": 6712245
       },
       {
         "product": "BA WG Dijon Mustard 21g",
-        "customer": "Misfits",
+        "customer": "Imperfect Foods/Misfits Market",
         "units": 68100,
-        "due": "13 Oct",
+        "due": "2 Nov",
         "orders": 6,
         "filmQty": 4516836.6
       }
@@ -1081,10 +1075,20 @@
       {
         "product": "HF Peanut Butter 1.15oz",
         "customer": "Hello Fresh",
-        "units": 117600,
+        "units": 120200,
         "due": "22 Oct",
         "orders": 4,
-        "filmQty": 120000
+        "filmQty": 122653.06
+      }
+    ],
+    "1037": [
+      {
+        "product": "HF Apricot 1oz",
+        "customer": "Hello Fresh",
+        "units": 50000,
+        "due": "9 Nov",
+        "orders": 1,
+        "filmQty": 3316.33
       }
     ],
     "1038": [
@@ -1094,21 +1098,21 @@
         "units": 100800,
         "due": "5 Nov",
         "orders": 2,
-        "filmQty": 6685.7
+        "filmQty": 6685.71
       }
     ],
     "1087": [
       {
         "product": "BA Blazing Buffalo 2oz",
-        "customer": "Misfits",
+        "customer": "Imperfect Foods/Misfits Market",
         "units": 50280,
         "due": "28 Oct",
         "orders": 4,
-        "filmQty": 5130.6
+        "filmQty": 5130.61
       },
       {
         "product": "BA Hoisin 1.38oz",
-        "customer": "Misfits",
+        "customer": "Imperfect Foods/Misfits Market",
         "units": 129600,
         "due": "14 Oct",
         "orders": 4,
@@ -1116,27 +1120,27 @@
       },
       {
         "product": "BA Sambal 21g",
-        "customer": "Misfits",
-        "units": 95400,
-        "due": "4 Nov",
-        "orders": 4,
-        "filmQty": 6814.3
+        "customer": "Imperfect Foods/Misfits Market",
+        "units": 246600,
+        "due": "26 Oct",
+        "orders": 6,
+        "filmQty": 17614.29
       },
       {
         "product": "BA Savory Black Bean 56g",
-        "customer": "Misfits",
+        "customer": "Imperfect Foods/Misfits Market",
         "units": 100560,
-        "due": "21 Oct",
+        "due": "14 Oct",
         "orders": 4,
-        "filmQty": 1026.1
+        "filmQty": 1026.12
       },
       {
         "product": "BA Soy Miso 56g",
-        "customer": "Misfits",
-        "units": 101520,
-        "due": "18 Nov",
+        "customer": "Imperfect Foods/Misfits Market",
+        "units": 108360,
+        "due": "22 Oct",
         "orders": 4,
-        "filmQty": 10359.2
+        "filmQty": 11056.38
       }
     ],
     "1094": [
@@ -1146,27 +1150,35 @@
         "units": 100000,
         "due": "26 Oct",
         "orders": 1,
-        "filmQty": 5612.2
+        "filmQty": 5612.24
       },
       {
         "product": "BBQ Sauce 2.5oz",
-        "customer": "Misfits",
+        "customer": "Imperfect Foods/Misfits Market",
         "units": 125600,
         "due": "3 Nov",
         "orders": 6,
-        "filmQty": 14098
+        "filmQty": 14097.96
       },
       {
         "product": "Blueberry Bourbon 1oz",
-        "customer": "Misfits",
+        "customer": "Imperfect Foods/Misfits Market",
         "units": 63200,
         "due": "14 Oct",
         "orders": 4,
         "filmQty": 4191.8
       },
       {
+        "product": "Chipotle Chile Paste .5oz",
+        "customer": "Imperfect Foods/Misfits Market",
+        "units": 63200,
+        "due": "30 Nov",
+        "orders": 2,
+        "filmQty": 4514.29
+      },
+      {
         "product": "Fish Sauce .5oz",
-        "customer": "Misfits",
+        "customer": "Imperfect Foods/Misfits Market",
         "units": 100000,
         "due": "29 Oct",
         "orders": 2,
@@ -1175,16 +1187,16 @@
       {
         "product": "Greek Vinaigrette 1.5oz",
         "customer": "Hello Fresh",
-        "units": 236100,
-        "due": "8 Oct",
+        "units": 226800,
+        "due": "28 Oct",
         "orders": 5,
-        "filmQty": 21682.7
+        "filmQty": 20828.57
       },
       {
         "product": "Hoisin Sauce 2oz",
-        "customer": "Misfits",
+        "customer": "Imperfect Foods/Misfits Market",
         "units": 49800,
-        "due": "13 Oct",
+        "due": "14 Oct",
         "orders": 2,
         "filmQty": 5081.7
       },
@@ -1192,53 +1204,71 @@
         "product": "Malt Vinegar 25mL",
         "customer": "Hello Fresh",
         "units": 68600,
-        "due": "12 Oct",
+        "due": "13 Oct",
         "orders": 1,
         "filmQty": 4900
       },
       {
         "product": "Orange Marmalade 1oz",
-        "customer": "Misfits",
+        "customer": "Imperfect Foods/Misfits Market",
         "units": 61000,
         "due": "14 Oct",
         "orders": 4,
         "filmQty": 4045.9
       },
       {
+        "product": "Sambal Oelek 21g",
+        "customer": "Imperfect Foods/Misfits Market",
+        "units": 60000,
+        "due": "30 Nov",
+        "orders": 2,
+        "filmQty": 4285.71
+      },
+      {
         "product": "Shaoxing Wine 25mL",
         "customer": "Hello Fresh",
         "units": 50000,
-        "due": "28 Oct",
+        "due": "4 Nov",
         "orders": 1,
-        "filmQty": 3571.4
+        "filmQty": 3571.43
       },
       {
         "product": "Sweet Chili Sauce 3oz",
-        "customer": "Misfits",
+        "customer": "Imperfect Foods/Misfits Market",
         "units": 50000,
-        "due": "13 Oct",
+        "due": "26 Oct",
         "orders": 2,
-        "filmQty": 7653.1
+        "filmQty": 7653.06
+      }
+    ],
+    "1095": [
+      {
+        "product": "TJS Honey .5oz",
+        "customer": "Imperfect Foods/Misfits Market",
+        "units": 275600,
+        "due": "23 Oct",
+        "orders": 8,
+        "filmQty": 14061.22
       }
     ],
     "1106": [
       {
         "product": "BA Chipotle 9g",
-        "customer": "Misfits",
+        "customer": "Imperfect Foods/Misfits Market",
         "units": 110000,
-        "due": "3 Nov",
+        "due": "26 Oct",
         "orders": 4,
-        "filmQty": 7857.1
+        "filmQty": 7857.14
       }
     ],
     "1108": [
       {
         "product": "BA Sweet Chili 1.8oz",
-        "customer": "Misfits",
+        "customer": "Imperfect Foods/Misfits Market",
         "units": 60240,
-        "due": "14 Oct",
+        "due": "26 Oct",
         "orders": 4,
-        "filmQty": 6146.9
+        "filmQty": 6146.94
       }
     ]
   },
@@ -1294,22 +1324,19 @@
   },
   "notes": [
     {
-      "title": "BA Repeat on the confirmed mapping: dry 24 June 2027",
+      "title": "BA Repeat is the biggest single handover",
       "flag": true,
       "body": [
-        "Seven products stay on BA Repeat until it runs out and then move to the blank — <strong>Sambal 21g, Hoisin 1.38oz, Chipotle 9g, Sweet Chili 1.8oz, Buffalo 2oz, Savory Black Bean 56g and Soy Miso 56g</strong>. Black Vinegar and Dijonnaise are on 929, and the five TMP products on the blank. Every conversion is measured on 1087 itself, so none of this figure is inferred.",
-        "The Misfits projection of 13 October puts <strong>30,995&nbsp;m over twelve weeks</strong> on them, rising from 2,101&nbsp;m a week across the first four to <strong>3,096 across the last four</strong>. On the 115,117&nbsp;m in hand that is <strong>37 weeks — dry 24 June 2027</strong>.",
-        "<strong>This October's blank order is unaffected</strong>: 1094's own stock is gone by 1 February 2027, long before the step. What changes is the order after it. From late June the blank goes from <strong>7,093 to 10,189&nbsp;m a week</strong>, and a 16-week order at that rate is 163,024&nbsp;m — <strong>126 rolls against the 88 going in now</strong>."
+        "1087 carries seven Misfits products and hands the lot to the blank 1094 when it runs dry. The date moves with every pull, so it is not written here — open <strong>1094</strong> in the table to see what it inherits and when.",
+        "The rate behind it is the Misfits projection of 13 October, not a trailing build rate. Their volume rises through the window, so the <em>exit</em> rate carries forward rather than the average."
       ]
     },
     {
-      "title": "What changed since the 7 October pull",
+      "title": "What changed since the 15 October pull",
       "body": [
-        "<strong>The blank order landed.</strong> 1094 now shows <strong>143,530&nbsp;m on order</strong> against 3,530 a week ago, so it drops out of the eight-week list entirely — its order-by date is now 22 weeks out and it runs dry in 38.",
-        "<strong>BA Chipotle 9g is no longer an order.</strong> It holds 14,300&nbsp;m against 12,342 of committed work orders, and it is moving to the blank rather than being reordered, so it reads <em>Winding down</em> like the other retiring films instead of asking for a purchase order.",
-        "<strong>BA Repeat Foil is gone from the page.</strong> Never being reordered by us, and THEM supply their own for the SKUs that draw it.",
-        "<strong>Jamaican Jerk is being retired into metres.</strong> <strong>PO1277</strong> put 19,500&nbsp;m on item <strong>1152</strong>, the per-metre version of the same film, in August, and the per-each item <strong>880</strong> is on its way out. 880 reads <em>Winding down</em> rather than asking for an order — amber, not grey, because <strong>38,000&nbsp;ea</strong> is backordered against released work orders today. At <strong>9.09 impressions per metre</strong> the handover is sized: open 1152 in the table to see when the draw steps across and how far its stock goes. The BOM revision pointing FG 932 at 1152 is the one thing still outstanding.",
-        "<strong>The jerk backorder is a transfer, not a purchase order.</strong> FFW holds 13,429&nbsp;ea against work orders needing 51,429. The missing <strong>54,545&nbsp;ea</strong> is not missing — it is sitting at the inactive Blake Hill warehouse. Moving it covers the backorder without buying anything."
+        "<strong>Five Hello Fresh films now have 19,500&nbsp;m inbound each</strong> — Plum, Cherry, Peach and Red Pepper, with smaller top-ups on Fig and Apricot. Plum was the one in the order list a week ago; it is covered now, though still due another order in about four weeks.",
+        "<strong>Only two films are past their order-by date</strong>, down from four: the Bacon Jam printed sub-assembly and the backup blank 1129.",
+        "The blank 1094 drew harder than last week — 67k&nbsp;m on work orders against 54k — but its 143,530&nbsp;m order absorbs it."
       ]
     },
     {
@@ -1321,15 +1348,6 @@
         "<strong>Not needed:</strong> BA Repeat and BA Chipotle both have live plates, and both films are being run out. Nothing will be printed from either again, so letting them lapse costs nothing. That is the only thing on this page that says <em>do not spend</em>.",
         "<strong>Orange Marmalade has a plate and no film.</strong> No item carries it any more — those builds draw the blank 1094. Worth deciding whether to let it go.",
         "No plate price is held anywhere in this repo, so the page says when a renewal falls due and never what it costs."
-      ]
-    },
-    {
-      "title": "The blank order is due this week",
-      "flag": true,
-      "body": [
-        "1094 holds <strong>118,963&nbsp;m</strong> counting the 3,530 on order, against <strong>59,791&nbsp;m</strong> on work orders and another <strong>31,975&nbsp;m</strong> of sales orders with no work order raised yet. At the rate the line is actually running — <strong>7,093&nbsp;m a week</strong> — that is <strong>16.8 weeks of runway</strong>, so the last date an order still lands inside the 16-week lead is <strong>12 October</strong>. That is five days away.",
-        "It moved a long way in three weeks. On 16 September the same calculation gave 22.4 weeks and an order-by of 31 October. Two things closed the gap: the line drew <strong>26,237&nbsp;m</strong> of 1094 and <strong>65,977&nbsp;m</strong> of 1129 over the last thirteen weeks, lifting the line rate from 6,470 to 7,093&nbsp;m a week, and stock fell by 26,237&nbsp;m with no new receipt.",
-        "The suggested order is <strong>113,488&nbsp;m, which rounds to 88 rolls</strong> at 1,300&nbsp;m a roll. It covers the shortfall plus one further lead time at the current rate, and it is sized before the BA Repeat transfer, which lands after this stock is gone."
       ]
     },
     {
@@ -1370,11 +1388,11 @@
       ]
     },
     {
-      "title": "Eight active films that no bill of materials points at",
+      "title": "5 films that no bill of materials points at",
       "flag": true,
       "body": [
-        "Stock and open orders sitting against items nothing will consume until a revision is repointed: <strong>1131 Lamick Silver (61,100&nbsp;m)</strong>, <strong>1093 3C VMet12 Repeat (20,800&nbsp;m)</strong>, <strong>1092 TJS Strawberry Jalapeno (18,999&nbsp;m)</strong>, <strong>1089 Crait Repeat (15,600&nbsp;m)</strong>, and <strong>1152 Jamaican Jerk per metre — 19,500&nbsp;m ordered on PO1277 in August</strong>. 1152 is the only one with a decision behind it: Jamaican Jerk is moving onto it from the per-each item 880, so it is waiting on a revision rather than orphaned. The rest are still looking for an owner.",
-        "1129 is on this list too, and legitimately so: it is substituted at build time rather than carried on a revision, which is exactly why the FILM plan has no row for it. The others are conversions half-made — a metre item created or bought while the revision still points at the old each or millimetre twin."
+        "Stock sitting against items nothing will consume until a revision is repointed: <strong>1152 Hillside Jamaican Jerk 1.5oz — per metre</strong>, <strong>1092 TJS Strawberry Jalapeno</strong>, <strong>1089 Lamick Crait Repeat</strong>, <strong>1093 3C VMet12 MP Repeat</strong>, <strong>1131 Lamick Silver</strong>.",
+        "<strong>1152 is the only one with a decision behind it</strong> — Jamaican Jerk is moving onto it from 880, so it waits on a revision rather than an owner. The rest are conversions half-made: a metre item created or bought while the revision still points at the old twin."
       ]
     },
     {
@@ -1641,7 +1659,7 @@
     "source": "MPC_TLK_FILMS, the Taisei Lamick plate register",
     "asOf": "2026-08-18",
     "termMonths": 12,
-    "note": "Plates lapse on a date rather than with use, and renewing one is a charge. Expiries marked without a date are as the register gives them.",
+    "note": "They lapse on a date rather than with use, and renewing one is a charge. Expiries given without a date are as the register has them.",
     "register": [
       {
         "plate": "FILM- TJS Honey Film 0.5oz",
