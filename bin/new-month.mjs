@@ -98,6 +98,12 @@ if ((d.plates?.register || []).length) {
   console.log("  Expiries move only when the supplier reissues the register — re-pull it and");
   console.log("  update plates.asOf, or the page will keep reporting against a stale one.");
 }
+if ((d.annualUsage?.films || []).length) {
+  console.log(`Annual usage carried over as it stands: ${d.annualUsage.films.length} films, ` +
+              `window ${d.annualUsage.from} to ${d.annualUsage.to}.`);
+  console.log("  Re-pull it with the positions. The build warns while its window ends before");
+  console.log("  the new as-of date, because stale consumption reads as a real slowdown.");
+}
 console.log("Also re-read by hand, because they are last month's words:");
 console.log("  meta.asOfLines, sourceNotes, notes[] — the commentary cards");
 console.log(`Then: npm run build -- ${period}`);

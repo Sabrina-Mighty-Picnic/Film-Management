@@ -259,6 +259,33 @@ a transfer with no retiring film behind it. `fromWeek: null` means agreed but
 unscheduled: it is listed on the page and deliberately left out of the dates.
 
 
+## `annualUsage` — what was drawn over twelve months
+
+```json
+"annualUsage": {
+  "from": "2025-10-21",
+  "to": "2026-10-20",
+  "source": "assembly builds in NetSuite over the trailing twelve months",
+  "films": [
+    { "item": "929", "name": "BA Repeat 75mm (Maruto)", "unit": "mm",
+      "stockedBy": "THEM", "qty": 217293632, "builds": 62 },
+    { "item": "1003", "name": "BA Repeat Foil 75mm (Maruto)", "unit": "mm",
+      "stockedBy": "THEM", "qty": 30258568, "builds": 14, "retired": true,
+      "note": "We no longer buy it..." }
+  ]
+}
+```
+
+Consumption, not coverage. A row's `unit` and `stockedBy` must match the film's, and the
+build errors on a unit mismatch — a metre figure under a `mm` film is off by a thousand.
+A row for a film not in `films[]` needs `retired: true` plus its own `name` and `unit`,
+since nothing else in the data carries them.
+
+Rendered as a folded panel on the Inventory tab, with a derived per-week column. The
+build warns when the window is not roughly a year, when it ends before `meta.asOf`, and
+when a film with a live `weeklyBuildRate` has no row.
+
+
 ## The Inventory tab
 
 Built entirely from `films[]`, with no data of its own: every item, in its own stock

@@ -127,6 +127,29 @@ against `Worcestershire 1oz`, and `HF Peanut Butter 1.15oz` against `Peanut Butt
 - Film THEM **own and bill us for** is not the same as film inside the tolling rate.
   The foil behind BA Ketchup and plain Peanut Butter is a cost even though it is not our
   stock, so it carries its own reason rather than the blanket one.
+- **THEM's film is not ours to track, but it is ours to measure.** There is no position,
+  no runway and no order-by date for it — only how much we get through, which is what
+  `annualUsage` is for.
+
+## Annual usage
+
+`annualUsage` is twelve months of assembly builds: **what was actually drawn**, as
+against every other number here, which is a position or a forecast. It will not tie to
+the positions, and it is not meant to.
+
+- **It is the one view that includes film THEM own**, because we do not track their
+  stock but we do get through it. 1003 sits in it although it left `films[]`, so the
+  row carries `retired: true` and its own `name` and `unit` — nothing else in the data
+  holds them any more.
+- It is a snapshot with its own window, like the plate register. Re-pull it with the
+  positions rather than carrying stale figures forward; the build warns when its window
+  ends before `meta.asOf`, and when a film with a live build rate has no row in it.
+- Quantities stay in each film's own unit and are **never added together**. The "a week"
+  column divides by the window, so a window that is not a year makes it wrong — the
+  build warns if it is not roughly twelve months.
+- Still no prices. Volume answers "how much"; it does not answer "what did it cost".
+
+
 
 ## Keeping it digestible
 

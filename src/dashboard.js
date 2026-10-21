@@ -653,6 +653,51 @@ function renderInventory() {
     "tab, so a pooled member carries its group's and the backup carries its own.</p>";
 }
 
+
+/* ---------- What we get through in a year ----------
+   Consumption, not coverage. Every other number on this page is a position or a
+   forecast; this is what assembly builds actually drew over the trailing twelve
+   months. It is the only view that includes film THEM own, because we do not track
+   their stock but we do get through it — and 1003 is here although it left films[],
+   since nothing else in the data holds it now. */
+function renderUsage() {
+  var U = D.annualUsage;
+  if (!U || !(U.films || []).length) {
+    document.getElementById("useHead").innerHTML = "What we get through in a year <em>no build history loaded</em>";
+    document.getElementById("useNotes").innerHTML = "<p class=\"dnone\">No annual usage in this month's data.</p>";
+    return;
+  }
+  var weeks = (Date.parse(U.to) - Date.parse(U.from)) / (7 * 864e5);
+
+  var body = U.films.map(function (f) {
+    var mine = f.stockedBy === "MP";
+    return "<tr>" +
+      "<td class=\"item\">" + f.item + "</td>" +
+      "<td>" + f.name + "</td>" +
+      "<td><span class=\"tag t-" + (mine ? "ok" : "dormant") + "\">" +
+        (mine ? "Ours" : "THEM") + "</span></td>" +
+      "<td class=\"n\"><b>" + fmt(f.qty) + "</b> <small class=\"dnone\">" + f.unit + "</small></td>" +
+      "<td class=\"n\">" + f.builds + "</td>" +
+      "<td class=\"n\">" + fmt(f.qty / weeks) + "</td>" +
+      "<td class=\"wrapcell\">" + (f.retired ? "<b>No longer in the coverage view.</b> " : "") +
+        (f.note || "") + "</td>" +
+      "</tr>";
+  }).join("");
+
+  var them = U.films.filter(function (f) { return f.stockedBy !== "MP"; });
+  document.getElementById("useHead").innerHTML =
+    "What we get through in a year <em>" + U.films.length + " films drawn · " +
+    them.length + " of them on film THEM own</em>";
+  document.getElementById("useBody").innerHTML = body;
+  document.getElementById("useNotes").innerHTML =
+    "<p class=\"dnone\"><b>" + U.from + " to " + U.to + "</b>, from " + U.source +
+    ". This is what was drawn, not what was bought and not what is planned, so it will " +
+    "not tie to the positions above. Quantities stay in each film's own unit and are " +
+    "never added together. <b>Film THEM own is included on purpose</b> — we do not " +
+    "track their stock, but the volume we get through it is worth seeing. A film with no " +
+    "row was not drawn at all in the window.</p>";
+}
+
 /* ---------- main render ---------- */
 
 function render() {
@@ -660,6 +705,7 @@ function render() {
   renderTrans();
   renderPlates();
   renderInventory();
+  renderUsage();
   // Tile counts ignore the tile filter and the no-demand checkbox, so the numbers on the
   // tiles are the month's real totals and do not move when you click one.
   var focus = state.focus, quiet = state.quiet;

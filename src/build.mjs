@@ -218,6 +218,40 @@ function validate(d, period) {
     }
   }
 
+  const au = d.annualUsage;
+  if (au) {
+    for (const k of ["from", "to"]) {
+      if (!au[k] || isNaN(new Date(au[k] + "T00:00:00"))) E(`annualUsage.${k} must be a YYYY-MM-DD date`);
+    }
+    if (au.from && au.to) {
+      const wks = (Date.parse(au.to) - Date.parse(au.from)) / (7 * 864e5);
+      if (wks <= 0) E("annualUsage.from must come before annualUsage.to");
+      else if (wks < 44 || wks > 60) W(`annualUsage covers ${wks.toFixed(0)} weeks, which is not a year — the "a week" column divides by it, so say so or re-pull the window`);
+      if (au.to < (d.meta.asOf || "")) {
+        W(`annualUsage ends ${au.to} but the positions are as of ${d.meta.asOf} — the window has not been re-pulled with them`);
+      }
+    }
+    if (!au.source) W("annualUsage.source missing — the page cannot say where the figures came from");
+    for (const f of au.films || []) {
+      if (!f.item) { E("an annualUsage.films entry has no item"); continue; }
+      if (typeof f.qty !== "number" || f.qty < 0) E(`annualUsage ${f.item}: qty must be a non-negative number`);
+      const film = (d.films || []).find(x => x.item === f.item);
+      if (film) {
+        if (film.unit !== f.unit) E(`annualUsage ${f.item}: unit "${f.unit}" does not match the film's "${film.unit}"`);
+        if (film.stockedBy !== f.stockedBy) W(`annualUsage ${f.item}: stockedBy "${f.stockedBy}" does not match the film's "${film.stockedBy}"`);
+      } else if (!f.retired) {
+        W(`annualUsage ${f.item}: not in films[] and not marked retired — the page will have no unit or owner for it`);
+      }
+    }
+    // a film being consumed now but absent from the year's draw is worth a look
+    for (const r of d.films || []) {
+      if (!r.weeklyBuildRate) continue;
+      if (!(au.films || []).some(f => f.item === r.item)) {
+        W(`film ${r.item} has a weekly build rate but no annualUsage row — one of the two pulls is stale`);
+      }
+    }
+  }
+
   const nfr = d.noFilmReasons || {};
   for (const w of d.noFilmWorkOrders || []) {
     if (!w.wo || !w.product) { E("a noFilmWorkOrders entry is missing wo or product"); continue; }
@@ -419,6 +453,20 @@ function summarise(d) {
     for (const s of orphan) {
       lines.push(`  ?    ${"—".padEnd(7)} ${s.plate.plate}   no film item holds this any more`);
     }
+  }
+
+  if ((plates.register || []).length) { /* plate block printed above */ }
+  const usage = d.annualUsage;
+  if (usage && (usage.films || []).length) {
+    const theirs = usage.films.filter(f => f.stockedBy !== "MP");
+    lines.push("");
+    lines.push(`Drawn in the year to ${usage.to}${theirs.length ? ", on film THEM own:" : ":"}`);
+    for (const f of theirs) {
+      lines.push(`  ${f.item.padEnd(6)} ${fmt(f.qty).padStart(8)} ${f.unit.padEnd(2)} ${f.name}` +
+                 (f.retired ? "   [no longer in the coverage view]" : ""));
+    }
+    const ours = usage.films.filter(f => f.stockedBy === "MP");
+    lines.push(`  and ${ours.length} film${ours.length === 1 ? "" : "s"} of our own — see the Inventory tab`);
   }
 
   lines.push("");

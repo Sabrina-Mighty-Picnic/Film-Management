@@ -1409,6 +1409,14 @@
       ]
     },
     {
+      "title": "What we get through in a year, THEM’s film included",
+      "body": [
+        "Twelve months of assembly builds now sit on the <em>Inventory</em> tab. It is the only view here that is consumption rather than position, so it will not tie to anything else, and it is the only one that includes film <strong>THEM own</strong> — we have no stock to track there, but the volume is worth seeing.",
+        "The two that matter: <strong>BA Repeat 75mm at 217.3M&nbsp;mm</strong> and <strong>BA Repeat Foil at 30.3M&nbsp;mm</strong>. The foil is the one we stopped buying — THEM own and bill it, and Ketchup moves to blank once theirs runs down — so this is the only place it still appears.",
+        "No prices anywhere in this repo, so the panel answers how much, not what it cost."
+      ]
+    },
+    {
       "title": "The backup is empty, so there is nothing behind 1094",
       "flag": true,
       "body": [
@@ -1523,6 +1531,10 @@
         {
           "term": "Estimated impressions",
           "def": "The same quantity said in packs instead of film. The pack size is <strong>observed, not assumed</strong>: open sales orders carry both the finished units and the film they convert to, so dividing one by the other gives a real figure — blended across the order mix where a film runs several SKUs, as the blank does. A film with no open sales orders and no stated pack size shows no estimate rather than a guess."
+        },
+        {
+          "term": "Drawn in the year",
+          "def": "What assembly builds actually consumed over the trailing twelve months. Consumption, not a position or a forecast — it will not tie to stock on hand, and it is not meant to."
         }
       ]
     },
@@ -1878,5 +1890,190 @@
     "strandedFill": {
       "label": "Sent to THEM by mistake, filled there"
     }
+  },
+  "annualUsage": {
+    "from": "2025-10-21",
+    "to": "2026-10-20",
+    "source": "assembly builds in NetSuite over the trailing twelve months",
+    "films": [
+      {
+        "item": "929",
+        "name": "BA Repeat 75mm (Maruto)",
+        "unit": "mm",
+        "stockedBy": "THEM",
+        "qty": 217293632,
+        "builds": 62
+      },
+      {
+        "item": "1003",
+        "name": "BA Repeat Foil 75mm (Maruto)",
+        "unit": "mm",
+        "stockedBy": "THEM",
+        "qty": 30258568,
+        "builds": 14,
+        "retired": true,
+        "note": "We no longer buy it. THEM own and bill the foil; the Ketchup SKU moves to blank once theirs runs down"
+      },
+      {
+        "item": "127",
+        "name": "TJS Honey .5oz printed",
+        "unit": "ea",
+        "stockedBy": "THEM",
+        "qty": 1916913,
+        "builds": 17
+      },
+      {
+        "item": "937",
+        "name": "HF Peanut Butter 1.15oz",
+        "unit": "ea",
+        "stockedBy": "THEM",
+        "qty": 604105,
+        "builds": 14
+      },
+      {
+        "item": "1030",
+        "name": "HF Honey .5oz",
+        "unit": "m",
+        "stockedBy": "MP",
+        "qty": 157065,
+        "builds": 46
+      },
+      {
+        "item": "1094",
+        "name": "Lamick White blank — the primary",
+        "unit": "m",
+        "stockedBy": "MP",
+        "qty": 144484,
+        "builds": 50
+      },
+      {
+        "item": "1123",
+        "name": "Bacon Jam 1oz printed (sub-assembly)",
+        "unit": "ea",
+        "stockedBy": "MP",
+        "qty": 142088,
+        "builds": 7
+      },
+      {
+        "item": "1087",
+        "name": "BA Repeat (Lamick) FFW",
+        "unit": "m",
+        "stockedBy": "MP",
+        "qty": 131522,
+        "builds": 37
+      },
+      {
+        "item": "1129",
+        "name": "Lamick Opaque White CPET — the backup blank",
+        "unit": "m",
+        "stockedBy": "MP",
+        "qty": 99393,
+        "builds": 40
+      },
+      {
+        "item": "880",
+        "name": "Hillside Jamaican Jerk 1.5oz — per each",
+        "unit": "ea",
+        "stockedBy": "MP",
+        "qty": 56173,
+        "builds": 1
+      },
+      {
+        "item": "1036",
+        "name": "HF Cranberry 1oz",
+        "unit": "m",
+        "stockedBy": "MP",
+        "qty": 53422,
+        "builds": 17
+      },
+      {
+        "item": "1035",
+        "name": "HF Fig 1oz",
+        "unit": "m",
+        "stockedBy": "MP",
+        "qty": 47706.18,
+        "builds": 20
+      },
+      {
+        "item": "1037",
+        "name": "HF Apricot 1oz",
+        "unit": "m",
+        "stockedBy": "MP",
+        "qty": 42734,
+        "builds": 14
+      },
+      {
+        "item": "1042",
+        "name": "HF Red Pepper 1oz",
+        "unit": "m",
+        "stockedBy": "MP",
+        "qty": 41233,
+        "builds": 15
+      },
+      {
+        "item": "1040",
+        "name": "HF Plum 1oz",
+        "unit": "m",
+        "stockedBy": "MP",
+        "qty": 21022,
+        "builds": 5
+      },
+      {
+        "item": "1038",
+        "name": "HF Cherry 1oz",
+        "unit": "m",
+        "stockedBy": "MP",
+        "qty": 18145,
+        "builds": 8
+      },
+      {
+        "item": "1039",
+        "name": "HF Maple 1oz",
+        "unit": "m",
+        "stockedBy": "MP",
+        "qty": 18039,
+        "builds": 3
+      },
+      {
+        "item": "1041",
+        "name": "HF Peach 1oz",
+        "unit": "m",
+        "stockedBy": "MP",
+        "qty": 15028,
+        "builds": 6
+      },
+      {
+        "item": "1053",
+        "name": "GE Thai-Ger Sweet Chili 7oz",
+        "unit": "m",
+        "stockedBy": "MP",
+        "qty": 8850,
+        "builds": 2
+      },
+      {
+        "item": "1106",
+        "name": "BA Chipotle 9g (Lamick)",
+        "unit": "m",
+        "stockedBy": "MP",
+        "qty": 3942,
+        "builds": 1
+      },
+      {
+        "item": "1090",
+        "name": "TJS Blueberry Bourbon",
+        "unit": "m",
+        "stockedBy": "THEM",
+        "qty": 3263,
+        "builds": 1
+      },
+      {
+        "item": "1089",
+        "name": "Lamick Crait Repeat",
+        "unit": "m",
+        "stockedBy": "MP",
+        "qty": 2982,
+        "builds": 1
+      }
+    ]
   }
 }
