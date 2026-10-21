@@ -89,9 +89,13 @@ lapses **on a date rather than with use**, and renewing one is a charge.
 - **The register is the supplier's, and it goes stale.** It carries over untouched each
   month with its own `asOf`. Re-pull it rather than editing expiries, and never put a
   date to a plate the register gives as expired without one.
+- **Plate fees are ours on Lamick film only.** Maruto plates, and anything run on
+  THEM's own film, are not ours to track — their absence from the register is the design,
+  not a gap, and the build says nothing about them. Only a film whose `supplier` is unset
+  draws a question, because we cannot tell which case it is.
 - Mapping register names to our items is the one hand step. The build checks it: an
-  unknown item, two plates on one item, or a film being consumed with no plate and no
-  `blank` flag all warn.
+  unknown item, two plates on one item, or a **Lamick** film being consumed with no
+  plate and no `blank` flag all warn.
 - **We hold no plate prices.** Say when a renewal falls due, never what it costs.
 
 ## Tolling at THEM

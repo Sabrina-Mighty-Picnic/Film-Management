@@ -506,13 +506,14 @@ function renderPlates() {
   }).join("");
 
   document.getElementById("plateHead").innerHTML =
-    "Printing plates <em>" + sched.length + " plates \u00b7 " +
+    "Printing plates <em>" + sched.length + (PLATES.supplier ? " " + PLATES.supplier : "") + " plates \u00b7 " +
     (due ? due + " need renewing now" : "none due now") +
     (soon ? " \u00b7 " + soon + " lapse before the next order" : "") + "</em>";
   document.getElementById("plateBody").innerHTML = body;
   document.getElementById("plateNotes").innerHTML =
     "<p class=\"dnone\">Plates run <b>" + PLATES.termMonths + "</b> months and lapse on a date, not with use. " +
-    "Register <b>" + PLATES.asOf + "</b> against positions <b>" + META.asOf + "</b>.</p>";
+    "Register <b>" + PLATES.asOf + "</b> against positions <b>" + META.asOf + "</b>. " +
+    (PLATES.scope || "") + "</p>";
 }
 
 

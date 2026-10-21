@@ -335,17 +335,17 @@ function validate(d, period) {
           (g.items || []).map(it => (typeof it === "string" ? it : it.item)).includes(r.item) &&
           (pl.register || []).some(p => p.item === g.id));
       if (covered || r.retiring || !(r.onWorkOrders || r.weeklyBuildRate)) continue;
-      /* One register belongs to one supplier, so it can only be short a row for a film
-         that supplier makes. For anything else the question is whose plate it is. */
+      /* Plate fees are only ours on film bought from the register's supplier. A film
+         from anywhere else has no plate for us to track, so its absence is the design
+         and says nothing — only a film we cannot place is worth a question. */
+      if (r.supplier && pl.supplier && r.supplier !== pl.supplier) continue;
       if (!r.supplier) {
-        W(`film ${r.item} is being consumed, has no plate here and no supplier recorded — ` +
-          `whose plate is it?`);
-      } else if (pl.supplier && r.supplier === pl.supplier) {
+        W(`film ${r.item} is being consumed and has no plate here — is it ${pl.supplier || "the register's supplier"}? ` +
+          `If so the register is short a row; if not, there is no plate fee of ours to track. ` +
+          `Record films[].supplier either way.`);
+      } else {
         W(`film ${r.item} is a ${r.supplier} film being consumed, but the ${pl.supplier} ` +
           `register has no row for it — the register is short a row`);
-      } else if (pl.supplier) {
-        W(`film ${r.item} is a ${r.supplier} film, so the ${pl.supplier} register would ` +
-          `not carry its plate — that plate is not tracked here`);
       }
     }
   }

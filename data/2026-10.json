@@ -499,7 +499,10 @@
       "soNotYetWO": 0,
       "forecastBeyond": 0,
       "weeklyBuildRate": 0,
-      "supplier": "Lamick"
+      "supplier": "Lamick",
+      "retiring": true,
+      "successor": "retired — no replacement film stated",
+      "note": "Retired. 2,600 m left, nothing drawing it, last built February 2026. Its plate lapses 22 October and needs no renewal."
     },
     {
       "item": "1093",
@@ -1421,17 +1424,18 @@
           "<strong>Both Dijon mustards moved to blank at THEM</strong>, taking 11.2M&nbsp;mm of demand off 929 and leaving nothing on it beyond the work orders raised.",
           "<strong>BA Ketchup foil run out</strong>, not reordered — THEM run theirs down, then blank.",
           "<strong>FFW hold 92,000 Bacon Jam impressions</strong> (7,800&nbsp;m at a 5% buffer). That covers the 25k on the open work order, so Bacon Jam has left the order list.",
-          "<strong>1129 is off the reorder list</strong> — relief for 1094, and 1094 is on schedule. It has its own tile now."
+          "<strong>1129 is off the reorder list</strong> — relief for 1094, and 1094 is on schedule. It has its own tile now.",
+          "<strong>GE Thai-Ger retired.</strong> 2,600&nbsp;m left, nothing drawing it since February. Its plate lapsed 22 October and now needs no renewal, which takes the due-now list from five to four."
         ]
       ]
     },
     {
-      "title": "5 plates need renewing, 2 deliberately do not",
+      "title": "4 plates need renewing, 3 deliberately do not",
       "flag": true,
       "body": [
-        "<strong>Due now:</strong> TJS Honey .5oz, HF Plum, Crait Repeat and Jamaican Jerk read expired; GE Thai-Ger lapsed <strong>22 October</strong>. HF Plum is the live one — it is in the order list, so that order carries a renewal.",
-        "<strong>No renewal needed:</strong> BA Repeat and BA Chipotle. Both films are being run out, so nothing will be printed from either again. The only thing on this page that says do not spend.",
-        "Orange Marmalade has a plate and no film — those builds draw the blank now. No plate prices are held anywhere here."
+        "<strong>Due now:</strong> TJS Honey .5oz, HF Plum, Crait Repeat and Jamaican Jerk all read expired. <strong>HF Plum is the live one</strong> — it is in the order list, so that order carries a renewal.",
+        "<strong>No renewal needed:</strong> GE Thai-Ger, BA Chipotle and BA Repeat. All three films are being run out, so nothing will be printed from them again. The only thing on this page that says do not spend.",
+        "Orange Marmalade has a plate and no film — those builds draw the blank now. Plate fees are ours on <strong>Lamick</strong> film only; Maruto plates and anything run on THEM’s film are not ours to track and are absent here by design. No plate prices are held anywhere."
       ]
     },
     {
@@ -1911,7 +1915,8 @@
         "expires": "2027-07-30"
       }
     ],
-    "supplier": "Lamick"
+    "supplier": "Lamick",
+    "scope": "Lamick only. Plate fees are ours on film we buy from Lamick; Maruto plates and anything run on THEM’s own film are not ours to track, so they are absent by design rather than missing."
   },
   "noFilmReasons": {
     "them": {

@@ -343,6 +343,10 @@ on its own but whether the next order falls the wrong side of it.
 }
 ```
 
+`plates.supplier` names whose register this is and `plates.scope` says what that covers.
+Plate fees are ours on that supplier's film only, so a film from elsewhere having no row
+is the design rather than a gap, and the build stays quiet about it.
+
 `item` is ours, not the supplier's — the register names films its own way, so the mapping
 is made once, by hand, and checked by the build. `alsoItems` adds the other items one
 plate covers, for a film we hold in more than one item. A plate against a
