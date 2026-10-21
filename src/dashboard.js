@@ -76,7 +76,7 @@ var PLATES   = D.plates || {};
 var TRACKERS = D.trackers || [];
 var TRACKED = {};
 TRACKERS.forEach(function (t) { TRACKED[t.item] = t; });
-var TABS = ["coverage", "tracker", "reference"];
+var TABS = ["coverage", "inventory", "tracker", "reference"];
 function showTab(name) {
   if (TABS.indexOf(name) < 0) name = "coverage";
   TABS.forEach(function (t) {
@@ -584,12 +584,82 @@ function visible() {
     });
 }
 
+
+/* ---------- Inventory: every film we hold, as a flat position ----------
+   The coverage tab answers "what do I do". This answers "what have we got", so it
+   shows every item including the ones with no demand and the backup, in its own
+   stock unit, with no pooling and no line model in the way. */
+function renderInventory() {
+  var opts = OPTS();
+  var byItem = {};
+  ROWS.forEach(function (r) { idsOf(r).forEach(function (id) { byItem[id] = r; }); });
+
+  var totalStock = 0, held = 0;
+  var body = FILMS.slice().sort(function (a, b) {
+    return (a.name || "").localeCompare(b.name || "");
+  }).map(function (f) {
+    var stock = num(f.onHand) + num(f.onOrder);
+    totalStock += stock;
+    if (stock > 0) held++;
+
+    // the working row this item belongs to, which is where the status lives: a pooled
+    // member is judged with its group, a line member on its own
+    var r = byItem[f.item] || f;
+    var c = compute(r);
+    var key = statusKey(c);
+    var tile = TILES.filter(function (t) { return t.key === key; })[0];
+    var tone = { late: "late", watch: "watch", ok: "ok", retiring: "retiring", quiet: "dormant" }[key];
+    var word = tile ? tile.label : key;
+    var note = "";
+
+    if (f.retiring) note = "being run out" + (f.successorItem ? ", hands over to " + f.successorItem : "");
+    else if (r.lineRole === "backup" && r.line) {
+      note = window.FilmCoverage.backupIdle(r, opts)
+        ? "relief for " + r.line.defaultItem + ", not ordered while that is on schedule"
+        : "relief for " + r.line.defaultItem + ", and that is late — this is live";
+      tone = "retiring"; word = "Backup";
+    }
+    else if (f.noBom) note = "no bill of materials draws it";
+    else if (c.quiet) note = "nothing drawing it this month";
+    else if (r !== f && r.memberIds) note = "pooled with " + r.memberIds.filter(function (i) { return i !== f.item; }).join(", ");
+
+    var pl = window.FilmCoverage.plateOutlook(r, opts);
+    if (pl.state === "expired" || pl.state === "lapsing") {
+      note += (note ? " · " : "") + "plate needs renewing";
+    }
+
+    return "<tr>" +
+      "<td class=\"item\">" + f.item + "</td>" +
+      "<td>" + f.name + "</td>" +
+      "<td class=\"n\">" + fmt(f.onHand) + "</td>" +
+      "<td class=\"n\">" + (num(f.onOrder) ? fmt(f.onOrder) : "—") + "</td>" +
+      "<td class=\"n\"><b>" + fmt(stock) + "</b> <small class=\"dnone\">" + f.unit + "</small></td>" +
+      "<td class=\"n\">" + (num(f.committed) ? fmt(f.committed) : "—") + "</td>" +
+      "<td class=\"n\">" + (num(f.backordered) ? fmt(f.backordered) : "—") + "</td>" +
+      "<td class=\"n\">" + (num(f.weeklyBuildRate) ? fmt(f.weeklyBuildRate) : "—") + "</td>" +
+      "<td><span class=\"tag t-" + tone + "\">" + word + "</span>" +
+        (note ? "<br><small class=\"dnone\">" + note + "</small>" : "") + "</td>" +
+      "</tr>";
+  }).join("");
+
+  document.getElementById("invBody").innerHTML = body;
+  document.getElementById("invSub").textContent =
+    FILMS.length + " items, " + held + " of them holding stock or with film on order, as of " + META.asOfLabel;
+  document.getElementById("invNotes").innerHTML =
+    "<p class=\"dnone\">Every item, in its own stock unit — m, mm or ea — and never converted between them. " +
+    "<b>Stock is on hand plus on order</b>, which is what the rest of the page judges a film on; " +
+    "committed and backordered are shown beside it but are not subtracted, because committed stock " +
+    "is already counted inside the work order demand. Status is the film's standing on the coverage " +
+    "tab, so a pooled member carries its group's and the backup carries its own.</p>";
+}
+
 /* ---------- main render ---------- */
 
 function render() {
   renderActions();
   renderTrans();
   renderPlates();
+  renderInventory();
   // Tile counts ignore the tile filter and the no-demand checkbox, so the numbers on the
   // tiles are the month's real totals and do not move when you click one.
   var focus = state.focus, quiet = state.quiet;

@@ -254,6 +254,22 @@ a transfer with no retiring film behind it. `fromWeek: null` means agreed but
 unscheduled: it is listed on the page and deliberately left out of the dates.
 
 
+## The Inventory tab
+
+Built entirely from `films[]`, with no data of its own: every item, in its own stock
+unit, sorted by name. It is the "what have we got" view, where the coverage tab is the
+"what do I do" one, so it shows the items the coverage tab leaves out — no-demand film,
+the backup, and items that no bill of materials draws.
+
+**Stock is on hand plus on order**, the same figure the rest of the page judges a film
+on. Committed and backordered sit beside it and are never subtracted: committed stock is
+already counted inside the work order demand, and subtracting it double-counts.
+
+Status is the film's standing on the coverage tab, so a pooled member carries its
+group's. The backup is the one exception — it reads *Backup* rather than its raw status,
+because *Past order-by* on film that is deliberately not reordered is misleading.
+
+
 ## `plates` — printing plate expiries
 
 A printed film is run from a plate the supplier holds. A plate lapses **on a date rather

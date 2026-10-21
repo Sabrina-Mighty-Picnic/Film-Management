@@ -15,7 +15,7 @@ import { createRequire } from "node:module";
 
 const require = createRequire(import.meta.url);
 const { compute, orderPlan, timeline, workingRows, runLedger, fmt,
-        plateSchedule, plateOutlook, weeksUntil } = require("./coverage.cjs");
+        plateSchedule, plateOutlook, weeksUntil, backupIdle } = require("./coverage.cjs");
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DATA_DIR = path.join(ROOT, "data");
@@ -398,7 +398,9 @@ function summarise(d) {
   };
   for (const { r, c } of late.slice().sort((a, b) => slackOf(a) - slackOf(b))) {
     lines.push(`  SHORT  ${r.item} ${r.name} — ${fmt(Math.abs(c.gap))} ${r.unit} short` +
-               (r.stockedBy === "MP" ? `, suggested order ${fmt(c.order)} ${r.unit}` : ` (THEM to order)`));
+               (r.stockedBy !== "MP" ? ` (THEM to order)`
+                 : backupIdle(r, opts) ? ` — relief for ${r.line.defaultItem}, not ordered while that is on schedule`
+                 : `, suggested order ${fmt(c.order)} ${r.unit}`));
   }
   for (const x of watch.slice().sort((a, b) => slackOf(a) - slackOf(b))) {
     const w = slackOf(x);

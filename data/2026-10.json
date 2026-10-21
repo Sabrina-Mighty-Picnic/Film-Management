@@ -567,7 +567,7 @@
       "committed": 16616326.53,
       "backordered": 0,
       "onWorkOrders": 28689793.53,
-      "soNotYetWO": 780103.54,
+      "soNotYetWO": 0,
       "forecastBeyond": 0,
       "weeklyBuildRate": 2417896,
       "retiring": true,
@@ -1021,19 +1021,22 @@
       "wo": "WO719",
       "date": "",
       "product": "Worcestershire 1oz",
-      "qty": "40,000 units"
+      "qty": "40,000 units",
+      "reason": "them"
     },
     {
       "wo": "WO738",
       "date": "",
       "product": "BA WG Dijon Mustard 21g",
-      "qty": "68,100 units"
+      "qty": "68,100 units",
+      "reason": "them"
     },
     {
       "wo": "WO741",
       "date": "",
       "product": "BA Dijon Mustard 21g",
-      "qty": "101,200 units"
+      "qty": "101,200 units",
+      "reason": "them"
     },
     {
       "wo": "WO742",
@@ -1046,13 +1049,15 @@
       "wo": "WO749",
       "date": "",
       "product": "Agave Syrup .5oz",
-      "qty": "100,000 units"
+      "qty": "100,000 units",
+      "reason": "them"
     },
     {
       "wo": "WO761",
       "date": "",
       "product": "Fish Sauce .5oz",
-      "qty": "100,000 units"
+      "qty": "100,000 units",
+      "reason": "strandedFill"
     },
     {
       "wo": "WO768",
@@ -1119,22 +1124,6 @@
         "due": "24 Nov",
         "orders": 6,
         "filmQty": 7200000
-      },
-      {
-        "product": "BA Dijon Mustard 21g",
-        "customer": "Imperfect Foods/Misfits Market",
-        "units": 101200,
-        "due": "30 Oct",
-        "orders": 6,
-        "filmQty": 6712245
-      },
-      {
-        "product": "BA WG Dijon Mustard 21g",
-        "customer": "Imperfect Foods/Misfits Market",
-        "units": 68100,
-        "due": "2 Nov",
-        "orders": 6,
-        "filmQty": 4516836.6
       }
     ],
     "937": [
@@ -1402,7 +1391,9 @@
       "body": [
         "<strong>Five Hello Fresh films now have 19,500&nbsp;m inbound each</strong> — Plum, Cherry, Peach and Red Pepper, with smaller top-ups on Fig and Apricot. Plum was the one in the order list a week ago; it is covered now, though still due another order in about four weeks.",
         "<strong>Only two films are past their order-by date</strong>, down from four: the Bacon Jam printed sub-assembly and the backup blank 1129.",
-        "The blank 1094 drew harder than last week — 67k&nbsp;m on work orders against 54k — but its 143,530&nbsp;m order absorbs it."
+        "The blank 1094 drew harder than last week — 67k&nbsp;m on work orders against 54k — but its 143,530&nbsp;m order absorbs it.",
+        "<strong>Both Dijon mustards have moved off BA Repeat onto blank at THEM.</strong> They no longer draw 929, which takes about <strong>11.2M&nbsp;mm</strong> of sales order demand off it and leaves nothing on it beyond the work orders already raised. Their film is THEM’s now, so it is not on this page at all.",
+        "<strong>1129 is off the reorder list.</strong> It is relief for 1094, bought only when the primary will not arrive in time, and 1094 is ordering on schedule — so asking for 1129 every month was asking for film we hold precisely so we do not have to. It still shows its real position on the new <em>Inventory</em> tab, and comes back the moment 1094 goes past its own order-by date."
       ]
     },
     {
@@ -1463,11 +1454,10 @@
     },
     {
       "title": "Work orders carrying no film line",
-      "flag": true,
       "table": "noFilmWorkOrders",
       "body": [
-        "<strong>Mirin, Ponzu, Soy Sauce, Peanut Butter and BA Ketchup are run at THEM on their own film.</strong> Nothing is drawn from our stock for them, so no film line is the right answer and their sales orders are deliberately left out of the demand on this page.",
-        "The other 5 have no stated reason yet. They may be the same arrangement, but until somebody says so they are listed as open rather than assumed. <strong>WO749 Agave Syrup .5oz</strong> is the odd one: released for 100,000 units against a SKU marked Discontinued in the Item Master, which looks like a stale record rather than a supply question."
+        "<strong>Anything run in blank film at THEM is on their film, inside the tolling rate.</strong> None of it is drawn from our stock, so carrying no film line is correct and the sales orders behind these are deliberately left out of the demand on this page. That is the rule, not a case-by-case judgement.",
+        "<strong>Fish Sauce .5oz is the one exception.</strong> It normally runs at FFW on our blank; this lot was sent to THEM by mistake and they are filling it. A one-off, not a change of arrangement — it should be back on our film next time."
       ]
     },
     {
@@ -1867,6 +1857,7 @@
     ]
   },
   "noFilmReasons": {
-    "them": "Run at THEM on their own film"
+    "them": "Run at THEM on their film",
+    "strandedFill": "Sent to THEM by mistake, filled there"
   }
 }

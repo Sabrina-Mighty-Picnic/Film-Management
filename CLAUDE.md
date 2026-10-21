@@ -93,6 +93,21 @@ lapses **on a date rather than with use**, and renewing one is a charge.
   `blank` flag all warn.
 - **We hold no plate prices.** Say when a renewal falls due, never what it costs.
 
+## Tolling at THEM
+
+**Anything run in blank film at THEM is on their film and inside the tolling rate.**
+None of it is our stock, so its work orders carry no film line and its sales orders are
+left out of the demand here. That is the standing rule, not a case-by-case call.
+
+- `noFilmWorkOrders[].reason` keys into `noFilmReasons`. Set it only where a reason has
+  been stated; a row without one is listed first, tagged *not explained*, and the build
+  warns. A work order drawing film nobody can account for is worth chasing.
+- A product moving onto blank at THEM **leaves our data entirely** — strike its sales
+  order lines from the film it used to draw and add them to nothing. Do not move them
+  onto 1094: that is our blank at FFW, not theirs.
+- A one-off is not the rule. Fish Sauce normally runs at FFW on our blank and was sent
+  to THEM by mistake, so it carries its own reason and is expected back.
+
 ## Keeping it digestible
 
 The coverage tab is deliberately quiet on arrival: only the films needing a decision
@@ -125,6 +140,12 @@ data and appear in the drill-down.
 **`lines[]` — a default and a backup.** 1094 and 1129 are **not** pooled: 1094 is the
 default on a 16-week lead, 1129 is relief on a four-week lead, ordered only when 1094
 will be late. Two decisions. What the default inherits is the line's whole draw.
+
+- **A backup never earns a suggested order of its own.** `backupIdle()` keeps it off
+  the reorder list while the default is still ordering on schedule, and lets it back on
+  the moment the default goes past its own order-by date. Film held precisely so it does
+  not have to be ordered every month must not be asked for every month. It still shows
+  its real position on the Inventory tab, tagged *Backup*.
 
 - **A split build rate is the trap the line model exists for.** 1094 at 3,129 m/wk and
   1129 at 3,341 are one line drawing 6,470. Never read one member's rate as the line's.

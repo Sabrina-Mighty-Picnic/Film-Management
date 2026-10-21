@@ -204,9 +204,28 @@ function compute(r, opts) {
    still gets a date. The order-by date is the point at which the remaining cover equals
    the lead time: past it, an order placed today lands too late.
    Returns null for a film there is nothing to buy for — no demand, or being run out. */
+/* A backup is relief, not supply. It is bought only when the default on its line will
+   not arrive in time, so it earns no suggested order of its own while the default is
+   still ordering on schedule — otherwise the page asks every month for film held
+   precisely so it does not have to be ordered every month. */
+function backupIdle(r, opts) {
+  if (r.lineRole !== "backup" || !r.line) return false;
+  var films = (opts && opts.films) || [];
+  var def = films.filter(function (x) { return x.item === r.line.defaultItem; })[0];
+  if (!def) return false;
+  var marks = applyLine(films, r.line)[def.item];
+  var copy = {};
+  for (var k in def) if (def.hasOwnProperty(k)) copy[k] = def[k];
+  if (marks) { copy.lineRate = marks.lineRate; copy.line = marks.line; copy.lineRole = marks.role; }
+  var t = timeline(copy, opts);
+  // the default is late: relief is a live decision again
+  return !(t && t.orderByWeeks != null && t.orderByWeeks <= 0);
+}
+
 function orderPlan(r, opts) {
   var c = compute(r, opts);
   if (c.quiet || r.retiring) return null;
+  if (backupIdle(r, opts)) return null;
 
   var lead = r.leadWeeks != null ? r.leadWeeks : opts.lead;
   var trp = ((opts && opts.transitions) || []).filter(function (x) { return x.item === r.item; })[0];
@@ -504,7 +523,7 @@ return { compute: compute, orderPlan: orderPlan, timeline: timeline,
          impressionBasis: impressionBasis, impressions: impressions,
          transitionRate: transitionRate,
          plateFor: plateFor, plateOutlook: plateOutlook, plateSchedule: plateSchedule,
-         plateNeeded: plateNeeded,
+         plateNeeded: plateNeeded, backupIdle: backupIdle,
          weeksUntil: weeksUntil,
          runLedger: runLedger, fmt: fmt, num: num };
 });

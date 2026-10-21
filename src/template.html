@@ -345,6 +345,7 @@ details.panel > summary .colbtn{margin-left:auto;float:none}
 
 <nav class="tabs" role="tablist" aria-label="Sections">
   <button role="tab" id="tab-btn-coverage" data-tab="coverage" aria-selected="true" aria-controls="tab-coverage">Coverage</button>
+  <button role="tab" id="tab-btn-inventory" data-tab="inventory" aria-selected="false" aria-controls="tab-inventory">Inventory</button>
   <button role="tab" id="tab-btn-tracker" data-tab="tracker" aria-selected="false" aria-controls="tab-tracker" hidden>Tracker</button>
   <button role="tab" id="tab-btn-reference" data-tab="reference" aria-selected="false" aria-controls="tab-reference">Reference</button>
 </nav>
@@ -409,6 +410,21 @@ details.panel > summary .colbtn{margin-left:auto;float:none}
     </table></div>
   </details>
 
+</div>
+
+<div id="tab-inventory" role="tabpanel" aria-labelledby="tab-btn-inventory" hidden>
+  <h2 class="secthead">Every film we hold <em id="invSub"></em></h2>
+  <section class="panel">
+    <div class="scroll"><table id="inv">
+      <thead><tr>
+        <th>Item</th><th>Film</th><th class="n">On hand</th><th class="n">On order</th>
+        <th class="n">Stock</th><th class="n">Committed</th><th class="n">Backordered</th>
+        <th class="n">Weekly draw</th><th>Where it stands</th>
+      </tr></thead>
+      <tbody id="invBody"></tbody>
+    </table></div>
+    <div style="padding:0 20px 18px" id="invNotes"></div>
+  </section>
 </div>
 
 <div id="tab-tracker" role="tabpanel" aria-labelledby="tab-btn-tracker" hidden>
