@@ -108,6 +108,19 @@ left out of the demand here. That is the standing rule, not a case-by-case call.
 - A one-off is not the rule. Fish Sauce normally runs at FFW on our blank and was sent
   to THEM by mistake, so it carries its own reason and is expected back.
 
+**The brand prefix is the distinction, and it is the whole distinction.** `BA Mirin
+.5oz` draws 929; `Mirin .5oz` is run at THEM on their own blank and draws nothing of
+ours. Same for `BA Worcestershire 1oz` against `Worcestershire 1oz`, and `HF Peanut
+Butter 1.15oz` against `Peanut Butter 1.15oz`.
+
+- **Never match these names loosely.** Stripping a prefix, or normalising punctuation
+  far enough to collapse a pair, attributes one product's volume to the other's film.
+  The build errors — not warns — if a prefixed product and its bare twin ever map to the
+  same film, and refuses to write the page.
+- A `BA` prefix does **not** mean the film is ours. Both Dijon mustards and BA Ketchup
+  are `BA` products sitting on THEM's film. The prefix separates a pair; what the
+  product is run in is a separate fact, and only a stated one.
+
 ## Keeping it digestible
 
 The coverage tab is deliberately quiet on arrival: only the films needing a decision

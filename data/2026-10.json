@@ -1457,6 +1457,7 @@
       "table": "noFilmWorkOrders",
       "body": [
         "<strong>Anything run in blank film at THEM is on their film, inside the tolling rate.</strong> None of it is drawn from our stock, so carrying no film line is correct and the sales orders behind these are deliberately left out of the demand on this page. That is the rule, not a case-by-case judgement.",
+        "<strong>The brand prefix is the whole distinction.</strong> <em>BA Mirin .5oz</em> draws 929; <em>Mirin .5oz</em> is a different product run at THEM on their blank. Same for Worcestershire, and for HF Peanut Butter against plain Peanut Butter. Collapsing a pair would move one product’s volume onto the other’s film, so the build refuses to write the page if that ever happens.",
         "<strong>Fish Sauce .5oz is the one exception.</strong> It normally runs at FFW on our blank; this lot was sent to THEM by mistake and they are filling it. A one-off, not a change of arrangement — it should be back on our film next time."
       ]
     },

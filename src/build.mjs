@@ -195,6 +195,29 @@ function validate(d, period) {
     if (pooled) W(`film ${r.item}: siblingOrder names ${so.item}, which is already pooled in a substituteGroup — the order would be counted twice`);
   }
 
+  /* A brand prefix is the whole difference between two products. "BA Mirin .5oz" draws
+     929; "Mirin .5oz" is run at THEM on their own blank and draws nothing of ours. Any
+     name match loose enough to merge the pair attributes one's volume to the other, so
+     the twins are found and checked for having been collapsed into one film. */
+  const BRAND = /^(BA|HF|TJS|GE)\s+/;
+  const placeOf = {};
+  for (const [film, rows] of Object.entries(d.salesOrderLines || {})) {
+    for (const r of rows) (placeOf[r.product] = placeOf[r.product] || new Set()).add("film:" + film);
+  }
+  for (const w of d.noFilmWorkOrders || []) {
+    (placeOf[w.product] = placeOf[w.product] || new Set()).add("nofilm");
+  }
+  for (const name of Object.keys(placeOf)) {
+    if (!BRAND.test(name)) continue;
+    const bare = name.replace(BRAND, "");
+    if (!placeOf[bare]) continue;
+    const shared = [...placeOf[name]].filter(k => placeOf[bare].has(k) && k !== "nofilm");
+    if (shared.length) {
+      E(`"${name}" and "${bare}" are different products but both map to ${shared.join(", ")} — ` +
+        `the brand prefix is the distinction, so one of them is attributing the other's volume`);
+    }
+  }
+
   const nfr = d.noFilmReasons || {};
   for (const w of d.noFilmWorkOrders || []) {
     if (!w.wo || !w.product) { E("a noFilmWorkOrders entry is missing wo or product"); continue; }
