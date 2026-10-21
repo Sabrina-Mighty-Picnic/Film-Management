@@ -66,7 +66,8 @@ var LINES = D.lines || [];
 function OPTS() {
   return { basis: state.basis, lead: state.lead, baseLead: BASE_LEAD,
            films: FILMS, transitions: TRANS, salesOrderLines: SOLINES,
-           plates: D.plates, groups: GROUPS, trackers: TRACKERS, asOf: META.asOf };
+           plates: D.plates, groups: GROUPS, trackers: TRACKERS,
+           meta: META, asOf: META.asOf };
 }
 /* Two items that feed the same line are one buying decision, so the working views
    show the pool. The members keep their own rows in the data and in the drill-down. */
@@ -190,8 +191,9 @@ function renderTiles(base) {
 
 /* What to order — the first thing on the page, and the only panel that says "do this" */
 function impsOf(r, qty) {
-  var b = window.FilmCoverage.impressionBasis(r, OPTS());
-  var n = window.FilmCoverage.impressions(qty, b);
+  var opts = OPTS();
+  var b = window.FilmCoverage.impressionBasis(r, opts);
+  var n = window.FilmCoverage.impressions(qty, b, opts);
   return n == null ? null : { text: "\u2248 " + fmt(n) + " impressions", basis: b };
 }
 
@@ -1034,18 +1036,19 @@ function render() {
       : "<h4>Open sales orders</h4><p class=\"dnone\">None on this film.</p>";
 
     var imDrill = (function () {
-      var b = window.FilmCoverage.impressionBasis(r, OPTS());
+      var b = window.FilmCoverage.impressionBasis(r, opts);
       if (!b) {
         return "<h4>Estimated impressions</h4><p class=\"dnone\">No basis for this film \u2014 " +
           "it has no open sales orders to read a pack size from, and none is stated. " +
           "Add <b>filmPerImpression</b> to the film, or leave it blank rather than guess.</p>";
       }
-      var st = window.FilmCoverage.impressions(c.stock, b);
-      var nd = c.quiet ? null : window.FilmCoverage.impressions(c.rawNeed != null ? c.rawNeed : c.need, b);
+      var st = window.FilmCoverage.impressions(c.stock, b, opts);
+      var nd = c.quiet ? null : window.FilmCoverage.impressions(c.rawNeed != null ? c.rawNeed : c.need, b, opts);
       return "<h4>Estimated impressions</h4><p class=\"dnone\">" +
         "At <b>" + b.per.toFixed(b.per < 1 ? 4 : 2) + " " + r.unit + "</b> an impression (" + b.source + "), " +
         "the " + fmt(c.stock) + " " + r.unit + " in hand and on order is about <b>" + fmt(st) + " impressions</b>" +
-        (nd ? ", against " + fmt(nd) + " of demand over the window" : "") + ".</p>";
+        (nd ? ", against " + fmt(nd) + " of demand over the window" : "") + ". " +
+        "That is " + window.FilmCoverage.impressionNote(b, opts) + ".</p>";
     })();
 
     var nlHtml = r.nextInLineNote

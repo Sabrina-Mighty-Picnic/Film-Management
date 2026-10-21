@@ -307,6 +307,22 @@ group's. The backup is the one exception — it reads *Backup* rather than its r
 because *Past order-by* on film that is deliberately not reordered is misleading.
 
 
+## `meta.impressionLoss` — the waste buffer
+
+A fraction, `0.05`, with `meta.impressionLossNote` saying where it came from. Taken off a
+**gross** impressions figure only.
+
+`impressionBasis()` marks each factor `gross: true` or `false`. A stated
+`filmPerImpression` is gross — the plate's own geometry — and takes the buffer. A factor
+blended from `filmQty / units` is observed from what builds drew and already carries the
+BOM allowance (measured at 2.0% above pitch on 1037, 1038 and 1108), so it does not.
+`impressions(qty, basis, opts)` applies this; `impressionNote(basis, opts)` says which
+happened, and the drill-down prints it.
+
+The buffer applies to **yield only**. `successorPerUnit` and the transfer rates are film
+actually consumed, so a handover date never moves when the buffer changes.
+
+
 ## `plates` — printing plate expiries
 
 A printed film is run from a plate the supplier holds. A plate lapses **on a date rather

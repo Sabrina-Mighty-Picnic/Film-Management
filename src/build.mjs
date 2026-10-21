@@ -16,7 +16,7 @@ import { createRequire } from "node:module";
 const require = createRequire(import.meta.url);
 const { compute, orderPlan, timeline, workingRows, runLedger, fmt,
         plateSchedule, plateOutlook, weeksUntil, backupIdle,
-        trackerCover } = require("./coverage.cjs");
+        trackerCover, num } = require("./coverage.cjs");
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DATA_DIR = path.join(ROOT, "data");
@@ -216,6 +216,31 @@ function validate(d, period) {
     if (shared.length) {
       E(`"${name}" and "${bare}" are different products but both map to ${shared.join(", ")} — ` +
         `the brand prefix is the distinction, so one of them is attributing the other's volume`);
+    }
+  }
+
+  const loss = meta.impressionLoss;
+  if (loss != null) {
+    if (typeof loss !== "number" || loss < 0 || loss >= 1) {
+      E(`meta.impressionLoss must be a fraction between 0 and 1 (got ${JSON.stringify(loss)})`);
+    } else if (loss > 0 && !meta.impressionLossNote) {
+      W("meta.impressionLoss is set but impressionLossNote is empty — say where the figure came from");
+    }
+  }
+  /* A stated filmPerImpression is treated as gross plate geometry and has the buffer
+     taken off it. If one is ever set from an observed draw instead, the buffer would be
+     applied to a figure that already carries the BOM allowance. */
+  for (const r of d.films || []) {
+    if (!(num(r.filmPerImpression) > 0)) continue;
+    const p2 = (d.plates?.register || []).find(x =>
+      [x.item].concat(x.alsoItems || []).includes(r.item));
+    if (p2 && p2.pitchMm && r.unit === "m") {
+      const ratio = r.filmPerImpression / (p2.pitchMm / 1000);
+      if (ratio > 1.005) {
+        W(`film ${r.item}: filmPerImpression is ${(ratio * 100 - 100).toFixed(1)}% above its ` +
+          `${p2.pitchMm} mm plate pitch, so it looks observed rather than gross — the loss ` +
+          `buffer would then be counted twice`);
+      }
     }
   }
 

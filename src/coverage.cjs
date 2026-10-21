@@ -25,9 +25,16 @@ function buildRate(r) { return num(r.lineRate) || num(r.weeklyBuildRate); }
    units and the film they convert to, so the factor is observed rather than assumed.
    A film can state `filmPerImpression` instead. A film with neither gets no estimate:
    the page leaves it blank rather than guessing a pack size. */
+/* A film-per-impression factor is either the plate's own geometry, which is gross and
+   allows nothing for waste, or it is observed from what builds actually drew, which
+   already carries whatever allowance the bill of materials holds. Measured on the three
+   films where both figures exist (1037, 1038, 1108), the observed factor sits 2.0% above
+   the pitch — so the BOM carries about 2%, and a planning buffer on top of it would be
+   counted twice. Which kind a factor is therefore has to travel with it. */
 function impressionBasis(r, opts) {
   if (num(r.filmPerImpression) > 0) {
-    return { per: num(r.filmPerImpression), source: "stated for this film", lines: 0 };
+    return { per: num(r.filmPerImpression), source: "stated for this film",
+             lines: 0, gross: true };
   }
   var so = (opts && opts.salesOrderLines) || {};
   var spec = r.memberSpec || [{ r: r, perUnit: 1 }];
@@ -43,12 +50,31 @@ function impressionBasis(r, opts) {
   return {
     per: film / units,
     lines: lines,
+    gross: false,                 // observed from what was drawn, so waste is in it
     source: "blended across " + lines + " open sales order line" + (lines > 1 ? "s" : "")
   };
 }
 
-function impressions(qty, basis) {
-  return basis && basis.per > 0 ? num(qty) / basis.per : null;
+/* Impressions a quantity of film will actually yield. A gross factor gets the loss
+   buffer applied; an observed one does not, because the draw it was measured from
+   already lost the waste. Pass opts to have the buffer applied at all. */
+function impressions(qty, basis, opts) {
+  if (!basis || !(basis.per > 0)) return null;
+  var n = num(qty) / basis.per;
+  var loss = opts && opts.meta ? num(opts.meta.impressionLoss) : 0;
+  if (basis.gross && loss > 0 && loss < 1) n = n * (1 - loss);
+  return n;
+}
+
+/* What a reader needs to know about a figure: whether a buffer was taken off it. */
+function impressionNote(basis, opts) {
+  var loss = opts && opts.meta ? num(opts.meta.impressionLoss) : 0;
+  if (!basis) return "";
+  if (basis.gross && loss > 0) {
+    return "plate geometry less a " + Math.round(loss * 100) + "% loss buffer";
+  }
+  return basis.gross ? "plate geometry, no loss allowed for"
+                     : "observed from what builds drew, so waste is already in it";
 }
 
 /* How fast a film being run out is actually going away.
@@ -549,6 +575,7 @@ return { compute: compute, orderPlan: orderPlan, timeline: timeline,
          mergeGroup: mergeGroup, workingRows: workingRows, buildRate: buildRate,
          incomingSteps: incomingSteps, drawBetween: drawBetween, weeksOfCover: weeksOfCover,
          impressionBasis: impressionBasis, impressions: impressions,
+         impressionNote: impressionNote,
          transitionRate: transitionRate,
          plateFor: plateFor, plateOutlook: plateOutlook, plateSchedule: plateSchedule,
          plateNeeded: plateNeeded, backupIdle: backupIdle,

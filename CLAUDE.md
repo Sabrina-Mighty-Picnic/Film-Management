@@ -236,6 +236,22 @@ where a film runs several SKUs.
 - A blended factor moves with the order mix, so it is an estimate and is always
   labelled as one. Do not present impressions as an exact count.
 
+**There are two kinds of factor and the loss buffer applies to only one.**
+
+- A **stated** `filmPerImpression` is the plate's own geometry: gross, allowing nothing
+  for waste. `meta.impressionLoss` (0.05) is taken off it, so the page reports what the
+  film will actually run rather than what it measures.
+- An **observed** factor, blended from `filmQty / units`, already carries whatever
+  allowance the bill of materials holds. Measured against the plate pitch on the three
+  films where both figures exist — 1037, 1038 and 1108 — it sits a consistent **2.0%**
+  above. Applying the buffer on top would count waste twice, so it is not applied.
+- The build warns if a stated factor is more than 0.5% above its plate pitch, because
+  that means an observed figure has been written into a field treated as gross.
+- **The buffer never touches the draw.** `successorPerUnit` and the transfer rates are
+  film actually consumed, waste included, so a handover date must not move when the
+  buffer changes. Only the yield question — how many impressions this film gives — takes
+  the buffer.
+
 ## Rules
 
 - **Numbers live in `data/`, never in `src/`.** If a figure is hardcoded in a `src/`
