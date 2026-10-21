@@ -13,6 +13,7 @@ var SOLINES  = D.salesOrderLines || {};
 var FCMONTHS = D.forecastMonths || {};
 var FC_NOTE  = D.forecastNotes || {};
 var NOFILM   = D.noFilmWorkOrders || [];
+var NOFILM_WHY = D.noFilmReasons || {};
 
 var ANCHOR    = new Date(META.asOf + "T00:00:00");
 var BASE_LEAD = META.baseLeadWeeks || 16;
@@ -377,11 +378,22 @@ function renderNotes() {
       return "<p>" + b + "</p>";
     }).join("");
     var table = "";
+    /* A work order with no film line is only a gap when nobody can say why. The ones
+       THEM run on their own film are correct, so they are told apart here rather than
+       listed alongside as if they all needed chasing. */
     if (n.table === "noFilmWorkOrders" && NOFILM.length) {
-      table = "<table class=\"dt\">" + NOFILM.map(function (w) {
-        return "<tr><td>" + w.wo + "</td><td>" + w.date + "</td><td>" + w.product +
-               "</td><td class=\"n\">" + w.qty + "</td></tr>";
-      }).join("") + "</table>";
+      var known = NOFILM.filter(function (w) { return w.reason; });
+      var open_ = NOFILM.filter(function (w) { return !w.reason; });
+      var rows = function (list, tone) {
+        return list.map(function (w) {
+          return "<tr><td>" + w.wo + "</td><td>" + w.date + "</td><td>" + w.product +
+                 "</td><td class=\"n\">" + w.qty + "</td>" +
+                 "<td><span class=\"tag t-" + tone + "\">" +
+                   (w.reason ? (NOFILM_WHY[w.reason] || w.reason) : "not explained") +
+                 "</span></td></tr>";
+        }).join("");
+      };
+      table = "<table class=\"dt\">" + rows(open_, "watch") + rows(known, "dormant") + "</table>";
     }
     return "<div class=\"note" + (n.flag ? " flag" : "") + "\"><h3>" + n.title + "</h3>" +
            body + table + "</div>";

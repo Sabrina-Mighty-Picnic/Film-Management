@@ -111,9 +111,15 @@ whose forecast is derived some other way.
 
 ## `noFilmWorkOrders[]`
 
-`{ wo, date, product, qty }` — open work orders carrying no film line, because THEM
-bundle film into tolling. Rendered as a table inside the note card with
-`"table": "noFilmWorkOrders"`.
+`{ wo, date, product, qty, reason }` — open work orders carrying no film line.
+Rendered as a table inside the note card with `"table": "noFilmWorkOrders"`.
+
+`reason` is a key into `noFilmReasons`, a map of key to the phrase shown on the row —
+`"them": "Run at THEM on their own film"`. **Set it only where a reason has actually
+been stated.** A row with no reason is listed first and tagged *not explained*, and the
+build warns, because a work order drawing film nobody can account for is a gap worth
+chasing rather than a convention to assume. The build also warns if a `reason` has no
+entry in `noFilmReasons`.
 
 ## `sources[]` and `sourceNotes[]`
 

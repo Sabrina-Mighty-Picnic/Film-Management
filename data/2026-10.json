@@ -1009,7 +1009,73 @@
       "backordered": 0
     }
   ],
-  "noFilmWorkOrders": [],
+  "noFilmWorkOrders": [
+    {
+      "wo": "WO717",
+      "date": "",
+      "product": "Peanut Butter 1.15oz",
+      "qty": "50,000 units",
+      "reason": "them"
+    },
+    {
+      "wo": "WO719",
+      "date": "",
+      "product": "Worcestershire 1oz",
+      "qty": "40,000 units"
+    },
+    {
+      "wo": "WO738",
+      "date": "",
+      "product": "BA WG Dijon Mustard 21g",
+      "qty": "68,100 units"
+    },
+    {
+      "wo": "WO741",
+      "date": "",
+      "product": "BA Dijon Mustard 21g",
+      "qty": "101,200 units"
+    },
+    {
+      "wo": "WO742",
+      "date": "",
+      "product": "BA Ketchup 21g",
+      "qty": "75,900 units",
+      "reason": "them"
+    },
+    {
+      "wo": "WO749",
+      "date": "",
+      "product": "Agave Syrup .5oz",
+      "qty": "100,000 units"
+    },
+    {
+      "wo": "WO761",
+      "date": "",
+      "product": "Fish Sauce .5oz",
+      "qty": "100,000 units"
+    },
+    {
+      "wo": "WO768",
+      "date": "",
+      "product": "Ponzu .5oz",
+      "qty": "50,400 units",
+      "reason": "them"
+    },
+    {
+      "wo": "WO771",
+      "date": "",
+      "product": "Mirin .5oz",
+      "qty": "100,000 units",
+      "reason": "them"
+    },
+    {
+      "wo": "WO772",
+      "date": "",
+      "product": "Soy Sauce .5oz",
+      "qty": "65,600 units",
+      "reason": "them"
+    }
+  ],
   "salesOrderLines": {
     "880": [
       {
@@ -1396,11 +1462,12 @@
       ]
     },
     {
-      "title": "What is deliberately not here",
+      "title": "Work orders carrying no film line",
+      "flag": true,
       "table": "noFilmWorkOrders",
       "body": [
-        "These open work orders carry no film line at all. All are at THEM, where film is bundled into tolling and billed at repack. That is the convention, not a gap; the revisions say so in their own names.",
-        "One exception: <strong>WO749 Agave Syrup .5oz</strong> is released for 100,000 units against a SKU marked Discontinued in the Item Master. A stale record rather than a supply question."
+        "<strong>Mirin, Ponzu, Soy Sauce, Peanut Butter and BA Ketchup are run at THEM on their own film.</strong> Nothing is drawn from our stock for them, so no film line is the right answer and their sales orders are deliberately left out of the demand on this page.",
+        "The other 5 have no stated reason yet. They may be the same arrangement, but until somebody says so they are listed as open rather than assumed. <strong>WO749 Agave Syrup .5oz</strong> is the odd one: released for 100,000 units against a SKU marked Discontinued in the Item Master, which looks like a stale record rather than a supply question."
       ]
     },
     {
@@ -1798,5 +1865,8 @@
         "expires": "2027-07-30"
       }
     ]
+  },
+  "noFilmReasons": {
+    "them": "Run at THEM on their own film"
   }
 }

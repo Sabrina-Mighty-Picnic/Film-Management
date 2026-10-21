@@ -195,6 +195,19 @@ function validate(d, period) {
     if (pooled) W(`film ${r.item}: siblingOrder names ${so.item}, which is already pooled in a substituteGroup — the order would be counted twice`);
   }
 
+  const nfr = d.noFilmReasons || {};
+  for (const w of d.noFilmWorkOrders || []) {
+    if (!w.wo || !w.product) { E("a noFilmWorkOrders entry is missing wo or product"); continue; }
+    if (w.reason && !nfr[w.reason]) {
+      W(`${w.wo}: reason "${w.reason}" has no entry in noFilmReasons, so the page will print the key`);
+    }
+  }
+  const unexplained = (d.noFilmWorkOrders || []).filter(w => !w.reason);
+  if (unexplained.length) {
+    W(`${unexplained.length} work order${unexplained.length === 1 ? "" : "s"} carry no film line and no stated reason: ` +
+      unexplained.map(w => `${w.wo} ${w.product}`).join(", "));
+  }
+
   const pl = d.plates;
   if (pl) {
     if (!Array.isArray(pl.register)) E("plates.register must be an array");
