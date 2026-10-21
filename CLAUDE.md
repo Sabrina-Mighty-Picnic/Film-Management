@@ -105,6 +105,10 @@ them the wrong way round makes the page wrong about who buys what.
 
 - **Ours:** 929, 1003, 127, 937, 1090, 1092 — and every Lamick film at FFW, 1094 and
   1129 included. All of it is a purchasing decision of ours.
+- **Who supplies it, who runs it and whose decision it is are three separate facts.**
+  937 is bought from Maruto, produced at THEM, and ours to order: `supplier` Maruto,
+  `producedAt` THEM, `stockedBy` MP. Film being made at THEM does not make it theirs —
+  only film run on *their blank* is.
 - **Lamick and Maruto are different suppliers**, so one plate register cannot cover
   both. `films[].supplier` records it where there is evidence — the film's own name, or
   its presence in a register — and is **left unset otherwise**. The plate check then

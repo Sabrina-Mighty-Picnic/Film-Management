@@ -641,10 +641,12 @@ function renderInventory() {
     if (pl.state === "expired" || pl.state === "lapsing") {
       note += (note ? " · " : "") + "plate needs renewing";
     }
+    if (f.producedAt) note += (note ? " \u00b7 " : "") + "produced at " + f.producedAt;
 
     return "<tr>" +
       "<td class=\"item\">" + f.item + "</td>" +
       "<td>" + f.name + "</td>" +
+      "<td class=\"dnone\">" + (f.supplier || "\u2014") + "</td>" +
       "<td class=\"n\">" + fmt(f.onHand) + "</td>" +
       "<td class=\"n\">" + (num(f.onOrder) ? fmt(f.onOrder) : "—") + "</td>" +
       "<td class=\"n\"><b>" + fmt(stock) + "</b> <small class=\"dnone\">" + f.unit + "</small></td>" +

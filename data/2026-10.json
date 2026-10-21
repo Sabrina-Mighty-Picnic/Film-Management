@@ -565,7 +565,10 @@
       "onWorkOrders": 102856.43,
       "soNotYetWO": 19796.63,
       "forecastBeyond": 0,
-      "weeklyBuildRate": 12841
+      "weeklyBuildRate": 12841,
+      "supplier": "Maruto",
+      "producedAt": "THEM",
+      "note": "Ordered via Maruto, produced at THEM. Our film and our purchasing decision — but a Maruto plate, so no Lamick plate fee attaches to it."
     },
     {
       "item": "127",
@@ -1425,7 +1428,8 @@
           "<strong>BA Ketchup foil run out</strong>, not reordered — THEM run theirs down, then blank.",
           "<strong>FFW hold 92,000 Bacon Jam impressions</strong> (7,800&nbsp;m at a 5% buffer). That covers the 25k on the open work order, so Bacon Jam has left the order list.",
           "<strong>1129 is off the reorder list</strong> — relief for 1094, and 1094 is on schedule. It has its own tile now.",
-          "<strong>GE Thai-Ger retired.</strong> 2,600&nbsp;m left, nothing drawing it since February. Its plate lapsed 22 October and now needs no renewal, which takes the due-now list from five to four."
+          "<strong>GE Thai-Ger retired.</strong> 2,600&nbsp;m left, nothing drawing it since February. Its plate lapsed 22 October and now needs no renewal, which takes the due-now list from five to four.",
+          "<strong>HF Peanut Butter is a Maruto film produced at THEM.</strong> Ours to order either way — 546k&nbsp;ea on hand, order-by 27 weeks out — but a Maruto plate, so no Lamick fee attaches. That was the last open plate question; the build runs clean."
         ]
       ]
     },
@@ -1974,7 +1978,8 @@
         "unit": "ea",
         "stockedBy": "MP",
         "qty": 604105,
-        "builds": 14
+        "builds": 14,
+        "note": "Ordered via Maruto, produced at THEM"
       },
       {
         "item": "1030",

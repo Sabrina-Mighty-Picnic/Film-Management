@@ -53,6 +53,9 @@ Optional:
 | `noBom` | no BOM revision points at this item; says so in the drill-down |
 | `note` | one line under the name, in the table and the bars |
 | `nextInLineNote` | a paragraph at the top of the drill-down, for stock bought for a move that has not happened yet |
+| `supplier` | who makes the film — `Lamick`, `Maruto`. **Record it only where there is evidence**: the film's own name, or its presence in a register. Load-bearing, because plate fees are ours on Lamick film only, so the plate check stays silent for any other supplier |
+| `producedAt` | where the film is consumed, when that is not the obvious site. 937 is ordered via Maruto and produced at THEM. Shown in the Inventory tab's note |
+| `lossBuffer` | a planning buffer for this film alone, with `lossBufferNote` saying why. Never page-wide — see **`films[].lossBuffer`** |
 | `blank` | unprinted film, so no printing plate exists and none is expected. Stops the plate check reporting it as a gap |
 | `siblingOrder` | an order for the same film sitting on a differently-denominated item that cannot be pooled. Takes `item`, `qty`, `unit`, `ref` and a `note`. Flagged on the order card and in the build summary; never folded into the runway |
 
