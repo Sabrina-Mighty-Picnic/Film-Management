@@ -66,7 +66,7 @@ var LINES = D.lines || [];
 function OPTS() {
   return { basis: state.basis, lead: state.lead, baseLead: BASE_LEAD,
            films: FILMS, transitions: TRANS, salesOrderLines: SOLINES,
-           plates: D.plates, groups: GROUPS, asOf: META.asOf };
+           plates: D.plates, groups: GROUPS, trackers: TRACKERS, asOf: META.asOf };
 }
 /* Two items that feed the same line are one buying decision, so the working views
    show the pool. The members keep their own rows in the data and in the drill-down. */
@@ -123,14 +123,27 @@ function renderStatic() {
   document.title = META.title + " — " + (META.org || "Mighty Picnic");
 }
 
-/* status of a row, as one key the tiles and the filter both use */
-function statusKey(c) { return c.quiet ? "quiet" : c.status; }
+/* status of a row, as one key the tiles and the filter both use. A film a co-packer
+   holds reads short on our own position by design — that stock is deliberately not in
+   onHand — so the ledger, not the position, settles whether it is actually covered. */
+function statusKey(c, r) {
+  if (r) {
+    var opts = OPTS();
+    var tc = window.FilmCoverage.trackerCover(r, opts);
+    if (tc && tc.covers) return "ok";
+    // relief we are deliberately not buying is not a decision, whatever its own stock
+    // says — it gets its own tile so the headline, the tiles and What to order agree
+    if (window.FilmCoverage.backupIdle(r, opts)) return "backup";
+  }
+  return c.quiet ? "quiet" : c.status;
+}
 
 var TILES = [
   { key: "late",     label: "Past order-by", mark: "late" },
   { key: "watch",    label: "Order soon",    mark: "watch" },
   { key: "ok",       label: "Covered",      mark: "ok" },
   { key: "retiring", label: "Winding down", mark: "retiring" },
+  { key: "backup",   label: "Backup",       mark: "retiring" },
   { key: "quiet",    label: "No demand",    mark: "dormant" }
 ];
 
@@ -139,7 +152,7 @@ var TILES = [
 function renderTiles(base) {
   var counts = {};
   base.forEach(function (x) {
-    var k = statusKey(x.c);
+    var k = statusKey(x.c, x.r);
     counts[k] = (counts[k] || 0) + 1;
   });
 
@@ -577,7 +590,7 @@ function visible() {
     .filter(function (r) { return state.them || r.stockedBy !== "THEM"; })
     .map(function (r) { return { r: r, c: compute(r) }; })
     .filter(function (x) { return state.quiet || !x.c.quiet; })
-    .filter(function (x) { return !state.focus || statusKey(x.c) === state.focus; })
+    .filter(function (x) { return !state.focus || statusKey(x.c, x.r) === state.focus; })
     .sort(function (a, b) {
       if (a.c.quiet !== b.c.quiet) return a.c.quiet ? 1 : -1;
       return (a.c.spare == null ? 9e9 : a.c.spare) - (b.c.spare == null ? 9e9 : b.c.spare);
@@ -606,7 +619,7 @@ function renderInventory() {
     // member is judged with its group, a line member on its own
     var r = byItem[f.item] || f;
     var c = compute(r);
-    var key = statusKey(c);
+    var key = statusKey(c, r);
     var tile = TILES.filter(function (t) { return t.key === key; })[0];
     var tone = { late: "late", watch: "watch", ok: "ok", retiring: "retiring", quiet: "dormant" }[key];
     var word = tile ? tile.label : key;
@@ -783,10 +796,13 @@ function render() {
       .toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
 
   var v = document.getElementById("verdict"), p = v.querySelector("p");
+  /* The headline has to agree with the tiles and with What to order, so it reads the
+     same status they do — one a tracker balance or an idle backup can settle — rather
+     than compute()'s raw verdict on our own position. */
   var pastDue = base.filter(function (x) {
-    return x.r.stockedBy === "MP" && x.c.status === "late";
+    return x.r.stockedBy === "MP" && statusKey(x.c, x.r) === "late";
   });
-  var soon = base.filter(function (x) { return x.c.status === "watch"; });
+  var soon = base.filter(function (x) { return statusKey(x.c, x.r) === "watch"; });
   if (pastDue.length) {
     v.classList.remove("clear");
     var names = pastDue.slice(0, 3).map(function (x) { return x.r.name.split(" —")[0]; }).join(", ");
@@ -797,13 +813,18 @@ function render() {
       winding.length + " winding down.</span>";
   } else {
     v.classList.add("clear");
-    var next = base.map(function (x) { return { r: x.r, t: window.FilmCoverage.timeline(x.r, OPTS()) }; })
-      .filter(function (x) { return x.t.orderByWeeks != null && x.r.stockedBy === "MP"; })
-      .sort(function (a, b) { return a.t.orderByWeeks - b.t.orderByWeeks; })[0];
+    /* "Next" means the next order we will actually place, so it reads orderPlan — which
+       already drops a film a tracker covers and a backup we are not buying — rather than
+       the raw timeline, which would name a film that needs nothing and quote a date gone. */
+    var next = base.map(function (x) {
+        return { r: x.r, p: window.FilmCoverage.orderPlan(x.r, OPTS()) };
+      })
+      .filter(function (x) { return x.p && x.p.orderInWeeks != null && x.r.stockedBy === "MP"; })
+      .sort(function (a, b) { return a.p.orderInWeeks - b.p.orderInWeeks; })[0];
     p.innerHTML = "<strong>Nothing we buy is past its order-by date.</strong>" +
       "<span class=\"sub\">" +
       (next ? "Next is <strong>" + next.r.name.split(" —")[0] + "</strong>, by " +
-              dshort(next.t.orderByWeeks) + ". " : "") +
+              dshort(next.p.orderInWeeks) + ". " : "") +
       soon.length + " inside " + Math.round(state.lead * 0.2) + " weeks of theirs, " +
       winding.length + " winding down. Switch the demand basis to stress-test.</span>";
   }

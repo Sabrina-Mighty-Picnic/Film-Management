@@ -226,6 +226,10 @@ function orderPlan(r, opts) {
   var c = compute(r, opts);
   if (c.quiet || r.retiring) return null;
   if (backupIdle(r, opts)) return null;
+  // what a co-packer holds is outside our position by design, so it never goes into
+  // onHand — but it does answer the order question, and a window it covers needs none
+  var tc = trackerCover(r, opts);
+  if (tc && tc.covers) return null;
 
   var lead = r.leadWeeks != null ? r.leadWeeks : opts.lead;
   var trp = ((opts && opts.transitions) || []).filter(function (x) { return x.item === r.item; })[0];
@@ -517,6 +521,30 @@ function plateSchedule(opts) {
   });
 }
 
+
+/* Film a co-packer holds is not in our position, so the coverage maths reads it as
+   zero and asks for the lot. The ledger is the only record of it, so the question for
+   a tracked film is not "what is our stock" but "does what they hold cover the window".
+   Returns null for a film with no tracker, so callers can tell the two apart. */
+function trackerCover(r, opts) {
+  var ids = (r.memberIds || []).concat([r.item]);
+  var tr = ((opts && opts.trackers) || []).filter(function (t) {
+    return ids.indexOf(t.item) >= 0;
+  })[0];
+  if (!tr) return null;
+
+  var led = runLedger(tr);
+  var c = compute(r, opts);
+  var need = num(c.rawNeed != null ? c.rawNeed : c.need);
+  var balance = num(led.balance);
+  return {
+    tracker: tr, ledger: led, balance: balance, need: need,
+    stale: led.stale,                       // nothing logged: we cannot say either way
+    covers: !led.stale && balance >= need,
+    shortfall: Math.max(0, need - balance)
+  };
+}
+
 return { compute: compute, orderPlan: orderPlan, timeline: timeline,
          mergeGroup: mergeGroup, workingRows: workingRows, buildRate: buildRate,
          incomingSteps: incomingSteps, drawBetween: drawBetween, weeksOfCover: weeksOfCover,
@@ -524,6 +552,7 @@ return { compute: compute, orderPlan: orderPlan, timeline: timeline,
          transitionRate: transitionRate,
          plateFor: plateFor, plateOutlook: plateOutlook, plateSchedule: plateSchedule,
          plateNeeded: plateNeeded, backupIdle: backupIdle,
+         trackerCover: trackerCover,
          weeksUntil: weeksUntil,
          runLedger: runLedger, fmt: fmt, num: num };
 });

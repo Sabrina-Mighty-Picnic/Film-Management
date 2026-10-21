@@ -15,7 +15,8 @@ import { createRequire } from "node:module";
 
 const require = createRequire(import.meta.url);
 const { compute, orderPlan, timeline, workingRows, runLedger, fmt,
-        plateSchedule, plateOutlook, weeksUntil, backupIdle } = require("./coverage.cjs");
+        plateSchedule, plateOutlook, weeksUntil, backupIdle,
+        trackerCover } = require("./coverage.cjs");
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DATA_DIR = path.join(ROOT, "data");
@@ -308,8 +309,18 @@ function validate(d, period) {
         (d.substituteGroups || []).some(g =>
           (g.items || []).map(it => (typeof it === "string" ? it : it.item)).includes(r.item) &&
           (pl.register || []).some(p => p.item === g.id));
-      if (!covered && !r.retiring && (r.onWorkOrders || r.weeklyBuildRate)) {
-        W(`film ${r.item} is being consumed but no plate in the register covers it — either it is a blank or the register is short a row`);
+      if (covered || r.retiring || !(r.onWorkOrders || r.weeklyBuildRate)) continue;
+      /* One register belongs to one supplier, so it can only be short a row for a film
+         that supplier makes. For anything else the question is whose plate it is. */
+      if (!r.supplier) {
+        W(`film ${r.item} is being consumed, has no plate here and no supplier recorded — ` +
+          `whose plate is it?`);
+      } else if (pl.supplier && r.supplier === pl.supplier) {
+        W(`film ${r.item} is a ${r.supplier} film being consumed, but the ${pl.supplier} ` +
+          `register has no row for it — the register is short a row`);
+      } else if (pl.supplier) {
+        W(`film ${r.item} is a ${r.supplier} film, so the ${pl.supplier} register would ` +
+          `not carry its plate — that plate is not tracked here`);
       }
     }
   }
@@ -380,10 +391,16 @@ function summarise(d) {
   const lead = d.meta.defaultLeadWeeks || d.meta.baseLeadWeeks || 16;
   const opts = { basis: "max", lead, baseLead: d.meta.baseLeadWeeks || 16,
                  films: d.films, transitions: d.transitions,
-                 plates: d.plates, groups: d.substituteGroups || [], asOf: d.meta.asOf };
+                 plates: d.plates, groups: d.substituteGroups || [],
+                 trackers: d.trackers || [], asOf: d.meta.asOf };
   const working = workingRows(d.films, d.substituteGroups || [], d.lines || []);
-  const rows = working.map(r => ({ r, c: compute(r, opts) }));
-  const pick = s => rows.filter(x => x.c.status === s);
+  const rows = working.map(r => ({ r, c: compute(r, opts), t: trackerCover(r, opts) }));
+  // a film a co-packer holds reads short on our own position by design; the ledger
+  // settles it, so a covered one is counted and reported as covered
+  const keyOf = x => x.t && x.t.covers ? "ok"
+                   : backupIdle(x.r, opts) ? "backup"
+                   : x.c.status;
+  const pick = s => rows.filter(x => keyOf(x) === s && !x.c.quiet);
   const late = pick("late"), watch = pick("watch"), winding = pick("retiring");
   const quiet = rows.filter(x => x.c.quiet);
 
@@ -481,18 +498,21 @@ function summarise(d) {
 
   lines.push("");
   lines.push(`Worst-case basis, ${lead}-week lead:`);
+  const backups = pick("backup");
   lines.push(`  ${late.length} short   ${watch.length} tight   ` +
-             `${rows.length - late.length - watch.length - winding.length - quiet.length} covered   ` +
-             `${winding.length} winding down   ${quiet.length} no demand`);
+             `${rows.length - late.length - watch.length - winding.length - quiet.length - backups.length} covered   ` +
+             `${winding.length} winding down   ${backups.length} backup   ${quiet.length} no demand`);
   const slackOf = x => {
     const t = timeline(x.r, opts);
     return t && t.slackWeeks != null ? t.slackWeeks : Infinity;
   };
   for (const { r, c } of late.slice().sort((a, b) => slackOf(a) - slackOf(b))) {
     lines.push(`  SHORT  ${r.item} ${r.name} — ${fmt(Math.abs(c.gap))} ${r.unit} short` +
-               (r.stockedBy !== "MP" ? ` (THEM to order)`
-                 : backupIdle(r, opts) ? ` — relief for ${r.line.defaultItem}, not ordered while that is on schedule`
-                 : `, suggested order ${fmt(c.order)} ${r.unit}`));
+               (r.stockedBy !== "MP" ? ` (THEM to order)` : `, suggested order ${fmt(c.order)} ${r.unit}`));
+  }
+  for (const { r, c } of backups) {
+    lines.push(`  BACKUP ${r.item} ${r.name} — ${fmt(Math.abs(c.gap))} ${r.unit} short on its own stock, ` +
+               `but relief for ${r.line.defaultItem} and not ordered while that is on schedule`);
   }
   for (const x of watch.slice().sort((a, b) => slackOf(a) - slackOf(b))) {
     const w = slackOf(x);

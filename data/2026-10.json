@@ -106,7 +106,7 @@
     {
       "item": "1092",
       "name": "TJS Strawberry Jalapeno printed, per metre",
-      "stockedBy": "THEM",
+      "stockedBy": "MP",
       "unit": "m",
       "onHand": 18999.24,
       "weeklyRate": 0,
@@ -164,7 +164,8 @@
       "expediting": true,
       "successorItem": "1152",
       "successor": "the per-metre item 1152 at FFW, when this film runs out",
-      "successorPerUnit": 0.110011
+      "successorPerUnit": 0.110011,
+      "supplier": "Lamick"
     },
     {
       "item": "1152",
@@ -182,7 +183,8 @@
       "noBom": true,
       "note": "19,500 m on PO1277 — about 177k impressions at 9.09 per metre. Takes over from the per-each item 880 when that runs out",
       "nextInLineNote": "This is the film Jamaican Jerk is moving to. <strong>19,500&nbsp;m</strong> arrives on <strong>PO1277</strong>, raised in August — about <strong>177,000 impressions</strong> at the stated <strong>9.09 per metre</strong>, which is the size of a normal jerk order (the last two purchase orders on the per-each item were 160,000 and 172,727). The draw steps onto this film when <strong>880</strong> runs out; until the BOM revision lands, every revision still points at 880 and nothing here is consumed.",
-      "filmPerImpression": 0.110011
+      "filmPerImpression": 0.110011,
+      "supplier": "Lamick"
     },
     {
       "item": "1129",
@@ -200,7 +202,8 @@
       "leadWeeks": 4,
       "note": "4-week lead, judged against 4 weeks not 16",
       "rollSize": 1300,
-      "blank": true
+      "blank": true,
+      "supplier": "Lamick"
     },
     {
       "item": "1090",
@@ -233,7 +236,8 @@
       "onWorkOrders": 0,
       "soNotYetWO": 0,
       "forecastBeyond": 0,
-      "weeklyBuildRate": 999
+      "weeklyBuildRate": 999,
+      "supplier": "Lamick"
     },
     {
       "item": "1094",
@@ -250,12 +254,13 @@
       "weeklyBuildRate": 2652,
       "note": "restocked 9 Sep; carries the whole FFW blank demand",
       "rollSize": 1300,
-      "blank": true
+      "blank": true,
+      "supplier": "Lamick"
     },
     {
       "item": "1092",
       "name": "TJS Strawberry Jalapeno",
-      "stockedBy": "THEM",
+      "stockedBy": "MP",
       "unit": "m",
       "onHand": 18999.24,
       "onOrder": 0,
@@ -283,7 +288,8 @@
       "onWorkOrders": 3316.33,
       "soNotYetWO": 0,
       "forecastBeyond": 0,
-      "weeklyBuildRate": 0
+      "weeklyBuildRate": 0,
+      "supplier": "Lamick"
     },
     {
       "item": "1042",
@@ -297,7 +303,8 @@
       "onWorkOrders": 11141.59,
       "soNotYetWO": 0,
       "forecastBeyond": 0,
-      "weeklyBuildRate": 1142
+      "weeklyBuildRate": 1142,
+      "supplier": "Lamick"
     },
     {
       "item": "1030",
@@ -311,7 +318,8 @@
       "onWorkOrders": 0,
       "soNotYetWO": 0,
       "forecastBeyond": 0,
-      "weeklyBuildRate": 1003
+      "weeklyBuildRate": 1003,
+      "supplier": "Lamick"
     },
     {
       "item": "1038",
@@ -325,7 +333,8 @@
       "onWorkOrders": 13021.1,
       "soNotYetWO": 0,
       "forecastBeyond": 0,
-      "weeklyBuildRate": 759
+      "weeklyBuildRate": 759,
+      "supplier": "Lamick"
     },
     {
       "item": "1087",
@@ -343,7 +352,8 @@
       "retiring": true,
       "successor": "the blank 1094 at FFW, when this film runs out",
       "note": "not being reordered",
-      "successorItem": "1094"
+      "successorItem": "1094",
+      "supplier": "Lamick"
     },
     {
       "item": "1123",
@@ -358,7 +368,8 @@
       "soNotYetWO": 0,
       "forecastBeyond": 0,
       "weeklyBuildRate": 0,
-      "note": "WO704 fully backordered"
+      "note": "WO704 fully backordered",
+      "supplier": "Lamick"
     },
     {
       "item": "1106",
@@ -376,7 +387,8 @@
       "retiring": true,
       "successorItem": "1094",
       "successor": "the blank 1094 at FFW, when this film runs out",
-      "note": "enough on hand; moving to blank, not being reordered"
+      "note": "enough on hand; moving to blank, not being reordered",
+      "supplier": "Lamick"
     },
     {
       "item": "1036",
@@ -391,7 +403,8 @@
       "soNotYetWO": 0,
       "forecastBeyond": 0,
       "weeklyBuildRate": 331,
-      "note": "no row on the FILM plan"
+      "note": "no row on the FILM plan",
+      "supplier": "Lamick"
     },
     {
       "item": "1041",
@@ -406,7 +419,8 @@
       "soNotYetWO": 0,
       "forecastBeyond": 0,
       "weeklyBuildRate": 266,
-      "note": "no row on the FILM plan"
+      "note": "no row on the FILM plan",
+      "supplier": "Lamick"
     },
     {
       "item": "1039",
@@ -420,7 +434,8 @@
       "onWorkOrders": 6101.86,
       "soNotYetWO": 0,
       "forecastBeyond": 0,
-      "weeklyBuildRate": 462
+      "weeklyBuildRate": 462,
+      "supplier": "Lamick"
     },
     {
       "item": "1035",
@@ -434,7 +449,8 @@
       "onWorkOrders": 3341.92,
       "soNotYetWO": 0,
       "forecastBeyond": 0,
-      "weeklyBuildRate": 458
+      "weeklyBuildRate": 458,
+      "supplier": "Lamick"
     },
     {
       "item": "1108",
@@ -448,7 +464,8 @@
       "onWorkOrders": 6146.94,
       "soNotYetWO": 0,
       "forecastBeyond": 0,
-      "weeklyBuildRate": 0
+      "weeklyBuildRate": 0,
+      "supplier": "Lamick"
     },
     {
       "item": "1089",
@@ -463,7 +480,8 @@
       "soNotYetWO": 0,
       "forecastBeyond": 0,
       "weeklyBuildRate": 0,
-      "noBom": true
+      "noBom": true,
+      "supplier": "Lamick"
     },
     {
       "item": "1053",
@@ -477,7 +495,8 @@
       "onWorkOrders": 0,
       "soNotYetWO": 0,
       "forecastBeyond": 0,
-      "weeklyBuildRate": 0
+      "weeklyBuildRate": 0,
+      "supplier": "Lamick"
     },
     {
       "item": "1093",
@@ -507,7 +526,8 @@
       "soNotYetWO": 0,
       "forecastBeyond": 0,
       "weeklyBuildRate": 0,
-      "noBom": true
+      "noBom": true,
+      "supplier": "Lamick"
     },
     {
       "item": "1095",
@@ -524,7 +544,8 @@
       "weeklyBuildRate": 0,
       "note": "runway for the TJS Honey move to FFW",
       "nextInLineNote": "No build has consumed this film. It carries TJS Honey once FG 422's FFW revision exists, at about <b>1,542 m a week</b> (1,571,200 units a year at 0.051 m each). <b>116k m</b> in hand is roughly <b>75 weeks</b> at that rate — so it runs out well before white is needed. Created by unit conversion IA177 and moved to FFW on IT105; there is no purchase order behind it.",
-      "filmPerImpression": 0.051
+      "filmPerImpression": 0.051,
+      "supplier": "Lamick"
     },
     {
       "item": "937",
@@ -555,7 +576,8 @@
       "weeklyBuildRate": 26436,
       "retiring": true,
       "successor": "1095 printed metre stock at FFW (≈ 18 months), then white",
-      "note": "not being reordered"
+      "note": "not being reordered",
+      "supplier": "Lamick"
     },
     {
       "item": "929",
@@ -572,7 +594,8 @@
       "weeklyBuildRate": 2417896,
       "retiring": true,
       "successor": "THEM's blank 75mm, when this film runs out",
-      "note": "not being reordered"
+      "note": "not being reordered",
+      "supplier": "Maruto"
     }
   ],
   "workOrderLines": [
@@ -1394,7 +1417,8 @@
         "The blank 1094 drew harder than last week — 67k&nbsp;m on work orders against 54k — but its 143,530&nbsp;m order absorbs it.",
         "<strong>Both Dijon mustards have moved off BA Repeat onto blank at THEM.</strong> They no longer draw 929, which takes about <strong>11.2M&nbsp;mm</strong> of sales order demand off it and leaves nothing on it beyond the work orders already raised. Their film is THEM’s now, so it is not on this page at all.",
         "<strong>1129 is off the reorder list.</strong> It is relief for 1094, bought only when the primary will not arrive in time, and 1094 is ordering on schedule — so asking for 1129 every month was asking for film we hold precisely so we do not have to. It still shows its real position on the new <em>Inventory</em> tab, and comes back the moment 1094 goes past its own order-by date.",
-        "<strong>BA Ketchup is on its way to blank.</strong> The BA foil has run out and will not be reordered; THEM run down their own foil from here and the SKU then moves to blank, like the mustards just did."
+        "<strong>BA Ketchup is on its way to blank.</strong> The BA foil has run out and will not be reordered; THEM run down their own foil from here and the SKU then moves to blank, like the mustards just did.",
+        "<strong>FFW’s Bacon Jam film is now logged, and it changes the answer.</strong> About <strong>7,800&nbsp;m</strong> is left, roughly <strong>92,000 impressions</strong>. That covers the 25k the open work order needs, so Bacon Jam has left the order list — our own position reads zero by design, and the ledger is what settles it. Nothing is coming off the film, so the figure holds until Bacon Jam is ordered again."
       ]
     },
     {
@@ -1539,7 +1563,7 @@
       ]
     },
     {
-      "group": "The five statuses",
+      "group": "The statuses",
       "terms": [
         {
           "term": "Past order-by",
@@ -1568,6 +1592,10 @@
         {
           "term": "THEM to order",
           "def": "Short, but THEM stock this film, so the fix is their expedite rather than a purchase order from us."
+        },
+        {
+          "term": "Backup",
+          "def": "Relief on a line, deliberately not reordered while the default is still ordering on schedule. It can read short on its own stock and still need nothing — see <strong>1129</strong> behind 1094."
         }
       ]
     },
@@ -1690,10 +1718,18 @@
       "name": "Bacon Jam 1oz printed film",
       "unit": "ea",
       "heldBy": "FFW",
-      "ownedBy": "not ours — we bought it, FFW hold and manage it",
-      "purpose": "FFW manage this stock, so it is not in our NetSuite on-hand. This log is our own running check that it does not run out for Hello Fresh.",
+      "ownedBy": "FFW’s film. They hold it and manage it, and it is not in our NetSuite on-hand.",
+      "purpose": "FFW hold the only Bacon Jam printed film there is. Nothing is coming off it, so it matters to us only if Bacon Jam gets another order — this log is the record of how much is left.",
       "reorderAt": null,
-      "ledger": []
+      "ledger": [
+        {
+          "date": "2026-10-21",
+          "type": "count",
+          "qty": 92000,
+          "ref": "estimate, not a physical count",
+          "note": "About <b>7,800&nbsp;m</b> left, roughly <b>92,000 impressions</b>, as supplied. Nothing more is coming off it, so the figure holds until Bacon Jam is ordered again. The plate pitch of 80&nbsp;mm would put 7,800&nbsp;m at about 97,500 impressions, so the two are close but not the same arithmetic — the 92,000 is the figure given and is what is recorded."
+        }
+      ]
     }
   ],
   "substituteGroups": [
@@ -1870,7 +1906,8 @@
         "pitchMm": 65,
         "expires": "2027-07-30"
       }
-    ]
+    ],
+    "supplier": "Lamick"
   },
   "noFilmReasons": {
     "them": {

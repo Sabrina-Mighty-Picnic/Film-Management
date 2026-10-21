@@ -69,9 +69,10 @@ record of it.
   `used`, `count` and `adjustment`; a `count` is what the holder reports and overrides
   the running balance, with the difference showing as a variance.
 - The balance, the usage rate and the weeks of cover are derived. Never store them.
-- A film with a tracker is flagged in What to order rather than quoted a suggested
-  order, because our position for it reads zero by design. Do not "fix" that zero by
-  putting their stock into `onHand`.
+- **Do not "fix" that zero by putting their stock into `onHand`.** The position stays as
+  NetSuite has it; `trackerCover()` answers the order question from the ledger instead.
+  A window the balance covers needs no order, so the film leaves What to order and
+  counts as covered — in the tiles, the headline and the build summary alike.
 
 ## Printing plates
 
@@ -98,8 +99,13 @@ lapses **on a date rather than with use**, and renewing one is a charge.
 **THEM own the blank. We own the BA film.** Those are two different films and getting
 them the wrong way round makes the page wrong about who buys what.
 
-- **Ours:** 929, 1003, 127, 937, 1090 — and every Lamick film at FFW, 1094 and 1129
-  included. All of it is a purchasing decision of ours.
+- **Ours:** 929, 1003, 127, 937, 1090, 1092 — and every Lamick film at FFW, 1094 and
+  1129 included. All of it is a purchasing decision of ours.
+- **Lamick and Maruto are different suppliers**, so one plate register cannot cover
+  both. `films[].supplier` records it where there is evidence — the film's own name, or
+  its presence in a register — and is **left unset otherwise**. The plate check then
+  asks the right question: a missing row is only a gap for a film that register's
+  supplier makes, and for a film with no supplier recorded it asks whose plate it is.
 - **THEM's:** their blank. **Anything run in blank film at THEM is on their film and
   inside the tolling rate**, so its work orders carry no film line, it sits on no bill of
   materials, and we do not worry about purchasing it. That is the standing rule, not a
@@ -204,8 +210,11 @@ will be late. Two decisions. What the default inherits is the line's whole draw.
 - **A backup never earns a suggested order of its own.** `backupIdle()` keeps it off
   the reorder list while the default is still ordering on schedule, and lets it back on
   the moment the default goes past its own order-by date. Film held precisely so it does
-  not have to be ordered every month must not be asked for every month. It still shows
-  its real position on the Inventory tab, tagged *Backup*.
+  not have to be ordered every month must not be asked for every month.
+- It carries its own **Backup** status rather than reading short, because a tile that
+  counts an action nobody is being asked to take sends the reader looking for a row that
+  is not there. The headline, the tiles, What to order and the build summary all read
+  `statusKey()`, so they cannot disagree.
 
 - **A split build rate is the trap the line model exists for.** 1094 at 3,129 m/wk and
   1129 at 3,341 are one line drawing 6,470. Never read one member's rate as the line's.
