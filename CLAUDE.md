@@ -221,8 +221,18 @@ will be late. Two decisions. What the default inherits is the line's whole draw.
   not have to be ordered every month must not be asked for every month.
 - It carries its own **Backup** status rather than reading short, because a tile that
   counts an action nobody is being asked to take sends the reader looking for a row that
-  is not there. The headline, the tiles, What to order and the build summary all read
-  `statusKey()`, so they cannot disagree.
+  is not there.
+
+**Never read `compute().status` in a renderer.** It is the verdict on our own position,
+and twice now the page has learnt that short on our own position is not always a
+decision — a co-packer's ledger covers one film, a backup is relief we are not buying.
+Every surface reads `statusKey()` for the key and `statusLabel()` for the word and the
+colour, so they cannot drift. Six places had to be found and fixed one at a time:
+the tiles, the headline, What to order, the runway chart's labels, **the runway chart's
+own decide-or-fold split**, and the detail table's status pill. The last two were found
+only because the chart was still saying "order now" for a film the order list had
+already dropped. `c.status` is legitimate only inside `statusKey()` itself and where the
+question is genuinely about the retiring computation, such as the transfer arrow.
 
 - **A split build rate is the trap the line model exists for.** 1094 at 3,129 m/wk and
   1129 at 3,341 are one line drawing 6,470. Never read one member's rate as the line's.

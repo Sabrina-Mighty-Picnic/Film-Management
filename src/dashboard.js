@@ -139,6 +139,23 @@ function statusKey(c, r) {
   return c.quiet ? "quiet" : c.status;
 }
 
+/* One definition of what a status is called and what colour it carries. Every surface
+   reads this, so none can drift from the others — which they did, six times over,
+   each time something taught the page that short on our own position is not always a
+   decision. */
+function statusLabel(c, r) {
+  var key = statusKey(c, r);
+  var word = key === "quiet" ? "No demand"
+    : key === "retiring" ? "Winding down"
+    : key === "backup" ? "Backup"
+    : key === "late" ? (r && r.stockedBy === "THEM" ? "THEM to order" : "Order now")
+    : key === "watch" ? "Order soon" : "Covered";
+  var cls = key === "quiet" ? "dormant"
+    : key === "retiring" || key === "backup" ? "retiring"
+    : key === "late" ? "late" : key === "watch" ? "watch" : "ok";
+  return { key: key, label: word, cls: cls };
+}
+
 var TILES = [
   { key: "late",     label: "Past order-by", mark: "late" },
   { key: "watch",    label: "Order soon",    mark: "watch" },
@@ -218,7 +235,8 @@ function renderActions() {
   var theirs = ROWS.filter(function (r) {
     if (r.stockedBy !== "THEM") return false;
     var c = compute(r);
-    return c.status === "late" || (c.status === "watch" && c.transfer > 0);
+    var k = statusKey(c, r);
+    return k === "late" || (k === "watch" && c.transfer > 0);
   });
 
   var panel = document.getElementById("orderPanel");
@@ -780,10 +798,13 @@ function render() {
   if (state.focus === "quiet") state.quiet = true;
   var rows = visible();
   state.quiet = quiet;
-  var late = base.filter(function (x) { return x.c.status === "late"; });
+  var isKey = function (k) {
+    return function (x) { return statusKey(x.c, x.r) === k; };
+  };
+  var late = base.filter(isKey("late"));
   var lateMine = late.filter(function (x) { return x.r.stockedBy === "MP"; });
-  var winding = base.filter(function (x) { return x.c.status === "retiring"; });
-  var watch = base.filter(function (x) { return x.c.status === "watch"; });
+  var winding = base.filter(isKey("retiring"));
+  var watch = base.filter(isKey("watch"));
 
   document.getElementById("horizon").textContent =
     new Date(ANCHOR.getTime() + state.lead * 7 * 864e5)
@@ -829,7 +850,16 @@ function render() {
      ordering now. */
   var TL = window.FilmCoverage.timeline;
   var opts = OPTS();
-  var tl = rows.map(function (x) { return { r: x.r, c: x.c, t: TL(x.r, opts) }; });
+  /* The bars have to tell the same story as What to order. A film a co-packer holds
+     is drawn from the ledger, not from our zero; a backup we are not buying says so
+     instead of quoting a date. */
+  var tl = rows.map(function (x) {
+    var disp = window.FilmCoverage.trackerRow(x.r, opts) || x.r;
+    return { r: x.r, c: x.c, t: TL(disp, opts),
+             held: disp.heldOffSite || null,
+             idle: window.FilmCoverage.backupIdle(x.r, opts),
+             covered: statusKey(x.c, x.r) === "ok" && disp !== x.r };
+  });
 
   var covers = tl.map(function (x) { return x.t.coverWeeks; })
                  .filter(function (v) { return v != null && isFinite(v); });
@@ -865,7 +895,8 @@ function render() {
   function runway(x) {
     var r = x.r, c = x.c, t = x.t;
     var sub = (r.members ? r.memberIds.join(" + ") : r.item) + " · " +
-              (r.stockedBy === "THEM" ? "THEM-stocked" : "Lamick, we buy") +
+              (r.stockedBy === "THEM" ? "THEM-stocked"
+                : "we buy" + (r.supplier ? " from " + r.supplier : "")) +
               (r.note ? " · " + r.note : "");
     var nm = "<div class=\"nm\">" + r.name + (r.members ? " <b>pooled</b>" : "") +
              "<small>" + sub + "</small></div>";
@@ -884,13 +915,15 @@ function render() {
     var clipped = t.coverWeeks > span;
     var bar = "<span class=\"run" + (clipped ? " clip" : "") + "\" style=\"width:" +
               pctOf(t.coverWeeks) + "%;background:" + col + "\"></span>";
-    var pin = t.orderByWeeks == null ? ""
+    var pin = t.orderByWeeks == null || x.idle ? ""
       : t.orderByWeeks <= 0
         ? "<span class=\"pin order overdue\"></span>"
         : "<span class=\"pin order\" style=\"left:" + pctOf(t.orderByWeeks) + "%\"></span>";
 
     var dry = clipped ? "lasts past " + dshort(span) : "runs dry " + dshort(t.coverWeeks);
-    var when = t.orderByWeeks == null
+    if (x.held) dry += ", held at " + x.held;
+    var when = x.idle ? "backup"
+      : t.orderByWeeks == null
       ? (r.retiring ? "not reordered" : "—")
       : t.orderByWeeks <= 0 ? "order now"
       // a date two years out is arithmetic, not a plan
@@ -904,9 +937,16 @@ function render() {
   }
 
   /* Only short and tight need a decision. The rest stay one click away rather than
-     filling four screens with rows nobody has to act on. */
-  var needsEye = tl.filter(function (x) { return x.c.status === "late" || x.c.status === "watch"; });
-  var rest = tl.filter(function (x) { return x.c.status !== "late" && x.c.status !== "watch"; });
+     filling four screens with rows nobody has to act on. Read statusKey, not the raw
+     verdict on our own position: a film a co-packer covers and a backup we are not
+     buying both read short there, and drawing them here put the chart at odds with
+     What to order, the tiles and the headline. */
+  var decides = function (x) {
+    var k = statusKey(x.c, x.r);
+    return k === "late" || k === "watch";
+  };
+  var needsEye = tl.filter(decides);
+  var rest = tl.filter(function (x) { return !decides(x); });
   var split = !state.focus && !state.showRest && needsEye.length > 0 && rest.length > 0;
   var shown = split ? needsEye : tl;
 
@@ -950,18 +990,15 @@ function render() {
 
   document.getElementById("tbody").innerHTML = rows.map(function (x) {
     var r = x.r, c = x.c;
-    var label = c.quiet ? "No demand"
-      : c.status === "retiring" ? "Winding down"
-      : c.status === "late" ? (r.stockedBy === "THEM" ? "THEM to order" : "Order now")
-      : c.status === "watch" ? "Order soon" : "Covered";
-    var cls = c.quiet ? "dormant" : c.status === "retiring" ? "retiring"
-      : c.status === "late" ? "late" : c.status === "watch" ? "watch" : "ok";
+    var sl = statusLabel(c, r);
+    var label = sl.label, cls = sl.cls;
     var tag = "<span class=\"tag t-" + cls + "\"" + defOf(label) + ">" + label + "</span>";
     var scale = (r.leadWeeks != null ? r.leadWeeks : state.lead) / BASE_LEAD;
 
     var wideRow =
       "<td class=\"item\">" + r.name + "<small>item " + r.item + (r.note ? " · " + r.note : "") + "</small></td>" +
-      "<td>" + (r.stockedBy === "THEM" ? "THEM (Maruto)" : "MP (Lamick)") + "</td>" +
+      "<td>" + (r.stockedBy === "THEM" ? "THEM" : "MP") +
+        (r.supplier ? " (" + r.supplier + ")" : "") + "</td>" +
       "<td class=\"n\">" + fmt(num(r.onHand)) + " " + r.unit +
         (function () { var im = impsOf(r, num(r.onHand)); return im ? "<small>" + im.text + "</small>" : ""; })() + "</td>" +
       "<td class=\"n\">" + (r.onOrder ? fmt(r.onOrder) : "—") + "</td>" +
@@ -972,7 +1009,7 @@ function render() {
       "<td class=\"n\">" + (r.soNotYetWO ? fmt(r.soNotYetWO) : "—") + "</td>" +
       "<td class=\"n\">" + (r.forecastBeyond ? fmt(r.forecastBeyond * scale) : "—") + "</td>" +
       "<td class=\"n\">" + (c.burnNeed ? fmt(c.burnNeed) : "—") + "</td>" +
-      "<td class=\"n\" style=\"color:" + (c.quiet ? "inherit" : "var(--" + c.status + ")") + "\">" +
+      "<td class=\"n\" style=\"color:" + (sl.key === "quiet" ? "inherit" : "var(--" + sl.cls + ")") + "\">" +
         (c.quiet ? "—" : c.status === "retiring" && c.transfer > 0 ? "→ " + fmt(c.transfer)
           : (c.gap < 0 ? "−" : "+") + fmt(Math.abs(c.gap))) + "</td>" +
       "<td class=\"n\">" + (c.order && r.stockedBy === "MP" ? fmt(c.order) + " " + r.unit : "—") + "</td>" +
@@ -983,7 +1020,8 @@ function render() {
     var narrowRow =
       "<td class=\"item\">" + r.name + "<small>" +
         (r.members ? r.memberIds.join(" + ") : "item " + r.item) + " · " +
-        (r.stockedBy === "THEM" ? "THEM (Maruto)" : "MP (Lamick)") +
+        (r.stockedBy === "THEM" ? "THEM" : "MP") +
+        (r.supplier ? " (" + r.supplier + ")" : "") +
         (r.note ? " · " + r.note : "") +
         (heldNote(r) ? " · " + heldNote(r) : "") + "</small></td>" +
       "<td class=\"n\">" + fmt(c.stock) + " " + r.unit +
@@ -991,7 +1029,7 @@ function render() {
       "<td class=\"n\">" + (demand ? fmt(demand) + " " + r.unit : "—") + "</td>" +
       "<td class=\"n\">" + (tRow.coverWeeks == null ? "—"
         : tRow.coverWeeks.toFixed(0) + " wks") + "</td>" +
-      "<td class=\"n\" style=\"color:" + (c.quiet ? "inherit" : "var(--" + c.status + ")") + "\">" +
+      "<td class=\"n\" style=\"color:" + (sl.key === "quiet" ? "inherit" : "var(--" + sl.cls + ")") + "\">" +
         (tRow.orderByWeeks == null ? (r.retiring ? "not reordered" : "—")
           : tRow.orderByWeeks <= 0 ? "overdue" : dshort(tRow.orderByWeeks)) + "</td>" +
       "<td class=\"n\">" + (c.order && r.stockedBy === "MP" ? fmt(c.order) + " " + r.unit : "—") + "</td>" +

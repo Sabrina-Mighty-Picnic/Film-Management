@@ -251,6 +251,22 @@ function backupIdle(r, opts) {
   return !(t && t.orderByWeeks != null && t.orderByWeeks <= 0);
 }
 
+/* A display copy of a tracked film whose stock is what the co-packer actually holds.
+   The stored position is never touched — compute() still reads NetSuite's zero, which
+   is what it should read — but a runway drawn from that zero says the film ran dry
+   today when in fact FFW hold most of a year of it. The ledger is the only record of
+   that stock, so the bar reads the ledger. Returns null when there is no tracker. */
+function trackerRow(r, opts) {
+  var tc = trackerCover(r, opts);
+  if (!tc || tc.stale) return null;
+  var copy = {};
+  for (var k in r) if (r.hasOwnProperty(k)) copy[k] = r[k];
+  copy.onHand = tc.balance;
+  copy.onOrder = 0;
+  copy.heldOffSite = tc.tracker.heldBy;
+  return copy;
+}
+
 function orderPlan(r, opts) {
   var c = compute(r, opts);
   if (c.quiet || r.retiring) return null;
@@ -582,7 +598,7 @@ return { compute: compute, orderPlan: orderPlan, timeline: timeline,
          transitionRate: transitionRate,
          plateFor: plateFor, plateOutlook: plateOutlook, plateSchedule: plateSchedule,
          plateNeeded: plateNeeded, backupIdle: backupIdle,
-         trackerCover: trackerCover,
+         trackerCover: trackerCover, trackerRow: trackerRow,
          weeksUntil: weeksUntil,
          runLedger: runLedger, fmt: fmt, num: num };
 });
