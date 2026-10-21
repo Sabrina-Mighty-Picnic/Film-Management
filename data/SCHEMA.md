@@ -281,9 +281,14 @@ build errors on a unit mismatch — a metre figure under a `mm` film is off by a
 A row for a film not in `films[]` needs `retired: true` plus its own `name` and `unit`,
 since nothing else in the data carries them.
 
-Rendered as a folded panel on the Inventory tab, with a derived per-week column. The
-build warns when the window is not roughly a year, when it ends before `meta.asOf`, and
-when a film with a live `weeklyBuildRate` has no row.
+`blankAtThem[]` is `{ product, units, note }` — products run on THEM's blank over the
+same window, in **units built**, because their blank carries no film line and no BOM and
+there is no quantity of it in our records. Never convert these to film; we hold no pitch
+for it.
+
+Rendered as a folded panel on the Inventory tab, with a derived per-week column, plus an
+open panel for blank film: ours summed across the FFW line (`films[].blank`) against
+THEM's units.
 
 
 ## The Inventory tab

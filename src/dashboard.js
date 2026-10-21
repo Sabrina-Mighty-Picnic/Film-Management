@@ -669,33 +669,87 @@ function renderUsage() {
   }
   var weeks = (Date.parse(U.to) - Date.parse(U.from)) / (7 * 864e5);
 
+  /* Every film drawn here is one we buy, so there is no column saying so — ownership
+     appears only on the rows where it is not ours, which is the exception worth seeing. */
   var body = U.films.map(function (f) {
-    var mine = f.stockedBy === "MP";
+    var flags = [];
+    if (f.stockedBy && f.stockedBy !== "MP") flags.push("<b>THEM own this film.</b>");
+    if (f.retired) flags.push("<b>No longer in the coverage view.</b>");
+    if (f.note) flags.push(f.note);
     return "<tr>" +
       "<td class=\"item\">" + f.item + "</td>" +
       "<td>" + f.name + "</td>" +
-      "<td><span class=\"tag t-" + (mine ? "ok" : "dormant") + "\">" +
-        (mine ? "Ours" : "THEM") + "</span></td>" +
       "<td class=\"n\"><b>" + fmt(f.qty) + "</b> <small class=\"dnone\">" + f.unit + "</small></td>" +
       "<td class=\"n\">" + f.builds + "</td>" +
       "<td class=\"n\">" + fmt(f.qty / weeks) + "</td>" +
-      "<td class=\"wrapcell\">" + (f.retired ? "<b>No longer in the coverage view.</b> " : "") +
-        (f.note || "") + "</td>" +
+      "<td class=\"wrapcell\">" + flags.join(" ") + "</td>" +
       "</tr>";
   }).join("");
 
-  var them = U.films.filter(function (f) { return f.stockedBy !== "MP"; });
   document.getElementById("useHead").innerHTML =
-    "What we get through in a year <em>" + U.films.length + " films drawn · " +
-    them.length + " of them on film THEM own</em>";
+    "What we get through in a year <em>" + U.films.length + " films drawn, " +
+    U.from + " to " + U.to + "</em>";
   document.getElementById("useBody").innerHTML = body;
   document.getElementById("useNotes").innerHTML =
     "<p class=\"dnone\"><b>" + U.from + " to " + U.to + "</b>, from " + U.source +
-    ". This is what was drawn, not what was bought and not what is planned, so it will " +
-    "not tie to the positions above. Quantities stay in each film's own unit and are " +
-    "never added together. <b>Film THEM own is included on purpose</b> — we do not " +
-    "track their stock, but the volume we get through it is worth seeing. A film with no " +
-    "row was not drawn at all in the window.</p>";
+    ". What was drawn, not what was bought and not what is planned, so it will not tie " +
+    "to the positions above. Quantities stay in each film's own unit and are never " +
+    "added together. A film with no row was not drawn at all in the window.</p>";
+}
+
+
+/* ---------- Blank film in a year ----------
+   Two different things share the word "blank". Ours is the FFW line, 1094 with 1129
+   behind it, which we buy and which every retiring film hands over to — that figure is
+   exact. THEM's is their own film, inside the tolling rate, and carries no film line
+   and no BOM, so there is no quantity of it anywhere in our records and none is
+   invented here: their side is units built, labelled as units. */
+function renderBlank() {
+  var U = D.annualUsage || {};
+  var head = document.getElementById("blankHead");
+  var box = document.getElementById("blankBody");
+  if (!U.films) { head.textContent = "Blank film in a year"; box.innerHTML = ""; return; }
+
+  var mine = U.films.filter(function (f) {
+    var x = FILMS.filter(function (y) { return y.item === f.item; })[0];
+    return x && x.blank;
+  });
+  var total = mine.reduce(function (a, f) { return a + num(f.qty); }, 0);
+  var unit = mine.length ? mine[0].unit : "m";
+  var weeks = (Date.parse(U.to) - Date.parse(U.from)) / (7 * 864e5);
+
+  var theirs = U.blankAtThem || [];
+  var builtRows = theirs.filter(function (t) { return num(t.units) > 0; });
+
+  head.innerHTML = "Blank film in a year <em>" + fmt(total) + " " + unit +
+    " of ours, and " + theirs.length + " products on THEM’s</em>";
+
+  box.innerHTML =
+    "<p class=\"dnone\" style=\"margin:0 0 12px\"><b>Ours, at FFW: " + fmt(total) + " " + unit +
+      " drawn in the year</b> — " + fmt(total / weeks) + " " + unit + " a week across the line. " +
+      mine.map(function (f) { return f.item + " " + fmt(f.qty); }).join(" and ") +
+      ". The two are one line, so the figure that matters is the pair together: reading " +
+      "either alone understates the draw, which is the whole reason the line exists.</p>" +
+    "<p class=\"dnone\" style=\"margin:0 0 10px\"><b>THEM’s is theirs.</b> It sits inside " +
+      "the tolling rate, carries no film line and no bill of materials, so there is no " +
+      "quantity of it in our records and none is guessed at here. What we can count is " +
+      "what was built on it:</p>" +
+    "<table class=\"dt\"><thead><tr><th>Product</th><th class=\"n\">Units built in the year</th>" +
+      "<th>Note</th></tr></thead><tbody>" +
+    theirs.map(function (t) {
+      return "<tr><td>" + t.product + "</td>" +
+        "<td class=\"n\">" + (num(t.units) ? fmt(t.units) : "—") + "</td>" +
+        "<td class=\"wrapcell\">" + (t.note || "") + "</td></tr>";
+    }).join("") +
+    "</tbody></table>" +
+    "<p class=\"dnone\" style=\"margin:10px 0 0\">Units, not film: turning them into metres " +
+      "would need a pitch for each one, and we hold none for THEM’s blank. " +
+      (builtRows.length < theirs.length
+        ? "The ones showing nothing have a work order open but nothing built inside the window. "
+        : "") +
+      "A product that switched onto their blank part-way through the year spent most of it " +
+      "on our film, where it is already counted — so these do not add up to a year of " +
+      "their blank, and are not meant to.</p>";
 }
 
 /* ---------- main render ---------- */
@@ -706,6 +760,7 @@ function render() {
   renderPlates();
   renderInventory();
   renderUsage();
+  renderBlank();
   // Tile counts ignore the tile filter and the no-demand checkbox, so the numbers on the
   // tiles are the month's real totals and do not move when you click one.
   var focus = state.focus, quiet = state.quiet;

@@ -95,9 +95,20 @@ lapses **on a date rather than with use**, and renewing one is a charge.
 
 ## Tolling at THEM
 
-**Anything run in blank film at THEM is on their film and inside the tolling rate.**
-None of it is our stock, so its work orders carry no film line and its sales orders are
-left out of the demand here. That is the standing rule, not a case-by-case call.
+**THEM own the blank. We own the BA film.** Those are two different films and getting
+them the wrong way round makes the page wrong about who buys what.
+
+- **Ours:** 929, 1003, 127, 937, 1090 — and every Lamick film at FFW, 1094 and 1129
+  included. All of it is a purchasing decision of ours.
+- **THEM's:** their blank. **Anything run in blank film at THEM is on their film and
+  inside the tolling rate**, so its work orders carry no film line, it sits on no bill of
+  materials, and we do not worry about purchasing it. That is the standing rule, not a
+  case-by-case call.
+- 1003 is in the middle of crossing over: ours while it runs down, not reordered, and
+  THEM-owned once it is gone — at which point the Ketchup SKU moves to blank.
+- `stockedBy` says whose purchasing decision a film is, not where the stock sits.
+  Checking a film's own note or the transitions panel is not a substitute for asking:
+  the ownership of these five was wrong in the data for months before anybody noticed.
 
 - `noFilmWorkOrders[].reason` keys into `noFilmReasons`. Set it only where a reason has
   been stated; a row without one is listed first, tagged *not explained*, and the build
@@ -137,10 +148,16 @@ against `Worcestershire 1oz`, and `HF Peanut Butter 1.15oz` against `Peanut Butt
 against every other number here, which is a position or a forecast. It will not tie to
 the positions, and it is not meant to.
 
-- **It is the one view that includes film THEM own**, because we do not track their
-  stock but we do get through it. 1003 sits in it although it left `films[]`, so the
-  row carries `retired: true` and its own `name` and `unit` — nothing else in the data
-  holds them any more.
+- 1003 sits in it although it left `films[]`, so the row carries `retired: true` and
+  its own `name` and `unit` — nothing else in the data holds them any more.
+- **Blank is the one film with two owners, so it has its own panel.** Ours is the FFW
+  line, 1094 with 1129 behind it, and the figure that matters is the pair together —
+  reading either alone understates the draw. THEM's carries no film line and no BOM, so
+  there is no quantity of it anywhere in our records: `blankAtThem` holds **units built**
+  and says so. Never convert those to metres; we hold no pitch for their blank.
+- A product that switched onto their blank part-way through the year spent most of it on
+  our film, where it is already counted. Say so on the row rather than letting the two
+  be added up.
 - It is a snapshot with its own window, like the plate register. Re-pull it with the
   positions rather than carrying stale figures forward; the build warns when its window
   ends before `meta.asOf`, and when a film with a live build rate has no row in it.

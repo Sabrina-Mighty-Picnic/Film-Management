@@ -458,15 +458,25 @@ function summarise(d) {
   if ((plates.register || []).length) { /* plate block printed above */ }
   const usage = d.annualUsage;
   if (usage && (usage.films || []).length) {
-    const theirs = usage.films.filter(f => f.stockedBy !== "MP");
     lines.push("");
-    lines.push(`Drawn in the year to ${usage.to}${theirs.length ? ", on film THEM own:" : ":"}`);
-    for (const f of theirs) {
+    lines.push(`Drawn in the year to ${usage.to}:`);
+    const blankItems = (d.films || []).filter(r => r.blank).map(r => r.item);
+    const blankRows = usage.films.filter(f => blankItems.includes(f.item));
+    if (blankRows.length) {
+      const tot = blankRows.reduce((a, f) => a + f.qty, 0);
+      lines.push(`  blank  ${fmt(tot).padStart(8)} ${blankRows[0].unit.padEnd(2)} our FFW line — ` +
+                 blankRows.map(f => `${f.item} ${fmt(f.qty)}`).join(" + "));
+    }
+    for (const f of usage.films.filter(f => !blankItems.includes(f.item)).slice(0, 6)) {
       lines.push(`  ${f.item.padEnd(6)} ${fmt(f.qty).padStart(8)} ${f.unit.padEnd(2)} ${f.name}` +
+                 (f.stockedBy !== "MP" ? "   [THEM own it]" : "") +
                  (f.retired ? "   [no longer in the coverage view]" : ""));
     }
-    const ours = usage.films.filter(f => f.stockedBy === "MP");
-    lines.push(`  and ${ours.length} film${ours.length === 1 ? "" : "s"} of our own — see the Inventory tab`);
+    const rest = usage.films.length - blankRows.length - Math.min(6, usage.films.length - blankRows.length);
+    if (rest > 0) lines.push(`  and ${rest} more — see the Inventory tab`);
+    for (const t of (usage.blankAtThem || []).filter(t => t.units > 0)) {
+      lines.push(`  THEM's blank: ${fmt(t.units).padStart(8)} units of ${t.product}`);
+    }
   }
 
   lines.push("");

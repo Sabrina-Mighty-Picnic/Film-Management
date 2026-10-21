@@ -53,7 +53,7 @@
     {
       "item": "127",
       "name": "TJS Honey .5oz printed, per each (THEM)",
-      "stockedBy": "THEM",
+      "stockedBy": "MP",
       "unit": "ea",
       "onHand": 25774,
       "weeklyRate": 26436,
@@ -66,7 +66,7 @@
     {
       "item": "929",
       "name": "BA Repeat 75mm (Maruto)",
-      "stockedBy": "THEM",
+      "stockedBy": "MP",
       "unit": "mm",
       "onHand": 112684704,
       "weeklyRate": 2417896,
@@ -120,7 +120,7 @@
     {
       "item": "1090",
       "name": "TJS Blueberry Bourbon printed, per metre",
-      "stockedBy": "THEM",
+      "stockedBy": "MP",
       "unit": "m",
       "onHand": 10217.74,
       "weeklyRate": 0,
@@ -205,7 +205,7 @@
     {
       "item": "1090",
       "name": "TJS Blueberry Bourbon",
-      "stockedBy": "THEM",
+      "stockedBy": "MP",
       "unit": "m",
       "onHand": 10217.74,
       "onOrder": 0,
@@ -529,7 +529,7 @@
     {
       "item": "937",
       "name": "HF Peanut Butter 1.15oz",
-      "stockedBy": "THEM",
+      "stockedBy": "MP",
       "unit": "ea",
       "onHand": 546339,
       "onOrder": 0,
@@ -543,7 +543,7 @@
     {
       "item": "127",
       "name": "TJS Honey .5oz printed",
-      "stockedBy": "THEM",
+      "stockedBy": "MP",
       "unit": "ea",
       "onHand": 25774,
       "onOrder": 0,
@@ -560,7 +560,7 @@
     {
       "item": "929",
       "name": "BA Repeat 75mm (Maruto)",
-      "stockedBy": "THEM",
+      "stockedBy": "MP",
       "unit": "mm",
       "onHand": 112684704,
       "onOrder": 0,
@@ -1409,11 +1409,11 @@
       ]
     },
     {
-      "title": "What we get through in a year, THEM’s film included",
+      "title": "How much blank film we get through",
       "body": [
-        "Twelve months of assembly builds now sit on the <em>Inventory</em> tab. It is the only view here that is consumption rather than position, so it will not tie to anything else, and it is the only one that includes film <strong>THEM own</strong> — we have no stock to track there, but the volume is worth seeing.",
-        "The two that matter: <strong>BA Repeat 75mm at 217.3M&nbsp;mm</strong> and <strong>BA Repeat Foil at 30.3M&nbsp;mm</strong>. The foil is the one we stopped buying — THEM own and bill it, and Ketchup moves to blank once theirs runs down — so this is the only place it still appears.",
-        "No prices anywhere in this repo, so the panel answers how much, not what it cost."
+        "<strong>Ours, at FFW: 244k&nbsp;m drawn in the year</strong> — about 4,690&nbsp;m a week across the line. That is 1094 and 1129 together, which is the only figure worth reading: either one alone understates the draw, because the backup covers the weeks the primary sits empty.",
+        "<strong>THEM’s blank is theirs.</strong> It is inside the tolling rate, on no bill of materials and carrying no film line, so there is no quantity of it anywhere in our records and none is guessed at here. The <em>Inventory</em> tab lists what was built on it in units instead.",
+        "Two of those products — both Dijon mustards — only switched across this month, so nearly all of their year ran on 929 and is already counted there. Their units and our metres do not add up to a year of blank, and are not meant to."
       ]
     },
     {
@@ -1900,7 +1900,7 @@
         "item": "929",
         "name": "BA Repeat 75mm (Maruto)",
         "unit": "mm",
-        "stockedBy": "THEM",
+        "stockedBy": "MP",
         "qty": 217293632,
         "builds": 62
       },
@@ -1908,17 +1908,17 @@
         "item": "1003",
         "name": "BA Repeat Foil 75mm (Maruto)",
         "unit": "mm",
-        "stockedBy": "THEM",
+        "stockedBy": "MP",
         "qty": 30258568,
         "builds": 14,
         "retired": true,
-        "note": "We no longer buy it. THEM own and bill the foil; the Ketchup SKU moves to blank once theirs runs down"
+        "note": "Ours while it runs down. Not reordered — when it is gone the Ketchup foil becomes THEM-owned and the SKU moves to blank"
       },
       {
         "item": "127",
         "name": "TJS Honey .5oz printed",
         "unit": "ea",
-        "stockedBy": "THEM",
+        "stockedBy": "MP",
         "qty": 1916913,
         "builds": 17
       },
@@ -1926,7 +1926,7 @@
         "item": "937",
         "name": "HF Peanut Butter 1.15oz",
         "unit": "ea",
-        "stockedBy": "THEM",
+        "stockedBy": "MP",
         "qty": 604105,
         "builds": 14
       },
@@ -2062,7 +2062,7 @@
         "item": "1090",
         "name": "TJS Blueberry Bourbon",
         "unit": "m",
-        "stockedBy": "THEM",
+        "stockedBy": "MP",
         "qty": 3263,
         "builds": 1
       },
@@ -2073,6 +2073,41 @@
         "stockedBy": "MP",
         "qty": 2982,
         "builds": 1
+      }
+    ],
+    "blankAtThem": [
+      {
+        "product": "BA Dijon Mustard 21g",
+        "units": 246400,
+        "note": "Only switched to blank this month — nearly all of this year ran on 929, and is counted there"
+      },
+      {
+        "product": "Worcestershire 1oz",
+        "units": 123400
+      },
+      {
+        "product": "BA WG Dijon Mustard 21g",
+        "units": 106400,
+        "note": "Same switch as the other mustard — this year is almost all on 929"
+      },
+      {
+        "product": "Agave Syrup .5oz",
+        "units": 97600
+      },
+      {
+        "product": "Mirin .5oz",
+        "units": 0,
+        "note": "Work order open, nothing built in the window yet"
+      },
+      {
+        "product": "Ponzu .5oz",
+        "units": 0,
+        "note": "Work order open, nothing built in the window yet"
+      },
+      {
+        "product": "Soy Sauce .5oz",
+        "units": 0,
+        "note": "Work order open, nothing built in the window yet"
       }
     ]
   }
