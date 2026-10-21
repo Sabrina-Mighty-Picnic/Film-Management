@@ -219,12 +219,12 @@ function validate(d, period) {
     }
   }
 
-  const loss = meta.impressionLoss;
-  if (loss != null) {
-    if (typeof loss !== "number" || loss < 0 || loss >= 1) {
-      E(`meta.impressionLoss must be a fraction between 0 and 1 (got ${JSON.stringify(loss)})`);
-    } else if (loss > 0 && !meta.impressionLossNote) {
-      W("meta.impressionLoss is set but impressionLossNote is empty — say where the figure came from");
+  for (const r of d.films || []) {
+    if (r.lossBuffer == null) continue;
+    if (typeof r.lossBuffer !== "number" || r.lossBuffer < 0 || r.lossBuffer >= 1) {
+      E(`film ${r.item}: lossBuffer must be a fraction between 0 and 1 (got ${JSON.stringify(r.lossBuffer)})`);
+    } else if (r.lossBuffer > 0 && !r.lossBufferNote) {
+      W(`film ${r.item}: lossBuffer is set with no lossBufferNote — say why this film needs one`);
     }
   }
   /* A stated filmPerImpression is treated as gross plate geometry and has the buffer

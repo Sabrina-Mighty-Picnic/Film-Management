@@ -17,8 +17,7 @@
     "sourcesHeading": "Where each number comes from",
     "sourcesSub": "three of the four demand tiers are NetSuite; only one is a spreadsheet",
     "footer": "Positions from NetSuite: <span class=\"est\">aggregateitemlocation</span> for on hand, on order, committed and backordered; open sales orders translated to film through each finished good's current BOM revision; assembly builds for the recent build rate. Forecast demand from the FILM tab of <span class=\"est\">Forecasting 2026 USE ME</span>. Quantities are in each item's own stock unit — per-metre for the newer Lamick films, per-millimetre for the older Maruto ones. The suggested order covers the shortfall plus one further lead time at the same rate; check it against Lamick's roll size and minimum before sending.",
-    "impressionLoss": 0.05,
-    "impressionLossNote": "A 5% loss buffer, as used on the Bacon Jam estimate. It is taken off a gross plate-geometry figure only — a factor observed from what builds drew already carries the BOM allowance, measured at about 2% above the pitch."
+    "bomLossNote": "Bills of materials carry a 2% allowance, confirmed, so a factor observed from what builds drew already has waste in it."
   },
   "sources": [
     {
@@ -144,7 +143,7 @@
       "successor": "The per-metre item 1152 at FFW, when this film runs out",
       "buyer": "Mighty Picnic",
       "decided": false,
-      "bomAction": "FG 932 still draws the per-each item <strong>880</strong>. It needs a revision on <strong>1152</strong>, the per-metre item, which already has <strong>19,500&nbsp;m</strong> inbound on PO1277 — about <strong>168,000 impressions</strong> once the 5% loss buffer is off the stated 9.09 per metre. That is the only thing outstanding: the conversion is known, so the handover is sized and dated here. Note also that <strong>54,545&nbsp;ea</strong> of 880 sits at the inactive Blake Hill warehouse against <strong>38,000&nbsp;ea</strong> backordered at FFW; that is a transfer, not a purchase order."
+      "bomAction": "FG 932 still draws the per-each item <strong>880</strong>. It needs a revision on <strong>1152</strong>, the per-metre item, which already has <strong>19,500&nbsp;m</strong> inbound on PO1277 — about <strong>177,000 impressions</strong> at the stated 9.09 per metre. That is the only thing outstanding: the conversion is known, so the handover is sized and dated here. Note also that <strong>54,545&nbsp;ea</strong> of 880 sits at the inactive Blake Hill warehouse against <strong>38,000&nbsp;ea</strong> backordered at FFW; that is a transfer, not a purchase order."
     }
   ],
   "films": [
@@ -184,7 +183,7 @@
       "weeklyBuildRate": 0,
       "noBom": true,
       "note": "19,500 m on PO1277. Takes over from the per-each item 880 when that runs out",
-      "nextInLineNote": "This is the film Jamaican Jerk is moving to. <strong>19,500&nbsp;m</strong> arrives on <strong>PO1277</strong>, raised in August, at the stated <strong>9.09 impressions per metre</strong> — the size of a normal jerk order, the last two purchase orders on the per-each item having been 160,000 and 172,727. The impressions figure below has the 5% loss buffer taken off, because 9.09 is the plate geometry. The draw steps onto this film when <strong>880</strong> runs out; until the BOM revision lands, every revision still points at 880 and nothing here is consumed.",
+      "nextInLineNote": "Jamaican Jerk is moving onto this film. <strong>19,500&nbsp;m</strong> inbound on <strong>PO1277</strong> at <strong>9.09 impressions per metre</strong> — the size of a normal jerk order, the last two on item 880 having been 160,000 and 172,727 ea. Nothing is drawn from it until FG 932 is repointed off 880.",
       "filmPerImpression": 0.110011,
       "supplier": "Lamick"
     },
@@ -371,7 +370,9 @@
       "forecastBeyond": 0,
       "weeklyBuildRate": 0,
       "note": "WO704 fully backordered",
-      "supplier": "Lamick"
+      "supplier": "Lamick",
+      "lossBuffer": 0.05,
+      "lossBufferNote": "Bacon Jam carries more particulates than the other products, so it is planned at 5% loss rather than the 2% the bills of materials allow."
     },
     {
       "item": "1106",
@@ -1414,25 +1415,23 @@
     {
       "title": "What changed since the 15 October pull",
       "body": [
-        "<strong>Five Hello Fresh films now have 19,500&nbsp;m inbound each</strong> — Plum, Cherry, Peach and Red Pepper, with smaller top-ups on Fig and Apricot. Plum was the one in the order list a week ago; it is covered now, though still due another order in about four weeks.",
-        "<strong>Only two films are past their order-by date</strong>, down from four: the Bacon Jam printed sub-assembly and the backup blank 1129.",
-        "The blank 1094 drew harder than last week — 67k&nbsp;m on work orders against 54k — but its 143,530&nbsp;m order absorbs it.",
-        "<strong>Both Dijon mustards have moved off BA Repeat onto blank at THEM.</strong> They no longer draw 929, which takes about <strong>11.2M&nbsp;mm</strong> of sales order demand off it and leaves nothing on it beyond the work orders already raised. Their film is THEM’s now, so it is not on this page at all.",
-        "<strong>1129 is off the reorder list.</strong> It is relief for 1094, bought only when the primary will not arrive in time, and 1094 is ordering on schedule — so asking for 1129 every month was asking for film we hold precisely so we do not have to. It still shows its real position on the new <em>Inventory</em> tab, and comes back the moment 1094 goes past its own order-by date.",
-        "<strong>BA Ketchup is on its way to blank.</strong> The BA foil has run out and will not be reordered; THEM run down their own foil from here and the SKU then moves to blank, like the mustards just did.",
-        "<strong>FFW’s Bacon Jam film is now logged, and it changes the answer.</strong> About <strong>7,800&nbsp;m</strong> is left, roughly <strong>92,000 impressions</strong>. That covers the 25k the open work order needs, so Bacon Jam has left the order list — our own position reads zero by design, and the ledger is what settles it. Nothing is coming off the film, so the figure holds until Bacon Jam is ordered again.",
-        "<strong>Impressions now carry the 5% loss buffer where the factor is gross.</strong> The Bacon Jam estimate was the case that surfaced it: 7,800&nbsp;m is 97,500 impressions by plate geometry and <strong>92,000</strong> after the buffer. Jamaican Jerk’s 19,500&nbsp;m reads <strong>168k</strong> rather than 177k for the same reason. Factors read off open sales orders are left alone — measured against the plate pitch they already sit about 2% high, so the allowance is in them."
+        [
+          "<strong>19,500&nbsp;m inbound on five HF films</strong> — Plum, Cherry, Peach, Red Pepper, plus top-ups on Fig (700) and Apricot (1,180). Plum has left the order list.",
+          "<strong>Past order-by: 2 → 0.</strong> Four last week.",
+          "<strong>Both Dijon mustards moved to blank at THEM</strong>, taking 11.2M&nbsp;mm of demand off 929 and leaving nothing on it beyond the work orders raised.",
+          "<strong>BA Ketchup foil run out</strong>, not reordered — THEM run theirs down, then blank.",
+          "<strong>FFW hold 92,000 Bacon Jam impressions</strong> (7,800&nbsp;m at a 5% buffer). That covers the 25k on the open work order, so Bacon Jam has left the order list.",
+          "<strong>1129 is off the reorder list</strong> — relief for 1094, and 1094 is on schedule. It has its own tile now."
+        ]
       ]
     },
     {
-      "title": "Five printing plates need renewing, and two deliberately do not",
+      "title": "5 plates need renewing, 2 deliberately do not",
       "flag": true,
       "body": [
-        "The Taisei Lamick register (pulled <strong>18 August</strong>) is now on the page under <em>Printing plates</em>. A plate lapses on a date rather than with use, so the question is not how long is left but whether a film’s next order falls the wrong side of it.",
-        "<strong>Due now:</strong> TJS Honey .5oz, HF Plum, Crait Repeat and Jamaican Jerk are all given as expired, and GE Thai-Ger Sweet Chili lapses <strong>22 October</strong>. <strong>HF Plum is the one that bites</strong> — it is in the order list today, so that order carries a renewal.",
-        "<strong>Not needed:</strong> BA Repeat and BA Chipotle both have live plates, and both films are being run out. Nothing will be printed from either again, so letting them lapse costs nothing. That is the only thing on this page that says <em>do not spend</em>.",
-        "<strong>Orange Marmalade has a plate and no film.</strong> No item carries it any more — those builds draw the blank 1094. Worth deciding whether to let it go.",
-        "No plate price is held anywhere in this repo, so the page says when a renewal falls due and never what it costs."
+        "<strong>Due now:</strong> TJS Honey .5oz, HF Plum, Crait Repeat and Jamaican Jerk read expired; GE Thai-Ger lapsed <strong>22 October</strong>. HF Plum is the live one — it is in the order list, so that order carries a renewal.",
+        "<strong>No renewal needed:</strong> BA Repeat and BA Chipotle. Both films are being run out, so nothing will be printed from either again. The only thing on this page that says do not spend.",
+        "Orange Marmalade has a plate and no film — those builds draw the blank now. No plate prices are held anywhere here."
       ]
     },
     {
@@ -1492,11 +1491,9 @@
       "title": "Work orders carrying no film line",
       "table": "noFilmWorkOrders",
       "body": [
-        "<strong>Anything run in blank film at THEM is on their film, inside the tolling rate.</strong> None of it is drawn from our stock, so carrying no film line is correct and the sales orders behind it are deliberately left out of the demand on this page.",
-        "<strong>A BA prefix means the film is ours</strong>, and it is the whole difference between two otherwise identical names: <em>BA Mirin .5oz</em> draws 929, <em>Mirin .5oz</em> is THEM’s. Collapsing such a pair would move one product’s volume onto the other’s film, so the build refuses to write the page if that ever happens.",
-        "<strong>So a BA product with no film line has to say why.</strong> Two do. Both Dijon mustards have switched off BA Repeat onto blank at THEM. And the BA foil behind Ketchup has run out and is not being reordered — THEM’s own foil runs down from here, then it goes to blank.",
-        "<strong>Fish Sauce .5oz is a one-off.</strong> It normally runs at FFW on our blank; this lot was sent to THEM by mistake and they are filling it. It should be back on our film next time.",
-        "Film THEM buy and own is not the same as film inside the tolling rate — the foil behind Ketchup and plain Peanut Butter is billed to us separately, so it is a cost even though it is not our stock."
+        "<strong>Blank film run at THEM is theirs, inside the tolling rate</strong> — no film line, no bill of materials, and its sales orders are left out of the demand here.",
+        "<strong>A BA prefix means the film is ours</strong>, and it is the whole difference between <em>BA Mirin .5oz</em> (draws 929) and <em>Mirin .5oz</em> (THEM’s). The build refuses to write the page if a pair is ever merged. So a BA product with no film line has to say why: both mustards switched to blank, and Ketchup’s foil has run out.",
+        "<strong>Fish Sauce is a one-off</strong> — normally FFW on our blank, sent to THEM by mistake, expected back."
       ]
     },
     {
@@ -1557,7 +1554,7 @@
         },
         {
           "term": "Estimated impressions",
-          "def": "The same quantity said in packs instead of film. The pack size is <strong>observed, not assumed</strong>: open sales orders carry both the finished units and the film they convert to, so dividing one by the other gives a real figure — blended across the order mix where a film runs several SKUs, as the blank does. A film with no open sales orders and no stated pack size shows no estimate rather than a guess."
+          "def": "How many packs a quantity of film will run. A factor read off open sales orders already carries the <strong>2%</strong> the bills of materials allow; one taken from the plate’s own geometry carries nothing, unless that film has its own planning buffer. The drill-down says which."
         },
         {
           "term": "Drawn in the year",
@@ -1733,8 +1730,8 @@
           "date": "2026-10-21",
           "type": "count",
           "qty": 92000,
-          "ref": "estimate at a 5% loss buffer",
-          "note": "About <b>7,800&nbsp;m</b> left. At the plate pitch of 80&nbsp;mm that is 97,500 impressions gross, and <b>92,000</b> after the <b>5% loss buffer</b> — which is the figure recorded, because it is the one we can actually run. Nothing is coming off the film, so it holds until Bacon Jam is ordered again."
+          "ref": "estimate, 5% planning buffer",
+          "note": "About <b>7,800&nbsp;m</b> left. At the 80&nbsp;mm plate pitch that is 97,500 impressions, and <b>92,000</b> at the 5% buffer this film is planned to — Bacon Jam carries more particulates than the rest, so it is planned at 5% rather than the 2% the bills of materials allow. Nothing is coming off the film, so it holds until Bacon Jam is ordered again."
         }
       ]
     }

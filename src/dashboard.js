@@ -193,7 +193,7 @@ function renderTiles(base) {
 function impsOf(r, qty) {
   var opts = OPTS();
   var b = window.FilmCoverage.impressionBasis(r, opts);
-  var n = window.FilmCoverage.impressions(qty, b, opts);
+  var n = window.FilmCoverage.impressions(qty, b, r);
   return n == null ? null : { text: "\u2248 " + fmt(n) + " impressions", basis: b };
 }
 
@@ -511,10 +511,8 @@ function renderPlates() {
     (soon ? " \u00b7 " + soon + " lapse before the next order" : "") + "</em>";
   document.getElementById("plateBody").innerHTML = body;
   document.getElementById("plateNotes").innerHTML =
-    "<p class=\"dnone\">Plates run " + PLATES.termMonths + " months. " + (PLATES.note || "") +
-    " Register pulled <b>" + PLATES.asOf + "</b>, positions <b>" + META.asOf +
-    "</b>, so anything that lapsed between the two reads as expired. A film with no plate " +
-    "is either a blank or a gap in the register \u2014 neither is assumed.</p>";
+    "<p class=\"dnone\">Plates run <b>" + PLATES.termMonths + "</b> months and lapse on a date, not with use. " +
+    "Register <b>" + PLATES.asOf + "</b> against positions <b>" + META.asOf + "</b>.</p>";
 }
 
 
@@ -661,11 +659,8 @@ function renderInventory() {
   document.getElementById("invSub").textContent =
     FILMS.length + " items, " + held + " of them holding stock or with film on order, as of " + META.asOfLabel;
   document.getElementById("invNotes").innerHTML =
-    "<p class=\"dnone\">Every item, in its own stock unit — m, mm or ea — and never converted between them. " +
-    "<b>Stock is on hand plus on order</b>, which is what the rest of the page judges a film on; " +
-    "committed and backordered are shown beside it but are not subtracted, because committed stock " +
-    "is already counted inside the work order demand. Status is the film's standing on the coverage " +
-    "tab, so a pooled member carries its group's and the backup carries its own.</p>";
+    "<p class=\"dnone\"><b>Stock = on hand + on order</b>, each in its own unit. Committed and " +
+    "backordered are shown, never subtracted \u2014 committed is already inside the work order demand.</p>";
 }
 
 
@@ -707,9 +702,8 @@ function renderUsage() {
   document.getElementById("useBody").innerHTML = body;
   document.getElementById("useNotes").innerHTML =
     "<p class=\"dnone\"><b>" + U.from + " to " + U.to + "</b>, from " + U.source +
-    ". What was drawn, not what was bought and not what is planned, so it will not tie " +
-    "to the positions above. Quantities stay in each film's own unit and are never " +
-    "added together. A film with no row was not drawn at all in the window.</p>";
+    ". Drawn, not bought and not planned \u2014 it will not tie to the positions. No row " +
+    "means the film was not drawn at all.</p>";
 }
 
 
@@ -740,31 +734,26 @@ function renderBlank() {
     " of ours, and " + theirs.length + " products on THEM’s</em>";
 
   box.innerHTML =
-    "<p class=\"dnone\" style=\"margin:0 0 12px\"><b>Ours, at FFW: " + fmt(total) + " " + unit +
-      " drawn in the year</b> — " + fmt(total / weeks) + " " + unit + " a week across the line. " +
-      mine.map(function (f) { return f.item + " " + fmt(f.qty); }).join(" and ") +
-      ". The two are one line, so the figure that matters is the pair together: reading " +
-      "either alone understates the draw, which is the whole reason the line exists.</p>" +
-    "<p class=\"dnone\" style=\"margin:0 0 10px\"><b>THEM’s is theirs.</b> It sits inside " +
-      "the tolling rate, carries no film line and no bill of materials, so there is no " +
-      "quantity of it in our records and none is guessed at here. What we can count is " +
-      "what was built on it:</p>" +
-    "<table class=\"dt\"><thead><tr><th>Product</th><th class=\"n\">Units built in the year</th>" +
+    "<div class=\"stats\" style=\"padding:0 0 14px;border:0\">" +
+      "<div class=\"stat\"><b>" + fmt(total) + " " + unit + "</b><span>ours, drawn in the year</span></div>" +
+      "<div class=\"stat\"><b>" + fmt(total / weeks) + " " + unit + "</b><span>a week, across the line</span></div>" +
+      mine.map(function (f) {
+        return "<div class=\"stat\"><b style=\"font-size:19px;color:var(--muted)\">" + fmt(f.qty) +
+               "</b><span>" + f.item + "</span></div>";
+      }).join("") +
+      "<div class=\"stat\"><b>" + theirs.length + "</b><span>products on THEM\u2019s</span></div>" +
+    "</div>" +
+    "<p class=\"dnone\" style=\"margin:0 0 10px\">1094 and 1129 are one line \u2014 read the pair, not either half. " +
+      "THEM\u2019s blank is inside the tolling rate and on no bill of materials, so there is no " +
+      "quantity of it in our records; these are units built, never converted to film.</p>" +
+    "<table class=\"dt\"><thead><tr><th>On THEM\u2019s blank</th><th class=\"n\">Units built in the year</th>" +
       "<th>Note</th></tr></thead><tbody>" +
     theirs.map(function (t) {
       return "<tr><td>" + t.product + "</td>" +
-        "<td class=\"n\">" + (num(t.units) ? fmt(t.units) : "—") + "</td>" +
+        "<td class=\"n\">" + (num(t.units) ? fmt(t.units) : "\u2014") + "</td>" +
         "<td class=\"wrapcell\">" + (t.note || "") + "</td></tr>";
     }).join("") +
-    "</tbody></table>" +
-    "<p class=\"dnone\" style=\"margin:10px 0 0\">Units, not film: turning them into metres " +
-      "would need a pitch for each one, and we hold none for THEM’s blank. " +
-      (builtRows.length < theirs.length
-        ? "The ones showing nothing have a work order open but nothing built inside the window. "
-        : "") +
-      "A product that switched onto their blank part-way through the year spent most of it " +
-      "on our film, where it is already counted — so these do not add up to a year of " +
-      "their blank, and are not meant to.</p>";
+    "</tbody></table>";
 }
 
 /* ---------- main render ---------- */
@@ -1042,13 +1031,17 @@ function render() {
           "it has no open sales orders to read a pack size from, and none is stated. " +
           "Add <b>filmPerImpression</b> to the film, or leave it blank rather than guess.</p>";
       }
-      var st = window.FilmCoverage.impressions(c.stock, b, opts);
-      var nd = c.quiet ? null : window.FilmCoverage.impressions(c.rawNeed != null ? c.rawNeed : c.need, b, opts);
-      return "<h4>Estimated impressions</h4><p class=\"dnone\">" +
-        "At <b>" + b.per.toFixed(b.per < 1 ? 4 : 2) + " " + r.unit + "</b> an impression (" + b.source + "), " +
-        "the " + fmt(c.stock) + " " + r.unit + " in hand and on order is about <b>" + fmt(st) + " impressions</b>" +
-        (nd ? ", against " + fmt(nd) + " of demand over the window" : "") + ". " +
-        "That is " + window.FilmCoverage.impressionNote(b, opts) + ".</p>";
+      var st = window.FilmCoverage.impressions(c.stock, b, r);
+      var nd = c.quiet ? null : window.FilmCoverage.impressions(c.rawNeed != null ? c.rawNeed : c.need, b, r);
+      return "<h4>Estimated impressions</h4>" +
+        "<div class=\"stats\" style=\"padding:2px 0 8px;border:0\">" +
+          "<div class=\"stat\"><b>" + fmt(st) + "</b><span>in hand and on order</span></div>" +
+          (nd ? "<div class=\"stat\"><b>" + fmt(nd) + "</b><span>needed this window</span></div>" : "") +
+          "<div class=\"stat\"><b style=\"font-size:19px;color:var(--muted)\">" +
+            b.per.toFixed(b.per < 1 ? 4 : 2) + " " + r.unit + "</b><span>per impression</span></div>" +
+        "</div>" +
+        "<p class=\"dnone\" style=\"margin:0\">" + b.source + ", " +
+        window.FilmCoverage.impressionNote(b, r) + ".</p>";
     })();
 
     var nlHtml = r.nextInLineNote

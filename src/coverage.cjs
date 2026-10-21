@@ -55,26 +55,29 @@ function impressionBasis(r, opts) {
   };
 }
 
-/* Impressions a quantity of film will actually yield. A gross factor gets the loss
-   buffer applied; an observed one does not, because the draw it was measured from
-   already lost the waste. Pass opts to have the buffer applied at all. */
-function impressions(qty, basis, opts) {
-  if (!basis || !(basis.per > 0)) return null;
-  var n = num(qty) / basis.per;
-  var loss = opts && opts.meta ? num(opts.meta.impressionLoss) : 0;
-  if (basis.gross && loss > 0 && loss < 1) n = n * (1 - loss);
-  return n;
+/* Impressions a quantity of film will actually yield. A planning buffer belongs to the
+   film that needs one — Bacon Jam runs more particulates than the rest — not to the
+   page, so it is read off the film and applied only to a gross factor. An observed
+   factor already carries the bill of materials' own allowance. */
+function lossBuffer(r) {
+  var l = num(r && r.lossBuffer);
+  return l > 0 && l < 1 ? l : 0;
 }
 
-/* What a reader needs to know about a figure: whether a buffer was taken off it. */
-function impressionNote(basis, opts) {
-  var loss = opts && opts.meta ? num(opts.meta.impressionLoss) : 0;
+function impressions(qty, basis, r) {
+  if (!basis || !(basis.per > 0)) return null;
+  var n = num(qty) / basis.per;
+  var loss = basis.gross ? lossBuffer(r) : 0;
+  return loss ? n * (1 - loss) : n;
+}
+
+/* What a reader needs to know about a figure: whether a buffer came off it. */
+function impressionNote(basis, r) {
   if (!basis) return "";
-  if (basis.gross && loss > 0) {
-    return "plate geometry less a " + Math.round(loss * 100) + "% loss buffer";
-  }
-  return basis.gross ? "plate geometry, no loss allowed for"
-                     : "observed from what builds drew, so waste is already in it";
+  if (!basis.gross) return "observed from what builds drew, so the BOM allowance is in it";
+  var loss = lossBuffer(r);
+  return loss ? "plate geometry less this film's " + Math.round(loss * 100) + "% planning buffer"
+              : "plate geometry, before any loss allowance";
 }
 
 /* How fast a film being run out is actually going away.
@@ -575,7 +578,7 @@ return { compute: compute, orderPlan: orderPlan, timeline: timeline,
          mergeGroup: mergeGroup, workingRows: workingRows, buildRate: buildRate,
          incomingSteps: incomingSteps, drawBetween: drawBetween, weeksOfCover: weeksOfCover,
          impressionBasis: impressionBasis, impressions: impressions,
-         impressionNote: impressionNote,
+         impressionNote: impressionNote, lossBuffer: lossBuffer,
          transitionRate: transitionRate,
          plateFor: plateFor, plateOutlook: plateOutlook, plateSchedule: plateSchedule,
          plateNeeded: plateNeeded, backupIdle: backupIdle,

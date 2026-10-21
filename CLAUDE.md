@@ -236,21 +236,23 @@ where a film runs several SKUs.
 - A blended factor moves with the order mix, so it is an estimate and is always
   labelled as one. Do not present impressions as an exact count.
 
-**There are two kinds of factor and the loss buffer applies to only one.**
+**Waste: 2% is the standard, and a buffer on top belongs to one film, not the page.**
 
-- A **stated** `filmPerImpression` is the plate's own geometry: gross, allowing nothing
-  for waste. `meta.impressionLoss` (0.05) is taken off it, so the page reports what the
-  film will actually run rather than what it measures.
-- An **observed** factor, blended from `filmQty / units`, already carries whatever
-  allowance the bill of materials holds. Measured against the plate pitch on the three
-  films where both figures exist — 1037, 1038 and 1108 — it sits a consistent **2.0%**
-  above. Applying the buffer on top would count waste twice, so it is not applied.
+- **Bills of materials allow 2%**, confirmed. So an **observed** factor, blended from
+  `filmQty / units`, already has waste in it — it measures 2.0% above the plate pitch on
+  every film where both figures exist (1037, 1038, 1108). Never take anything further
+  off it.
+- A **stated** `filmPerImpression` is the plate's own geometry and allows nothing, so it
+  is reported gross unless the film carries its own `lossBuffer`.
+- `films[].lossBuffer` is a **planning** buffer for one film, with a `lossBufferNote`
+  saying why. Only 1123 has one: Bacon Jam runs more particulates than the rest and is
+  planned at 5%. **Do not promote it to a page-wide default** — I made that mistake and
+  it quietly cut 5% off the Jamaican Jerk yield, which has no such problem.
 - The build warns if a stated factor is more than 0.5% above its plate pitch, because
   that means an observed figure has been written into a field treated as gross.
-- **The buffer never touches the draw.** `successorPerUnit` and the transfer rates are
-  film actually consumed, waste included, so a handover date must not move when the
-  buffer changes. Only the yield question — how many impressions this film gives — takes
-  the buffer.
+- **No buffer touches the draw.** `successorPerUnit` and the transfer rates are film
+  actually consumed, so a handover date must not move when a buffer changes. Only the
+  yield question — how many impressions this film gives — takes one.
 
 ## Rules
 
