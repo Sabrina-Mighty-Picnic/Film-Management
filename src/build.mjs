@@ -221,8 +221,19 @@ function validate(d, period) {
   const nfr = d.noFilmReasons || {};
   for (const w of d.noFilmWorkOrders || []) {
     if (!w.wo || !w.product) { E("a noFilmWorkOrders entry is missing wo or product"); continue; }
-    if (w.reason && !nfr[w.reason]) {
+    if (!w.reason) continue;
+    const reason = nfr[w.reason];
+    if (!reason) {
       W(`${w.wo}: reason "${w.reason}" has no entry in noFilmReasons, so the page will print the key`);
+      continue;
+    }
+    if (!reason.label) W(`noFilmReasons.${w.reason} has no label`);
+    /* A BA product runs on our film. One carrying no film line is therefore an
+       exception, and has to say which one — "it is at THEM" is the rule for the
+       plain-named products, not an account of why a BA product left our film. */
+    if (/^BA\s/.test(w.product) && !reason.baException) {
+      W(`${w.wo} ${w.product}: a BA product runs on our film, so "${w.reason}" does not ` +
+        `explain why this one carries no film line — it needs a reason marked baException`);
     }
   }
   const unexplained = (d.noFilmWorkOrders || []).filter(w => !w.reason);

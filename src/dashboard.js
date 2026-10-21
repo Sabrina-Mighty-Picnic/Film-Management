@@ -389,7 +389,7 @@ function renderNotes() {
           return "<tr><td>" + w.wo + "</td><td>" + w.date + "</td><td>" + w.product +
                  "</td><td class=\"n\">" + w.qty + "</td>" +
                  "<td><span class=\"tag t-" + tone + "\">" +
-                   (w.reason ? (NOFILM_WHY[w.reason] || w.reason) : "not explained") +
+                   (w.reason ? ((NOFILM_WHY[w.reason] || {}).label || w.reason) : "not explained") +
                  "</span></td></tr>";
         }).join("");
       };

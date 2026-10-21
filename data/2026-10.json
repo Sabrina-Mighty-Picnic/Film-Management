@@ -1015,7 +1015,7 @@
       "date": "",
       "product": "Peanut Butter 1.15oz",
       "qty": "50,000 units",
-      "reason": "them"
+      "reason": "themFoil"
     },
     {
       "wo": "WO719",
@@ -1029,21 +1029,21 @@
       "date": "",
       "product": "BA WG Dijon Mustard 21g",
       "qty": "68,100 units",
-      "reason": "them"
+      "reason": "switched"
     },
     {
       "wo": "WO741",
       "date": "",
       "product": "BA Dijon Mustard 21g",
       "qty": "101,200 units",
-      "reason": "them"
+      "reason": "switched"
     },
     {
       "wo": "WO742",
       "date": "",
       "product": "BA Ketchup 21g",
       "qty": "75,900 units",
-      "reason": "them"
+      "reason": "ketchupFoil"
     },
     {
       "wo": "WO749",
@@ -1393,7 +1393,8 @@
         "<strong>Only two films are past their order-by date</strong>, down from four: the Bacon Jam printed sub-assembly and the backup blank 1129.",
         "The blank 1094 drew harder than last week — 67k&nbsp;m on work orders against 54k — but its 143,530&nbsp;m order absorbs it.",
         "<strong>Both Dijon mustards have moved off BA Repeat onto blank at THEM.</strong> They no longer draw 929, which takes about <strong>11.2M&nbsp;mm</strong> of sales order demand off it and leaves nothing on it beyond the work orders already raised. Their film is THEM’s now, so it is not on this page at all.",
-        "<strong>1129 is off the reorder list.</strong> It is relief for 1094, bought only when the primary will not arrive in time, and 1094 is ordering on schedule — so asking for 1129 every month was asking for film we hold precisely so we do not have to. It still shows its real position on the new <em>Inventory</em> tab, and comes back the moment 1094 goes past its own order-by date."
+        "<strong>1129 is off the reorder list.</strong> It is relief for 1094, bought only when the primary will not arrive in time, and 1094 is ordering on schedule — so asking for 1129 every month was asking for film we hold precisely so we do not have to. It still shows its real position on the new <em>Inventory</em> tab, and comes back the moment 1094 goes past its own order-by date.",
+        "<strong>BA Ketchup is on its way to blank.</strong> The BA foil has run out and will not be reordered; THEM run down their own foil from here and the SKU then moves to blank, like the mustards just did."
       ]
     },
     {
@@ -1456,9 +1457,11 @@
       "title": "Work orders carrying no film line",
       "table": "noFilmWorkOrders",
       "body": [
-        "<strong>Anything run in blank film at THEM is on their film, inside the tolling rate.</strong> None of it is drawn from our stock, so carrying no film line is correct and the sales orders behind these are deliberately left out of the demand on this page. That is the rule, not a case-by-case judgement.",
-        "<strong>The brand prefix is the whole distinction.</strong> <em>BA Mirin .5oz</em> draws 929; <em>Mirin .5oz</em> is a different product run at THEM on their blank. Same for Worcestershire, and for HF Peanut Butter against plain Peanut Butter. Collapsing a pair would move one product’s volume onto the other’s film, so the build refuses to write the page if that ever happens.",
-        "<strong>Fish Sauce .5oz is the one exception.</strong> It normally runs at FFW on our blank; this lot was sent to THEM by mistake and they are filling it. A one-off, not a change of arrangement — it should be back on our film next time."
+        "<strong>Anything run in blank film at THEM is on their film, inside the tolling rate.</strong> None of it is drawn from our stock, so carrying no film line is correct and the sales orders behind it are deliberately left out of the demand on this page.",
+        "<strong>A BA prefix means the film is ours</strong>, and it is the whole difference between two otherwise identical names: <em>BA Mirin .5oz</em> draws 929, <em>Mirin .5oz</em> is THEM’s. Collapsing such a pair would move one product’s volume onto the other’s film, so the build refuses to write the page if that ever happens.",
+        "<strong>So a BA product with no film line has to say why.</strong> Two do. Both Dijon mustards have switched off BA Repeat onto blank at THEM. And the BA foil behind Ketchup has run out and is not being reordered — THEM’s own foil runs down from here, then it goes to blank.",
+        "<strong>Fish Sauce .5oz is a one-off.</strong> It normally runs at FFW on our blank; this lot was sent to THEM by mistake and they are filling it. It should be back on our film next time.",
+        "Film THEM buy and own is not the same as film inside the tolling rate — the foil behind Ketchup and plain Peanut Butter is billed to us separately, so it is a cost even though it is not our stock."
       ]
     },
     {
@@ -1858,7 +1861,22 @@
     ]
   },
   "noFilmReasons": {
-    "them": "Run at THEM on their film",
-    "strandedFill": "Sent to THEM by mistake, filled there"
+    "them": {
+      "label": "Run at THEM on their blank, in the tolling rate"
+    },
+    "themFoil": {
+      "label": "THEM buy and own the foil, billed to us separately"
+    },
+    "ketchupFoil": {
+      "label": "BA foil run out and not reordered — THEM’s foil runs down, then blank",
+      "baException": true
+    },
+    "switched": {
+      "label": "Switched off BA Repeat onto blank at THEM",
+      "baException": true
+    },
+    "strandedFill": {
+      "label": "Sent to THEM by mistake, filled there"
+    }
   }
 }

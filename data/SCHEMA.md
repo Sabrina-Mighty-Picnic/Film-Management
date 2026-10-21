@@ -114,12 +114,17 @@ whose forecast is derived some other way.
 `{ wo, date, product, qty, reason }` — open work orders carrying no film line.
 Rendered as a table inside the note card with `"table": "noFilmWorkOrders"`.
 
-`reason` is a key into `noFilmReasons`, a map of key to the phrase shown on the row —
-`"them": "Run at THEM on their own film"`. **Set it only where a reason has actually
-been stated.** A row with no reason is listed first and tagged *not explained*, and the
-build warns, because a work order drawing film nobody can account for is a gap worth
-chasing rather than a convention to assume. The build also warns if a `reason` has no
-entry in `noFilmReasons`.
+`reason` is a key into `noFilmReasons`, a map of key to
+`{ label, baException? }`. **Set it only where a reason has actually been stated.** A row
+with no reason is listed first and tagged *not explained*, and the build warns, because a
+work order drawing film nobody can account for is a gap worth chasing rather than a
+convention to assume. The build also warns if a `reason` has no entry, or no `label`.
+
+`baException: true` marks a reason that accounts for a **`BA` product** carrying no film
+line. A `BA` prefix means the film is ours, so such a row is an exception to the rule and
+has to name itself: the build warns if a `BA` product uses a reason without the flag.
+"It is at THEM" is the rule for the plain-named products, not an explanation of why a
+`BA` product left our film.
 
 ## `sources[]` and `sourceNotes[]`
 

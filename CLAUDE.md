@@ -108,18 +108,25 @@ left out of the demand here. That is the standing rule, not a case-by-case call.
 - A one-off is not the rule. Fish Sauce normally runs at FFW on our blank and was sent
   to THEM by mistake, so it carries its own reason and is expected back.
 
-**The brand prefix is the distinction, and it is the whole distinction.** `BA Mirin
-.5oz` draws 929; `Mirin .5oz` is run at THEM on their own blank and draws nothing of
-ours. Same for `BA Worcestershire 1oz` against `Worcestershire 1oz`, and `HF Peanut
-Butter 1.15oz` against `Peanut Butter 1.15oz`.
+**A `BA` prefix means the film is ours.** That is the rule, and it is what separates a
+pair of otherwise identical names: `BA Mirin .5oz` draws 929, while `Mirin .5oz` is run
+at THEM on their own blank and draws nothing of ours. Same for `BA Worcestershire 1oz`
+against `Worcestershire 1oz`, and `HF Peanut Butter 1.15oz` against `Peanut Butter
+1.15oz`.
 
 - **Never match these names loosely.** Stripping a prefix, or normalising punctuation
   far enough to collapse a pair, attributes one product's volume to the other's film.
   The build errors — not warns — if a prefixed product and its bare twin ever map to the
   same film, and refuses to write the page.
-- A `BA` prefix does **not** mean the film is ours. Both Dijon mustards and BA Ketchup
-  are `BA` products sitting on THEM's film. The prefix separates a pair; what the
-  product is run in is a separate fact, and only a stated one.
+- **A `BA` product carrying no film line is an exception and has to name itself.** "It
+  is at THEM" is the rule for the plain-named products, not an account of why a `BA`
+  product left our film, so a reason used on one must be marked `baException` in
+  `noFilmReasons` and the build warns when it is not. Two hold today: both Dijon
+  mustards switched off BA Repeat onto blank at THEM, and BA Ketchup's foil has run out
+  and is not being reordered, so THEM's own foil runs down and then it goes to blank.
+- Film THEM **own and bill us for** is not the same as film inside the tolling rate.
+  The foil behind BA Ketchup and plain Peanut Butter is a cost even though it is not our
+  stock, so it carries its own reason rather than the blanket one.
 
 ## Keeping it digestible
 
