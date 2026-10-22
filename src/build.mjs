@@ -16,7 +16,7 @@ import { createRequire } from "node:module";
 const require = createRequire(import.meta.url);
 const { compute, orderPlan, timeline, workingRows, runLedger, fmt,
         plateSchedule, plateOutlook, weeksUntil, backupIdle,
-        trackerCover, num } = require("./coverage.cjs");
+        trackerCover, incomingSteps, num } = require("./coverage.cjs");
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DATA_DIR = path.join(ROOT, "data");
@@ -166,6 +166,24 @@ function validate(d, period) {
     if (r.filmPerImpression != null &&
         (typeof r.filmPerImpression !== "number" || r.filmPerImpression <= 0)) {
       E(`film ${r.item}: filmPerImpression must be a positive number (${JSON.stringify(r.filmPerImpression)})`);
+    }
+  }
+
+  /* A retiring film with nowhere to put its draw leaves the successor's runway quietly
+     short. The maths reports it rather than dropping it; the build names it. */
+  {
+    const vOpts = { basis: "max", lead: meta.defaultLeadWeeks || meta.baseLeadWeeks || 16,
+                    baseLead: meta.baseLeadWeeks || 16, films: d.films,
+                    transitions: d.transitions || [], salesOrderLines: d.salesOrderLines };
+    const working = workingRows(d.films, d.substituteGroups || [], d.lines || []);
+    const seen = new Set();
+    for (const r of working) {
+      for (const u of incomingSteps(r, vOpts).unscheduled) {
+        if (seen.has(u.from)) continue;
+        seen.add(u.from);
+        W(`film ${u.from} hands over to ${r.item} but the step cannot be dated — ${u.why}. ` +
+          `${r.item}'s runway is short that draw until it can be`);
+      }
     }
   }
 

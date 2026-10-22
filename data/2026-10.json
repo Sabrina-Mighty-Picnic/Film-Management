@@ -144,6 +144,32 @@
       "buyer": "Mighty Picnic",
       "decided": false,
       "bomAction": "FG 932 still draws the per-each item <strong>880</strong>. It needs a revision on <strong>1152</strong>, the per-metre item, which already has <strong>19,500&nbsp;m</strong> inbound on PO1277 — about <strong>177,000 impressions</strong> at the stated 9.09 per metre. That is the only thing outstanding: the conversion is known, so the handover is sized and dated here. Note also that <strong>54,545&nbsp;ea</strong> of 880 sits at the inactive Blake Hill warehouse against <strong>38,000&nbsp;ea</strong> backordered at FFW; that is a transfer, not a purchase order."
+    },
+    {
+      "item": "1106",
+      "name": "BA Chipotle 9g (Lamick), per metre",
+      "stockedBy": "MP",
+      "unit": "m",
+      "onHand": 14300,
+      "weeklyRate": 303,
+      "rateBasis": "recent builds",
+      "successor": "Blank 1094 at FFW, when this film runs out",
+      "buyer": "Mighty Picnic",
+      "decided": true,
+      "bomAction": "Not being reordered. The revision behind <strong>BA Chipotle 9g</strong> needs repointing to the blank <strong>1094</strong> when this film runs out; <strong>12,342&nbsp;m</strong> is already on released work orders against it. Its plate lapses 5&nbsp;January and needs no renewal."
+    },
+    {
+      "item": "1108",
+      "name": "BA Sweet Chili 51g (Lamick), per metre",
+      "stockedBy": "MP",
+      "unit": "m",
+      "onHand": 38550,
+      "weeklyRate": 0,
+      "rateBasis": "nothing drawn in twelve months — rate taken from its open orders",
+      "successor": "Blank 1094 at FFW, when this film runs out",
+      "buyer": "Mighty Picnic",
+      "decided": true,
+      "bomAction": "Not being reordered. <strong>38,550&nbsp;m</strong> in hand and nothing has drawn it in twelve months, so the only rate here comes from its open orders — <strong>6,147&nbsp;m</strong> on WO729 against a 60,240-unit sales order. The revision behind <strong>BA Sweet Chili 1.8oz</strong> needs repointing to the blank when it runs out. Its plate lapses 5&nbsp;January and needs no renewal."
     }
   ],
   "films": [
@@ -468,7 +494,11 @@
       "soNotYetWO": 0,
       "forecastBeyond": 0,
       "weeklyBuildRate": 0,
-      "supplier": "Lamick"
+      "supplier": "Lamick",
+      "retiring": true,
+      "successorItem": "1094",
+      "successor": "the blank 1094 at FFW, when this film runs out",
+      "note": "Running out into blank, not being reordered"
     },
     {
       "item": "1089",
@@ -1411,11 +1441,12 @@
   },
   "notes": [
     {
-      "title": "BA Repeat is the biggest single handover",
+      "title": "Four films now run out into the blank",
       "flag": true,
       "body": [
-        "1087 carries seven Misfits products and hands the lot to the blank 1094 when it runs dry. The date moves with every pull, so it is not written here — open <strong>1094</strong> in the table to see what it inherits and when.",
-        "The rate behind it is the Misfits projection of 13 October, not a trailing build rate. Their volume rises through the window, so the <em>exit</em> rate carries forward rather than the average."
+        "<strong>1087 BA Repeat, 1106 BA Chipotle, 1108 BA Sweet Chili and 1053 GE Thai-Ger</strong> are all being run down into <strong>1094</strong>. None is being reordered, and none of their plates needs renewing.",
+        "<strong>1094 inherits in stages, not all at once</strong> — open it in the table to see each step with its date and the rate behind it. The dates move with every pull, so they are not written here.",
+        "<strong>Two more have no date yet.</strong> 1090 TJS Blueberry Bourbon and 1092 TJS Strawberry Jalapeno also hand over to the blank, but nothing has drawn either in twelve months, so there is no rate to pace them by. They are listed as unsized rather than quietly left out — the blank’s runway is short those two draws until somebody can say how fast they will go."
       ]
     },
     {
@@ -1430,7 +1461,8 @@
           "<strong>1129 is off the reorder list</strong> — relief for 1094, and 1094 is on schedule. It has its own tile now.",
           "<strong>GE Thai-Ger retired.</strong> 2,600&nbsp;m left, nothing drawing it since February. Its plate lapsed 22 October and now needs no renewal, which takes the due-now list from five to four.",
           "<strong>HF Peanut Butter is a Maruto film produced at THEM.</strong> Ours to order either way — 546k&nbsp;ea on hand, order-by 27 weeks out — but a Maruto plate, so no Lamick fee attaches. That was the last open plate question; the build runs clean.",
-          "<strong>Bacon Jam is out of the runway chart as well as the order list.</strong> The chart had kept reading our own position, which is zero by design, so it drew the film as <em>order now</em> after the ledger had already settled it. It reads FFW’s 92,000 now — nothing is drawing the film, so it lasts past the window."
+          "<strong>Bacon Jam is out of the runway chart as well as the order list.</strong> The chart had kept reading our own position, which is zero by design, so it drew the film as <em>order now</em> after the ledger had already settled it. It reads FFW’s 92,000 now — nothing is drawing the film, so it lasts past the window.",
+          "<strong>BA Sweet Chili 51g joins the films running out into blank.</strong> 38,550&nbsp;m in hand, nothing drawn in twelve months, so its pace comes from the 6,147&nbsp;m on WO729. Its plate drops off the renewal list with it."
         ]
       ]
     },

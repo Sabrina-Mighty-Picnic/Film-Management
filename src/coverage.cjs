@@ -122,13 +122,24 @@ function incomingSteps(r, opts) {
     // the transition panel carries — the trailing build rate can be near zero for a SKU
     // that simply has not been built lately, and would put the handover decades out
     var tr = transitions.filter(function (t) { return t.item === o.item; })[0];
-    var rate = tr ? transitionRate(tr, opts).rate : buildRate(o);
-    if (rate <= 0) return;
+    // take the basis from whichever candidate actually won, not from the row's own
+    // rateBasis — a film with a stated basis can still be paced by its open orders
+    var pick = tr ? transitionRate(tr, opts) : { rate: buildRate(o), basis: "recent builds" };
+    var rate = pick.rate;
+    // a film nobody has built lately has no rate, so its handover cannot be dated.
+    // Saying so is the point: dropping it silently leaves the successor's runway
+    // quietly short of a draw that is certainly coming.
+    if (rate <= 0) {
+      unscheduled.push({ from: o.item, name: o.name, rate: null,
+                         why: tr ? "nothing has drawn it lately and no rate is stated"
+                                 : "nothing has drawn it lately and it has no transitions row to carry a rate" });
+      return;
+    }
     var conv = o.unit === r.unit ? 1 : num(o.successorPerUnit);
     if (!conv) { unscheduled.push({ from: o.item, name: o.name, rate: null, why: "units differ and no conversion is given" }); return; }
     var stock = tr && num(tr.onHand) > 0 ? num(tr.onHand) : num(o.onHand) + num(o.onOrder);
     steps.push({ week: stock / rate, rate: rate * conv, from: o.item, name: o.name,
-                 basis: tr ? tr.rateBasis : "recent builds" });
+                 basis: pick.basis });
   });
 
   (r.incoming || []).forEach(function (x) {

@@ -241,6 +241,16 @@ question is genuinely about the retiring computation, such as the transfer arrow
 - A retiring film's draw transfers to its `successorItem` on the date its own stock
   runs out. That date is derived; do not hardcode it. Cross-unit handovers need
   `successorPerUnit` or the step is left out and the build warns.
+- **A retiring film needs a `transitions[]` row, not just the flag.** Without one the
+  handover is paced by the trailing build rate alone, and a film nobody has built lately
+  has a rate of zero — which used to drop the step silently, leaving the successor's
+  runway short of a draw that is certainly coming. It is reported as unsized now and the
+  build names it. 1090 and 1092 stand there today.
+- **The step's basis is whichever candidate won, not the row's `rateBasis`.** A film with
+  a stated projection can still be paced by its open orders: 1087 is, and the step said
+  "Misfits projection" while using a number the projection never produced.
+- Four films now run out into the blank — 1087, 1106, 1108 and 1053 — so **1094 inherits
+  in stages**, not all at once. Read its drill-down rather than any single rate.
 
 ## Estimated impressions
 
